@@ -1,5 +1,7 @@
 import mysql.connector as connector
 import json
+import sys
+sys.path.extend(['/home/sherzodbek/PycharmProjects/cardelshipperbot'])
 from config.config import DB_CONFIG
 
 conn = connector.connect(
