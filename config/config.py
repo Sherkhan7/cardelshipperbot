@@ -1,9 +1,9 @@
 """ CARDEL SHIPPER BOT TOKEN """
-TOKEN = '1284043415:AAHefq90rjGZiIYjqq2_vkQsnDkIzkZFbp0'
+TOKEN = 'bot token'
 
 mysql_host_config = {
     'host': 'localhost',
-    'user': 'sherzodbek',
-    'passwd': 'hpnotebook',
+    'user': 'username',
+    'passwd': 'passwd',
     'database': 'testdb'
 }
