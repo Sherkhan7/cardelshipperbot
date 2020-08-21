@@ -1,15 +1,17 @@
 import sys
-sys.path.extend(['/home/sherzodbek/PycharmProjects/myechoechobot'])
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, ConversationHandler, \
-    CallbackContext
+import logging
+import random
+from config.config import TOKEN, ROOT_PATH
+from registration.driver.DB.main import *
+from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler,
+                          ConversationHandler, CallbackContext)
 from telegram import Update
 from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 from telegram import InlineKeyboardMarkup
 from telegram import InlineKeyboardButton
-from config.config import TOKEN
-from registration.driver.DB.main import *
-import logging, random
+
+sys.path.extend([ROOT_PATH])
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
@@ -309,7 +311,7 @@ def do_commands(update: Update, context: CallbackContext):
         # with conn.reconnect() as connection:
 
         user = select(update.effective_chat.id)
-        #conn.close()
+        # conn.close()
 
         if user is None:
             update.message.reply_text(
@@ -371,12 +373,11 @@ def main():
     updater.dispatcher.add_handler(command_handler)
     updater.dispatcher.add_handler(message_handler)
 
-    # updater.start_polling()
-    # updater.idle()
+    updater.start_polling()
+    updater.idle()
 
-    updater.start_webhook(listen='127.0.0.1', port=5000, url_path=TOKEN)
-    updater.bot.set_webhook(webhook_url='https://cardel.ml/' + TOKEN)
-
+    # updater.start_webhook(listen='127.0.0.1', port=5000, url_path=TOKEN)
+    # updater.bot.set_webhook(webhook_url='https://cardel.ml/' + TOKEN)
 
 
 if __name__ == '__main__':

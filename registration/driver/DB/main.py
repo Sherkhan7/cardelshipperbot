@@ -1,12 +1,12 @@
 import mysql.connector as connector
 import json
-from config.config import mysql_host_config
+from config.config import DB_CONFIG
 
 conn = connector.connect(
-    host=mysql_host_config['host'],
-    user=mysql_host_config['user'],
-    password=mysql_host_config['passwd'],
-    database=mysql_host_config['database']
+    host=DB_CONFIG['host'],
+    user=DB_CONFIG['user'],
+    password=DB_CONFIG['password'],
+    database=DB_CONFIG['database']
 )
 
 mycursor = conn.cursor()
