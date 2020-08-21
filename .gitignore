@@ -1,5 +1,4 @@
 .idea/
-config/
 __pycache__/
 registration/**/__pycache/
 *.json
