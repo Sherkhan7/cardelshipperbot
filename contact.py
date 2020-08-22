@@ -9,12 +9,19 @@ def contact_callback(update: Update, context: CallbackContext):
 
     contact = update.message.contact
     # print(contact.to_json())
-
-    insert_user_contact(contact)
-
     user_data = context.user_data
 
-    if user_data['LANG'] == 'uzbek':
-        update.message.reply_text('Kontaktingiz qabul qilindi', reply_markup=ReplyKeyboardRemove())
+    user = select(contact.user_id)
+
+    if user:
+        if user_data['LANG'] == 'uzbek':
+            update.message.reply_text("Kontaktingiz ma'lumotlar bazasidan topildi", reply_markup=ReplyKeyboardRemove())
+        else:
+            update.message.reply_text('Ваш контакт был найден в базе', reply_markup=ReplyKeyboardRemove())
     else:
-        update.message.reply_text('Ваш контакт был принят', reply_markup=ReplyKeyboardRemove())
+        insert_user_contact(contact)
+
+        if user_data['LANG'] == 'uzbek':
+            update.message.reply_text('Kontaktingiz qabul qilindi', reply_markup=ReplyKeyboardRemove())
+        else:
+            update.message.reply_text('Ваш контакт был принят', reply_markup=ReplyKeyboardRemove())
