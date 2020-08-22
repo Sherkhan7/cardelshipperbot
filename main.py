@@ -22,6 +22,7 @@ def do_command(update: Update, context: CallbackContext):
                                   reply_markup=inline_keyboard_markup)
 
     if command == '/getme':
+        update.to_json()
         user = select(update.effective_user.id)
         update.message.reply_text(user)
 
