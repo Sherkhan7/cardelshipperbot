@@ -2,7 +2,6 @@ import sys
 sys.path.extend(['/home/sherzodbek/PycharmProjects/cardelshipperbot'])
 import logging
 import random
-from registration.driver.DB.main import *
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler,
                           ConversationHandler, CallbackContext)
 from telegram import Update
@@ -10,8 +9,7 @@ from telegram import ReplyKeyboardMarkup
 from telegram import ReplyKeyboardRemove
 from telegram import InlineKeyboardMarkup
 from telegram import InlineKeyboardButton
-from config.config import TOKEN, ROOT_PATH
-
+from config.config import TOKEN
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()

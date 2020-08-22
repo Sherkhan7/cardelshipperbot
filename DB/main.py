@@ -1,7 +1,7 @@
 import mysql.connector as connector
 import json
-import sys
-sys.path.extend(['/home/sherzodbek/PycharmProjects/cardelshipperbot'])
+# import sys
+# sys.path.extend(['/home/sherzodbek/PycharmProjects/cardelshipperbot'])
 from config.config import DB_CONFIG
 
 conn = connector.connect(
@@ -12,6 +12,24 @@ conn = connector.connect(
 )
 
 mycursor = conn.cursor()
+
+
+def insert_user_contact(user_contact):
+    phone_number = user_contact.phone_number
+    first_name = user_contact.first_name
+    last_name = user_contact.last_name
+    user_id = user_contact.user_id
+
+    # print(phone_number, first_name, last_name, user_id)
+    sql = f"INSERT INTO testdb.users (user_id, first_name, last_name, phone_number, who_is) VALUES (%s, %s, %s, %s, %s)"
+    user_contact_values = (user_id, first_name, last_name, phone_number, 2)
+
+    mycursor.execute(sql, user_contact_values)
+    conn.commit()
+
+    print(mycursor.rowcount, "record inserted.")
+
+    return mycursor.rowcount
 
 
 def insert(user_data):
@@ -33,8 +51,8 @@ def insert(user_data):
     return mycursor.rowcount
 
 
-def select(chat_id):
-    mycursor.execute(f'SELECT * FROM testdb.users WHERE chat_id = {chat_id}')
+def select(user_id):
+    mycursor.execute(f'SELECT * FROM testdb.users WHERE user_id = {user_id}')
 
     columns = mycursor.column_names
     value = mycursor.fetchone()
@@ -77,8 +95,8 @@ def select_all():
     return json.dumps(records_list, indent=4)
 
 
-def update_user_info(chat_id):
-    mycursor.execute(f"UPDATE testdb.users SET name = 'She232131' WHERE testdb.users.chat_id = {chat_id}")
+def update_user_info(user_id):
+    mycursor.execute(f"UPDATE testdb.users SET name = 'She232131' WHERE testdb.users.user_id = {user_id}")
     result = conn.commit()
 
     return 'updated'
