@@ -15,9 +15,16 @@ def contact_callback(update: Update, context: CallbackContext):
 
     if user:
         if user_data['LANG'] == 'uzbek':
-            update.message.reply_text("Kontaktingiz ma'lumotlar bazasidan topildi", reply_markup=ReplyKeyboardRemove())
+            context.bot.edit_message_text("Kontaktingiz ma'lumotlar bazasidan topildi",
+                                          update.effective_chat.id, update.effective_message.id)
+            # update.edited_message_text("Kontaktingiz ma'lumotlar bazasidan topildi")
+            # update.message.reply_text("Kontaktingiz ma'lumotlar bazasidan topildi", reply_markup=ReplyKeyboardRemove())
         else:
-            update.message.reply_text('Ваш контакт был найден в базе', reply_markup=ReplyKeyboardRemove())
+            context.bot.edit_message_text("Ваш контакт был найден в базе",
+                                          update.effective_chat.id, update.effective_message.id)
+
+            # update.edited_message("Ваш контакт был найден в базе")
+            # update.message.reply_text('Ваш контакт был найден в базе', reply_markup=ReplyKeyboardRemove())
     else:
         insert_user_contact(contact)
 
