@@ -34,7 +34,6 @@ def insert_user_contact(user_contact):
 
 def insert(user_data):
     user_data.pop('code')
-    user_data.pop('confirmation')
     user_data_field = tuple(user_data.keys())
     user_data_values = tuple(user_data.values())
     user_data_values_field = list()
@@ -51,7 +50,7 @@ def insert(user_data):
     return mycursor.rowcount
 
 
-def select(user_id):
+def get_user(user_id):
     mycursor.execute(f'SELECT * FROM testdb.users WHERE user_id = {user_id}')
 
     columns = mycursor.column_names
@@ -61,6 +60,7 @@ def select(user_id):
         return None
 
     record = dict()
+
     for i in range(len(columns)):
         record.update({columns[i]: value[i]})
 
@@ -68,6 +68,16 @@ def select(user_id):
     record['updated_at'] = record['updated_at'].strftime('%c')
 
     return json.dumps(record, indent=4)
+
+
+def check_user(user_id):
+    user = get_user(user_id)
+
+    if user:
+        return True
+
+    # conn.close()
+    return False
 
 
 def select_all():
@@ -100,3 +110,9 @@ def update_user_info(user_id):
     result = conn.commit()
 
     return 'updated'
+
+
+# res = check_user(197256155)
+
+# print(res)
+# print(conn.is_connected())

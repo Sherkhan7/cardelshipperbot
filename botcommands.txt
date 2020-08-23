@@ -1,6 +1,8 @@
 start - start
+menu - menu
+cancel - cancel
+
 register - register
 getme - getme
 getall - getall
 update - update
-cancel - cancel
