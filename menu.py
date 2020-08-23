@@ -6,15 +6,17 @@ import json
 
 menu_uz = InlineKeyboardMarkup(
     [
+        [InlineKeyboardButton("Mening ma'lmotlarim", callback_data='my_data_button'), ],
         [InlineKeyboardButton("Yuk e'lon qilish", callback_data='new_cargo_button'), ],
-        [InlineKeyboardButton("Mening ma'lmotlarim", callback_data='my_data_button'), ]
+
     ]
 )
 
 menu_ru = InlineKeyboardMarkup(
     [
+        [InlineKeyboardButton("Мои данные", callback_data='my_data_button'), ],
         [InlineKeyboardButton("Объявить груз", callback_data='new_cargo_button'), ],
-        [InlineKeyboardButton("Мои данные", callback_data='my_data_button'), ]
+
     ]
 )
 user_data_menu_uz = InlineKeyboardMarkup(
