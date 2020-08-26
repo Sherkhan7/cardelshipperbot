@@ -1,0 +1,1 @@
+from .replykeyboard import replykeyboard_ru, replykeyboard_uz

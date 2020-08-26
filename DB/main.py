@@ -1,38 +1,23 @@
-import mysql.connector as connector
+import pymysql.cursors
+from contextlib import closing
 import json
-# import sys
-# sys.path.extend(['/home/sherzodbek/PycharmProjects/cardelshipperbot'])
 from config.config import DB_CONFIG
 
-conn = connector.connect(
-    host=DB_CONFIG['host'],
-    user=DB_CONFIG['user'],
-    password=DB_CONFIG['password'],
-    database=DB_CONFIG['database']
-)
 
-mycursor = conn.cursor()
-
-
-def insert_user_contact(user_contact):
-    phone_number = user_contact.phone_number
-    first_name = user_contact.first_name
-    last_name = user_contact.last_name
-    user_id = user_contact.user_id
-
-    # print(phone_number, first_name, last_name, user_id)
-    sql = f"INSERT INTO testdb.users (user_id, first_name, last_name, phone_number, who_is) VALUES (%s, %s, %s, %s, %s)"
-    user_contact_values = (user_id, first_name, last_name, phone_number, 2)
-
-    mycursor.execute(sql, user_contact_values)
-    conn.commit()
-
-    print(mycursor.rowcount, "record inserted.")
-
-    return mycursor.rowcount
+def get_connection():
+    connection = pymysql.connect(
+        host=DB_CONFIG['host'],
+        user=DB_CONFIG['user'],
+        password=DB_CONFIG['password'],
+        database=DB_CONFIG['database'],
+        cursorclass=pymysql.cursors.DictCursor,
+    )
+    return connection
 
 
-def insert(user_data):
+# mycursor = connection.cursor()
+
+def insert_user(user_data):
     user_data.pop('code')
     user_data_field = tuple(user_data.keys())
     user_data_values = tuple(user_data.values())
@@ -40,34 +25,47 @@ def insert(user_data):
     user_data_values_field.extend(['%s'] * len(user_data_values))
     user_data_values_field = tuple(user_data_values_field)
 
-    sql = f"INSERT INTO testdb.users ({','.join(user_data_field)}) VALUES ({','.join(user_data_values_field)})"
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            sql = f"INSERT INTO testdb.users ({','.join(user_data_field)}) VALUES ({','.join(user_data_values_field)})"
+            cursor.execute(sql, user_data_values)
+            connection.commit()
 
-    mycursor.execute(sql, user_data_values)
-    conn.commit()
+    # print(mycursor.rowcount, "record inserted.")
 
-    print(mycursor.rowcount, "record inserted.")
-
-    return mycursor.rowcount
+    return cursor.rowcount
 
 
 def get_user(user_id):
-    mycursor.execute(f'SELECT * FROM testdb.users WHERE user_id = {user_id}')
 
-    columns = mycursor.column_names
-    value = mycursor.fetchone()
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM testdb.users WHERE user_id = %s", user_id)
+            record = cursor.fetchone()
 
-    if value is None:
-        return None
+    if record is None:
+        return False
 
-    record = dict()
+    return record
+    """returns dict"""
+    # record = dict()
+    #
+    # for i in range(len(columns)):
+    #     record.update({columns[i]: value[i]})
+    #
+    # record['created_at'] = record['created_at'].strftime('%c')
+    # record['updated_at'] = record['updated_at'].strftime('%c')
+    #
+    # print('rowcount: ', cursor.rowcount)
+    # print('affected: ', connection.affected_rows())
+    # mycursor.close()
+    # return record
 
-    for i in range(len(columns)):
-        record.update({columns[i]: value[i]})
 
-    record['created_at'] = record['created_at'].strftime('%c')
-    record['updated_at'] = record['updated_at'].strftime('%c')
+def get_user_json(user_id):
+    user = get_user(user_id)
 
-    return json.dumps(record, indent=4)
+    return json.dumps(user, indent=4)
 
 
 def check_user(user_id):
@@ -76,43 +74,74 @@ def check_user(user_id):
     if user:
         return True
 
-    # conn.close()
+    # connection.close()
     return False
 
 
 def select_all():
-    mycursor.execute(f'SELECT * FROM testdb.users')
+    connection = get_connection()
+    with connection.cursor() as cursor:
+        cursor.execute(f'SELECT * FROM testdb.users')
+        records = cursor.fetchall()
 
-    columns = mycursor.column_names
-    records = mycursor.fetchall()
+    print(cursor.rowcount)
+    return records
+    """ returns list of dicts"""
 
-    if records is None:
-        return None
-
-    record = dict()
-    records_list = list()
-
-    for record_item in records:
-        for j in range(len(columns)):
-            record.update({columns[j]: record_item[j]})
-
-        record['updated_at'] = record['updated_at'].strftime('%c')
-        record['created_at'] = record['created_at'].strftime('%c')
-
-        records_list.append(record)
-        record = {}
-
-    return json.dumps(records_list, indent=4)
-
-
-def update_user_info(user_id):
-    mycursor.execute(f"UPDATE testdb.users SET name = 'She232131' WHERE testdb.users.user_id = {user_id}")
-    result = conn.commit()
-
-    return 'updated'
+    # if records is None:
+    #     return None
+    #
+    #
+    #     # record = dict()
+    #     # records_list = list()
+    #     #
+    #     # for record_item in records:
+    #     #     for j in range(len(columns)):
+    #     #         record.update({columns[j]: record_item[j]})
+    #
+    # # records['updated_at'] = records['updated_at'].strftime('%c')
+    # # records['created_at'] = records['created_at'].strftime('%c')
+    #
+    # # records_list.append(record)
+    # # record = {}
+    # # return json.dumps(records_list, indent=4)
 
 
-# res = check_user(197256155)
+def update_user_info(user_id, **kwargs):
+    if 'name' in kwargs.keys():
+        value = kwargs['name']
+        sql = "UPDATE testdb.users SET name = %s WHERE user_id = %s"
 
-# print(res)
-# print(conn.is_connected())
+    if 'surname' in kwargs.keys():
+        value = kwargs['surname']
+        sql = "UPDATE testdb.users SET surname = %s WHERE user_id =%s"
+
+    if 'lang' in kwargs.keys():
+        value = kwargs['lang']
+        sql = "UPDATE testdb.users SET lang = %s WHERE user_id = %s"
+
+    # print(value)
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(sql, (value, user_id))
+            connection.commit()
+
+    # print('rowcount:', cursor.rowcount)
+    # print('affected:', connection.affected_rows())
+
+    if connection.affected_rows() != 0:
+        return 'updated'
+    else:
+        return 'not updated'
+
+
+# print(update_user_info(19725615, surname='123'))
+# print(get_user(197256155))
+# print(json.loads(select_all()))
+# print(get_columns('users'))
+# print(get_user_json(197256155))
+# print(update_user_info(197256155, name='1111'))
+# print(update_user_info(19725615, name='111111'))
+# print(select_all())
+# 5, name='dddddd'))
+# print(get_user_json(197256155))

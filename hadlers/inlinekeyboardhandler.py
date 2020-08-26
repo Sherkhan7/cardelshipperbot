@@ -24,9 +24,7 @@ def inline_keyboard_callback(update: Update, context: CallbackContext):
     # with open('callback_query.json', 'w') as callback_query_file:
     #     callback_query_file.write(callback_query.to_json())
     # print('inline keyboard callback')
-    logger.info('user_input_data: %s', user_input_data)
-    # logger.info('BUTTONS_DATA_DICT: %s', BUTTONS_DATA_DICT)
-
+    # logger.info('user_input_data: %s', user_input_data)
 
     if data == BUTTONS_DATA_DICT[1]:
         if user['lang'] == LANGS[0]:

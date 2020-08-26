@@ -1,5 +1,6 @@
 start - start
 menu - menu
+update - update
 cancel - cancel
 
 register - register

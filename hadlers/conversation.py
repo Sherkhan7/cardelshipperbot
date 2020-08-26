@@ -4,8 +4,8 @@ from telegram.ext import (CommandHandler, MessageHandler, ConversationHandler,
 from telegram import ReplyKeyboardRemove, ParseMode
 from inlinekeyboards import lang_inlinekeyboard
 from inlinekeyboards import InlineKeyboard
-from filters import special_code_filter, full_name_filter
-from replykeyboard import *
+from filters import *
+from replykeyboards import replykeyboard_uz, replykeyboard_ru
 from DB.main import *
 from languages import LANGS
 import logging
@@ -60,8 +60,8 @@ def do_command(update: Update, context: CallbackContext):
 
 
 def text_callback(update: Update, context: CallbackContext):
-    print('inside text_callback')
-    with open('update.json', 'w') as update_file:
+    # print('inside text_callback')
+    with open('../update.json', 'w') as update_file:
         update_file.write(update.to_json())
 
     text = update.message.text
@@ -88,10 +88,10 @@ def lang_callback(update: Update, context: CallbackContext):
     # print('inside lang callback')
     callback_query = update.callback_query
 
-    with open('update.json', 'w') as update_file:
+    with open('../update.json', 'w') as update_file:
         update_file.write(update.to_json())
 
-    with open('callback_query.json', 'w') as callback_query_file:
+    with open('../callback_query.json', 'w') as callback_query_file:
         callback_query_file.write(callback_query.to_json())
 
     data = callback_query.data
@@ -117,7 +117,7 @@ def lang_callback(update: Update, context: CallbackContext):
 
 def full_name_callback(update: Update, context: CallbackContext):
     print('full_name_callback')
-    with open('update.json', 'w') as update_file:
+    with open('../update.json', 'w') as update_file:
         update_file.write(update.to_json())
 
     full_name = update.message.text
@@ -128,6 +128,7 @@ def full_name_callback(update: Update, context: CallbackContext):
     full_name = full_name_filter(full_name, user_input_data)
 
     if full_name == '/start' or full_name == '/menu':
+
         if user_input_data[LANG] == LANGS[0]:
             update.message.reply_text(f'Ism va familya xato kiritildi \n'
                                       f'Qaytada quyidagi shaklda kiriting:\n'
@@ -150,11 +151,11 @@ def full_name_callback(update: Update, context: CallbackContext):
 
         if user_input_data[LANG] == LANGS[0]:
             update.message.reply_text(f'Davom etish uchun kontaktingizni yuboring:',
-                                      reply_markup=replykeyboard_uzb)
+                                      reply_markup=replykeyboard_uz)
 
         elif user_input_data[LANG] == LANGS[1]:
             update.message.reply_text(f'Чтобы продолжить, отправьте свой контакт:',
-                                      reply_markup=replykeyboard_russ)
+                                      reply_markup=replykeyboard_ru)
 
         return PHONE_NUMBER
     else:
@@ -182,7 +183,7 @@ def phone_number_callback(update: Update, context: CallbackContext):
     user_input_data[PHONE_NUMBER] = contact.phone_number
     logger.info('user_input_data: %s', user_input_data)
 
-    with open('update.json', 'w') as update_file:
+    with open('../update.json', 'w') as update_file:
         update_file.write(update.to_json())
 
     special_code = random.randint(100000, 999999)
@@ -214,7 +215,7 @@ def special_code_callback(update: Update, context: CallbackContext):
     logger.info('user_input_data: %s', user_input_data)
     logger.info('SPECIAL_CODE: %s', SPECIAL_CODE)
 
-    with open('update.json', 'w') as update_file:
+    with open('../update.json', 'w') as update_file:
         update_file.write(update.to_json())
 
     special_code = special_code_filter(special_code)
@@ -229,7 +230,7 @@ def special_code_callback(update: Update, context: CallbackContext):
             return ConversationHandler.END
 
         if user_input_data[LANG] == LANGS[0]:
-            inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
+            inline_keyboard = InlineKeyboard('main_keyboard', LANGS[0])
 
             update.message.reply_text(
                 "Tabriklaymiz, siz registratsiyadan muvofaqqiyatli o'tdingiz\n\U0001F44F\U0001F44F\U0001F44F",
@@ -238,7 +239,7 @@ def special_code_callback(update: Update, context: CallbackContext):
             return ConversationHandler.END
 
         elif user_input_data[LANG] == LANGS[1]:
-            inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
+            inline_keyboard = InlineKeyboard('main_keyboard', LANGS[1])
 
             update.message.reply_text(
                 "Поздравляем, вы успешно зарегистрировались\n\U0001F44F\U0001F44F\U0001F44F",
