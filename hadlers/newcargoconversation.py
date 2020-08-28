@@ -52,6 +52,23 @@ def district_callback(update: Update, context: CallbackContext):
 
     # print('district callback')
     # print(callback_query.data)
+
+    if data == BUTTONS_DATA_DICT[6]:
+
+        if user['lang'] == LANGS[0]:
+            inline_keyboard = InlineKeyboard('regions_keyboard', LANGS[0])
+
+            callback_query.edit_message_text("Viloyatingizni tanlang:")
+            callback_query.edit_message_reply_markup(reply_markup=inline_keyboard.get_keyboard())
+
+        if user['lang'] == LANGS[1]:
+            inline_keyboard = InlineKeyboard('regions_keyboard', LANGS[1])
+
+            callback_query.edit_message_text("Выберите свой область:")
+            callback_query.edit_message_reply_markup(reply_markup=inline_keyboard.get_keyboard())
+
+        return REGION
+
     if user['lang'] == LANGS[0]:
         callback_query.edit_message_text('Lokatsiyani yuborish:')
 
@@ -112,6 +129,35 @@ def new_cargo_conversation_callback(update: Update, context: CallbackContext):
 
 
 def text_callback_in_region(update: Update, context: CallbackContext):
+    text = update.message.text
+    user = get_user(update.effective_user.id)
+
+    if text == '/start' or text == '/menu':
+
+        if user['lang'] == LANGS[0]:
+            inlinekeyboard = InlineKeyboard('main_keyboard', LANGS[0])
+            update.message.reply_text('Bekor qilindi!', reply_markup=inlinekeyboard.get_keyboard())
+
+        if user['lang'] == LANGS[1]:
+            inlinekeyboard = InlineKeyboard('main_keyboard', LANGS[1])
+            update.message.reply_text('Отменено!', reply_markup=inlinekeyboard.get_keyboard())
+
+    else:
+
+        if user['lang'] == LANGS[0]:
+            inlinekeyboard = InlineKeyboard('main_keyboard', LANGS[0])
+            update.message.reply_text('Bekor qilindi !', reply_markup=inlinekeyboard.get_keyboard(),
+                                      reply_to_message_id=update.message.message_id)
+
+        if user['lang'] == LANGS[1]:
+            inlinekeyboard = InlineKeyboard('main_keyboard', LANGS[1])
+            update.message.reply_text('Отменено!', reply_markup=inlinekeyboard.get_keyboard(),
+                                      reply_to_message_id=update.message.message_id)
+
+    return ConversationHandler.END
+
+
+def text_callback_in_district(update: Update, context: CallbackContext):
     text = update.message.text
     user = get_user(update.effective_user.id)
 

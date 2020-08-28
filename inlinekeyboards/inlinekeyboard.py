@@ -170,7 +170,7 @@ class InlineKeyboard(object):
 
                 for i in range(0, n, 2)
             ]
-
+            keyboard.append([InlineKeyboardButton(odd_btn_text, callback_data=self.__btn_data("back_btn"))])
         if n % 2 != 0:
             keyboard = [
                 [
