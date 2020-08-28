@@ -37,7 +37,6 @@ def insert_user(user_data):
 
 
 def get_user(user_id):
-
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM testdb.users WHERE user_id = %s", user_id)
@@ -135,6 +134,43 @@ def update_user_info(user_id, **kwargs):
         return 'not updated'
 
 
+def select_all_regions():
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM testdb.regions WHERE parent_id = %s", 0)
+            regions = cursor.fetchall()
+
+    return regions
+
+
+def select_all_districts(region_id):
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM testdb.regions WHERE parent_id = %s", region_id)
+            districts = cursor.fetchall()
+
+    return districts
+
+
+y = [{'id': 1, 'name': 'name_1'}, {'id': 2, 'name': 'name_2'}, {'id': 3, 'name': 'name_3'}]
+m = len(y)
+
+
+def mufunc(n):
+    if n % 2 == 0:
+        x = [[y[i], y[i + 1]] for i in range(0, n, 2)]
+        return x
+
+    if n % 2 != 0:
+        x = [[y[i], '.'] if i == n - 1 else [y[i], y[i + 1]] for i in range(0, n, 2)]
+
+        return x
+
+
+# print(mufunc(m))
+# x = select_all_districts(1)
+# print(x)
+# print(select_all_districts(1))
 # print(update_user_info(19725615, surname='123'))
 # print(get_user(197256155))
 # print(json.loads(select_all()))

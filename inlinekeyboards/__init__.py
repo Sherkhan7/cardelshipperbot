@@ -1,2 +1,2 @@
-from .inlinekeyboard import InlineKeyboard, BUTTONS_DATA_DICT
+from .inlinekeyboard import InlineKeyboard
 from .langinlinekeyboard import lang_inlinekeyboard
