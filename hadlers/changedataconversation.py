@@ -18,42 +18,42 @@ def change_name_callback(update: Update, context: CallbackContext):
     user_input_data = context.user_data
     name = update.message.text
     user_input_data[NEW_NAME] = name
+
     user = get_user(update.effective_user.id)
+    inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
+
     # print('change_name_callback')
     # logger.info('user_input_data: %s', user_input_data)
 
     if name == '/cancel' or name == '/menu' or name == '/start':
+
         if user['lang'] == LANGS[0]:
-            inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-            update.message.reply_text('Bekor qilindi.', reply_markup=inline_keyboard.get_keyboard())
+            text = 'Bekor qilindi.'
 
         if user['lang'] == LANGS[1]:
-            inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-            update.message.reply_text('Отменено.', reply_markup=inline_keyboard.get_keyboard())
-
-        return ConversationHandler.END
+            text = 'Отменено.'
 
     else:
         result = update_user_info(user['user_id'], name=name)
         # print(result)
 
         if result == 'updated':
-            if user['lang'] == LANGS[0]:
-                inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-                update.message.reply_text("Ismingiz o'zgatirildi.", reply_markup=inline_keyboard.get_keyboard())
 
-            elif user['lang'] == LANGS[1]:
-                inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-                update.message.reply_text('Ваше имя изменено.', reply_markup=inline_keyboard.get_keyboard())
+            if user['lang'] == LANGS[0]:
+                text = "Ismingiz o'zgatirildi."
+
+            if user['lang'] == LANGS[1]:
+                text = 'Ваше имя изменено.'
 
         elif result == 'not updated':
-            if user['lang'] == LANGS[0]:
-                inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-                update.message.reply_text("Ismingiz o'zgartirilmadi.", reply_markup=inline_keyboard.get_keyboard())
 
-            elif user['lang'] == LANGS[1]:
-                inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-                update.message.reply_text('Ваше имя не было изменено.', reply_markup=inline_keyboard.get_keyboard())
+            if user['lang'] == LANGS[0]:
+                text = "Ismingiz o'zgartirilmadi."
+
+            if user['lang'] == LANGS[1]:
+                text = 'Ваше имя не было изменено.'
+
+    update.message.reply_text(text, reply_markup=inline_keyboard.get_keyboard())
 
     return ConversationHandler.END
 
@@ -62,20 +62,18 @@ def change_surname_callback(update: Update, context: CallbackContext):
     user_input_data = context.user_data
     surname = update.message.text
     user_input_data[NEW_SURNAME] = surname
+
     user = get_user(update.effective_user.id)
+    inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
     # print('change_surname_callback')
     # logger.info('user_input_data: %s', user_input_data)
 
     if surname == '/cancel' or surname == '/menu' or surname == '/start':
         if user['lang'] == LANGS[0]:
-            inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-            update.message.reply_text('Bekor qilindi.', reply_markup=inline_keyboard.get_keyboard())
+            text = 'Bekor qilindi.'
 
         if user['lang'] == LANGS[1]:
-            inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-            update.message.reply_text('Отменено.', reply_markup=inline_keyboard.get_keyboard())
-
-        return ConversationHandler.END
+            text = 'Отменено.'
 
     else:
         result = update_user_info(user['user_id'], surname=surname)
@@ -83,21 +81,19 @@ def change_surname_callback(update: Update, context: CallbackContext):
 
         if result == 'updated':
             if user['lang'] == LANGS[0]:
-                inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-                update.message.reply_text("Familyangiz o'zgatrilildi.", reply_markup=inline_keyboard.get_keyboard())
+                text = "Familyangiz o'zgatrilildi."
 
-            elif user['lang'] == LANGS[1]:
-                inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-                update.message.reply_text('Ваша фамилия изменена', reply_markup=inline_keyboard.get_keyboard())
+            if user['lang'] == LANGS[1]:
+                text = 'Ваша фамилия изменена'
 
         elif result == 'not updated':
             if user['lang'] == LANGS[0]:
-                inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-                update.message.reply_text("Familyangiz o'zgartirilmadi.", reply_markup=inline_keyboard.get_keyboard())
+                text = "Familyangiz o'zgartirilmadi."
 
-            elif user['lang'] == LANGS[1]:
-                inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-                update.message.reply_text('Ваше фамилия не было изменено.', reply_markup=inline_keyboard.get_keyboard())
+            if user['lang'] == LANGS[1]:
+                text = 'Ваше фамилия не было изменено.'
+
+    update.message.reply_text(text, reply_markup=inline_keyboard.get_keyboard())
 
     return ConversationHandler.END
 
@@ -110,65 +106,84 @@ def change_lang_callback(update: Update, context: CallbackContext):
     # print('inside change lang callback')
 
     if data == BUTTONS_DATA_DICT[7]:
-        update_user_info(user['user_id'], lang=LANGS[0])
 
-        if user['lang'] == LANGS[1]:
-            inline_keyboard = InlineKeyboard('langs_keyboard', LANGS[0])
-
-            callback_query.edit_message_text('Tilni tanlang:', reply_markup=inline_keyboard.get_keyboard())
-
-            context.bot.answer_callback_query(callback_query.id, "Til: O'zbekcha")
+        lang = LANGS[0]
+        text = "Til: O'zbekcha"
 
     elif data == BUTTONS_DATA_DICT[8]:
-        update_user_info(user['user_id'], lang=LANGS[1])
 
-        if user['lang'] == LANGS[0]:
-            inline_keyboard = InlineKeyboard('langs_keyboard', 'ru')
+        lang = LANGS[1]
+        text = "Язык: русский"
 
-            callback_query.edit_message_text('Выберите язык:', reply_markup=inline_keyboard.get_keyboard())
-            context.bot.answer_callback_query(callback_query.id, "Язык: русский")
+    context.bot.answer_callback_query(callback_query.id, text)
+    inline_keyboard = InlineKeyboard('main_keyboard', lang)
+    callback_query.edit_message_text('MENU:', reply_markup=inline_keyboard.get_keyboard())
 
+    update_user_info(user['user_id'], lang=lang)
+    return ConversationHandler.END
+
+
+def txt_in_lang_callback(update: Update, context: CallbackContext):
+    text = update.message.text
+
+    user = get_user(update.effective_user.id)
+
+    if user['lang'] == LANGS[0]:
+        text = 'Bekor qilindi.'
+
+    if user['lang'] == LANGS[1]:
+        text = 'Отменено.'
+
+    inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
+
+    update.message.reply_text(text, reply_markup=inline_keyboard.get_keyboard())
     return ConversationHandler.END
 
 
 def change_data_callback(update: Update, context: CallbackContext):
+    # print('changa data callback')
     callback_query = update.callback_query
     data = callback_query.data
 
     user = get_user(update.effective_user.id)
 
-    if data == BUTTONS_DATA_DICT[3]:
+    if data == BUTTONS_DATA_DICT[3] or data == BUTTONS_DATA_DICT[4]:
 
-        if user['lang'] == LANGS[0]:
+        if data == BUTTONS_DATA_DICT[3]:
 
-            callback_query.edit_message_text('Ismningizni kiriting:')
+            if user['lang'] == LANGS[0]:
+                text = 'Ismningizni kiriting:'
 
-        elif user['lang'] == LANGS[1]:
-            callback_query.edit_message_text('Введите ваше имя:')
+            if user['lang'] == LANGS[1]:
+                text = 'Введите ваше имя:'
 
-        return NEW_NAME
+            return_value = NEW_NAME
 
-    elif data == BUTTONS_DATA_DICT[4]:
-        if user['lang'] == LANGS[0]:
+        if data == BUTTONS_DATA_DICT[4]:
 
-            callback_query.edit_message_text('Familyangizni kiriting:')
+            if user['lang'] == LANGS[0]:
+                text = 'Familyangizni kiriting:'
 
-        elif user['lang'] == LANGS[1]:
-            callback_query.edit_message_text('Введите свою фамилию:')
+            if user['lang'] == LANGS[1]:
+                text = 'Введите свою фамилию:'
 
-        return NEW_SURNAME
+            return_value = NEW_SURNAME
+
+        callback_query.edit_message_text(text)
+
+        return return_value
 
     elif data == BUTTONS_DATA_DICT[5]:
 
+        inline_keyboard = InlineKeyboard('langs_keyboard')
+
         if user['lang'] == LANGS[0]:
-            inline_keyboard = InlineKeyboard('langs_keyboard', 'uz')
+            text = 'Tilni tanlang:'
 
-            callback_query.edit_message_text('Tilni tanlang:', reply_markup=inline_keyboard.get_keyboard())
+        if user['lang'] == LANGS[1]:
+            text = 'Выберите язык:'
 
-        elif user['lang'] == LANGS[1]:
-            inline_keyboard = InlineKeyboard('langs_keyboard', 'ru')
-
-            callback_query.edit_message_text('Выберите язык:', reply_markup=inline_keyboard.get_keyboard())
+        callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard())
 
         return NEW_LANG
 
@@ -178,7 +193,8 @@ changedataconversation_handler = ConversationHandler(
     states={
         NEW_NAME: [MessageHandler(Filters.text, change_name_callback), ],
         NEW_SURNAME: [MessageHandler(Filters.text, change_surname_callback), ],
-        NEW_LANG: [CallbackQueryHandler(change_lang_callback, pattern='^uz|ru|kr')]
+        NEW_LANG: [CallbackQueryHandler(change_lang_callback, pattern='^uz|ru|kr'),
+                   MessageHandler(Filters.text, txt_in_lang_callback)]
     },
     fallbacks=[
         # CommandHandler('cancel', do_cancel)

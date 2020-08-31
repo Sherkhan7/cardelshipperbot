@@ -152,6 +152,15 @@ def select_all_districts(region_id):
     return districts
 
 
+def get_region_and_district(region_id, district_id):
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM testdb.regions WHERE id = %s or id = %s", (region_id, district_id))
+            regions = cursor.fetchall()
+
+    return regions
+
+
 y = [{'id': 1, 'name': 'name_1'}, {'id': 2, 'name': 'name_2'}, {'id': 3, 'name': 'name_3'}]
 m = len(y)
 
@@ -167,6 +176,7 @@ def mufunc(n):
         return x
 
 
+# print(get_regions(1, 6))
 # print(mufunc(m))
 # x = select_all_districts(1)
 # print(x)

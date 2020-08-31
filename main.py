@@ -62,12 +62,8 @@ def main():
 
     updater.dispatcher.add_handler(inline_keyboard_handler)
     updater.dispatcher.add_handler(message_handler)
-    #
-    # handler_1 = CallbackQueryHandler(handler_1_callback, pattern='^new')
-    # handler_2 = CallbackQueryHandler(handler_2_callback, pattern="^user")
-    #
+
     # updater.dispatcher.add_handler(handler_2)
-    # updater.dispatcher.add_handler(handler_1)
     # updater.dispatcher.add_handler(handler_1)
     # updater.dispatcher.add_handler(regions_callback_query_handler)
     # hendler1 = CommandHandler('new', do_new, filters=Filters.update.edited_message)
@@ -79,12 +75,12 @@ def main():
     # updater.dispatcher.add_handler(hendler2)
     # updater.dispatcher.add_handler(hendler1)
 
-    # updater.start_polling()
-    # updater.idle()
-
-    updater.start_webhook(listen='127.0.0.1', port=5001, url_path=TOKEN)
-    updater.bot.set_webhook(url='https://cardel.ml/' + TOKEN)
+    updater.start_polling()
     updater.idle()
+
+    # updater.start_webhook(listen='127.0.0.1', port=5001, url_path=TOKEN)
+    # updater.bot.set_webhook(url='https://cardel.ml/' + TOKEN)
+    # updater.idle()
 
 
 if __name__ == '__main__':

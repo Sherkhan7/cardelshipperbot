@@ -1,7 +1,5 @@
-from telegram import Update, ReplyKeyboardRemove, ReplyKeyboardMarkup, ParseMode, InlineKeyboardMarkup, \
-    InlineKeyboardButton
-from telegram.ext import CallbackQueryHandler, CallbackContext, ConversationHandler, Filters, MessageHandler, \
-    CommandHandler
+from telegram import Update, ParseMode
+from telegram.ext import CallbackQueryHandler, CallbackContext
 from inlinekeyboards import InlineKeyboard
 from buttonsdatadict import BUTTONS_DATA_DICT
 from DB.main import *
@@ -13,6 +11,7 @@ logger = logging.getLogger()
 
 
 def main_inline_keyboard_callback(update: Update, context: CallbackContext):
+    # print('main_inline_keyboard')
     callback_query = update.callback_query
     data = callback_query.data
     user_input_data = context.user_data
@@ -27,39 +26,35 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
     # logger.info('user_input_data: %s', user_input_data)
 
     if data == BUTTONS_DATA_DICT[1]:
+
         if user['lang'] == LANGS[0]:
-            inline_keyboard = InlineKeyboard('user_data_keyboard', 'uz')
+            name = 'Ism'
+            surname = 'Familya'
+            phone = 'Tel 1'
+            phone_2 = 'Tel 2'
 
-            inline_keyboard = inline_keyboard.get_keyboard()
+        if user['lang'] == LANGS[1]:
+            name = 'Имя'
+            surname = 'Фамиля'
+            phone = 'Тел номер 1'
+            phone_2 = 'Тел номер 2'
 
-            callback_query.edit_message_text(f"Ism: {user['name']}\n"
-                                             f"Familya: {user['surname']}",
-                                             reply_markup=inline_keyboard)
-        elif user['lang'] == LANGS[1]:
-            inline_keyboard = InlineKeyboard('user_data_keyboard', 'ru')
+        inline_keyboard = InlineKeyboard('user_data_keyboard', user['lang'])
 
-            inline_keyboard = inline_keyboard.get_keyboard()
+        text = f"<b><i>{name}:</i></b> <u>{user['name']}</u> \n\n" \
+               f"<b><i>{surname}:</i> <u>{user['surname']}</u></b> \n\n" \
+               f"<b><i>{'-'.ljust(30, '-')}</i></b> \n" \
+               f"<b><i>\U0000260E {phone}:</i> <u>{user['phone_number']}</u></b> \n\n" \
+               f"<b><i>\U0000260E {phone_2}:</i> <u>{user['phone_number2']}</u></b> \n" \
 
-            callback_query.edit_message_text(f"Имя: {user['name']}\n"
-                                             f"Фамиля: {user['surname']}",
-                                             reply_markup=inline_keyboard)
-
+        callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard(),
+                                         parse_mode=ParseMode.HTML)
 
     elif data == BUTTONS_DATA_DICT[6]:
 
-        if user['lang'] == LANGS[0]:
-            inline_keyboard = InlineKeyboard('main_keyboard', 'uz')
+        inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
 
-            inline_keyboard = inline_keyboard.get_keyboard()
-
-            callback_query.edit_message_text('MENU', reply_markup=inline_keyboard)
-
-        elif user['lang'] == LANGS[1]:
-            inline_keyboard = InlineKeyboard('main_keyboard', 'ru')
-
-            inline_keyboard = inline_keyboard.get_keyboard()
-
-            callback_query.edit_message_text('MENU', reply_markup=inline_keyboard)
+        callback_query.edit_message_text('MENU', reply_markup=inline_keyboard.get_keyboard())
 
 
-inline_keyboard_handler = CallbackQueryHandler(main_inline_keyboard_callback)
+inline_keyboard_handler = CallbackQueryHandler(main_inline_keyboard_callback, pattern='')

@@ -1,28 +1,35 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from DB import *
 
-regions_data_list = dict()
-districts_data_list = []
-j = 0
-
 
 class InlineKeyboard(object):
-    def __init__(self, keyboard_type, lang, region_id=None):
+    def __init__(self, keyboard_type, lang=None, region_id=None):
         self.type = keyboard_type
         self.lang = lang
         self.region_id = region_id
         self.__keyboard = self.create_inline_keyboard(self.type, self.lang, self.region_id)
 
     def create_inline_keyboard(self, keyb_type, lang, region_id):
+        if keyb_type == 'langs_keyboard':
+            return InlineKeyboardMarkup(
+                [
+                    [InlineKeyboardButton("\U0001F1FA\U0001F1FF O'zbekcha",
+                                          callback_data=self.__btn_data('uz_btn')), ],
+
+                    [InlineKeyboardButton("\U0001F1F7\U0001F1FA Русский",
+                                          callback_data=self.__btn_data('ru_btn')), ],
+
+                ]
+            )
 
         if lang == 'uz':
             if keyb_type == 'main_keyboard':
                 return InlineKeyboardMarkup(
                     [
-                        [InlineKeyboardButton("Mening ma'lmotlarim",
+                        [InlineKeyboardButton("\U0001F4D4 Mening ma'lmotlarim",
                                               callback_data=self.__btn_data('user_data_btn')), ],
 
-                        [InlineKeyboardButton("Yuk e'lon qilish",
+                        [InlineKeyboardButton("\U0001F4E6 Yuk e'lon qilish",
                                               callback_data=self.__btn_data('new_cargo_btn')), ],
 
                     ]
@@ -42,18 +49,6 @@ class InlineKeyboard(object):
                         [InlineKeyboardButton("Orqaga", callback_data=self.__btn_data('back_btn')), ],
                     ]
                 )
-            elif keyb_type == 'langs_keyboard':
-                return InlineKeyboardMarkup(
-                    [
-                        [InlineKeyboardButton("O'zbekcha",
-                                              callback_data=self.__btn_data('uz_btn')), ],
-
-                        [InlineKeyboardButton("Русский",
-                                              callback_data=self.__btn_data('ru_btn')), ],
-
-                        [InlineKeyboardButton("Orqaga", callback_data=self.__btn_data('back_btn')), ],
-                    ]
-                )
             elif keyb_type == 'regions_keyboard':
                 regions = select_all_regions()
                 return self.get_regions_keyboard(regions, lang)
@@ -65,8 +60,8 @@ class InlineKeyboard(object):
             if keyb_type == 'main_keyboard':
                 return InlineKeyboardMarkup(
                     [
-                        [InlineKeyboardButton("Мои данные", callback_data=self.__btn_data('user_data_btn')), ],
-                        [InlineKeyboardButton("Объявить груз", callback_data=self.__btn_data('new_cargo_btn')), ],
+                        [InlineKeyboardButton("\U0001F4D4 Мои данные", callback_data=self.__btn_data('user_data_btn')), ],
+                        [InlineKeyboardButton("\U0001F4E6 Объявить груз", callback_data=self.__btn_data('new_cargo_btn')), ],
 
                     ]
                 )
@@ -84,18 +79,6 @@ class InlineKeyboard(object):
 
                         [InlineKeyboardButton("Назад", callback_data=self.__btn_data('back_btn')), ],
 
-                    ]
-                )
-            elif keyb_type == 'langs_keyboard':
-                return InlineKeyboardMarkup(
-                    [
-                        [InlineKeyboardButton("O'zbekcha",
-                                              callback_data=self.__btn_data('uz_btn')), ],
-
-                        [InlineKeyboardButton("Русский",
-                                              callback_data=self.__btn_data('ru_btn')), ],
-
-                        [InlineKeyboardButton("Hазад", callback_data=self.__btn_data('back_btn')), ],
                     ]
                 )
             elif keyb_type == 'regions_keyboard':
