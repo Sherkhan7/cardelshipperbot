@@ -501,14 +501,14 @@ def cargo_photo_callback(update: Update, context: CallbackContext):
 
     if from_latitude and from_longitude:
         inline_keyboard.append(
-            [InlineKeyboardButton('A', url=f'https://www.google.com/maps/@{from_latitude},{from_longitude},16z')])
+            [InlineKeyboardButton('A', url=f'http://www.google.com/maps/place/{from_latitude},{from_longitude}/@{from_latitude},{from_longitude},12z')])
 
     to_latitude = user_input_data['to_location']['latitude']
     to_longitude = user_input_data['to_location']['longitude']
 
     if to_latitude and to_longitude:
         inline_keyboard.append(
-            [InlineKeyboardButton('B', url=f'https://www.google.com/maps/@{to_latitude},{to_longitude},16z')])
+            [InlineKeyboardButton('B', url=f'http://www.google.com/maps/place/{to_latitude},{to_longitude}/@{to_latitude},{to_longitude},12z')])
 
     if from_latitude and from_longitude and to_latitude and to_longitude:
         direction = f'https://www.google.com/maps/dir/{from_latitude},{from_longitude}/{to_latitude},{to_longitude}'

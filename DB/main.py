@@ -2,6 +2,7 @@ import pymysql.cursors
 from contextlib import closing
 import json
 from config.config import DB_CONFIG
+import datetime
 
 
 def get_connection():
@@ -63,6 +64,8 @@ def get_user(user_id):
 
 def get_user_json(user_id):
     user = get_user(user_id)
+    user['created_at'] = user['created_at'].strftime('%c')
+    user['updated_at'] = user['updated_at'].strftime('%c')
 
     return json.dumps(user, indent=4)
 
@@ -161,28 +164,28 @@ def get_region_and_district(region_id, district_id):
     return regions
 
 
-y = [{'id': 1, 'name': 'name_1'}, {'id': 2, 'name': 'name_2'}, {'id': 3, 'name': 'name_3'}]
-m = len(y)
+# y = [{'id': 1, 'name': 'name_1'}, {'id': 2, 'name': 'name_2'}, {'id': 3, 'name': 'name_3'}]
+# m = len(y)
+#
+#
+# def mufunc(n):
+#     if n % 2 == 0:
+#         x = [[y[i], y[i + 1]] for i in range(0, n, 2)]
+#         return x
+#
+#     if n % 2 != 0:
+#         x = [[y[i], '.'] if i == n - 1 else [y[i], y[i + 1]] for i in range(0, n, 2)]
+#
+#         return x
 
-
-def mufunc(n):
-    if n % 2 == 0:
-        x = [[y[i], y[i + 1]] for i in range(0, n, 2)]
-        return x
-
-    if n % 2 != 0:
-        x = [[y[i], '.'] if i == n - 1 else [y[i], y[i + 1]] for i in range(0, n, 2)]
-
-        return x
-
-
+# print(datetime.datetime.now())
 # print(get_regions(1, 6))
 # print(mufunc(m))
 # x = select_all_districts(1)
 # print(x)
 # print(select_all_districts(1))
 # print(update_user_info(19725615, surname='123'))
-# print(get_user(197256155))
+# print(get_user_json(197256155))
 # print(json.loads(select_all()))
 # print(get_columns('users'))
 # print(get_user_json(197256155))
