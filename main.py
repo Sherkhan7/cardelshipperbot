@@ -6,34 +6,6 @@ from hadlers import (message_handler, inline_keyboard_handler, conversation_hand
                      changedataconversation_handler, new_cargo_conversation_handler)
 
 
-# def do_menu(update, context):
-#     command = update.message.text
-#
-#     if command == '/menu':
-#
-#         if user:
-#
-#             user = get_user(update.effective_user.id)
-#
-#             if user['lang'] == LANGS[0]:
-#                 inline_keyboard = InlineKeyboard('main_keyboard', 'uz')
-#
-#                 update.message.reply_text("MENU", reply_markup=inline_keyboard.get_keyboard())
-#
-#             elif user['lang'] == LANGS[1]:
-#                 inline_keyboard = InlineKeyboard('main_keyboard', 'ru')
-#
-#                 update.message.reply_text("MENU", reply_markup=inline_keyboard.get_keyboard())
-#
-#             return ConversationHandler.END
-#
-#         else:
-#             update.message.reply_text("Avval ro'yxatdan o'ting.\nСначала зарегистрируйтесь.")
-#
-#             update.message.reply_text('Tilni tanlang. Выберите язык.', reply_markup=lang_inlinekeyboard)
-#
-#             return LANG
-
 def do_new(update, context):
     print('Inside do_new')
 
