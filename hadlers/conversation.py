@@ -26,6 +26,7 @@ def do_command(update: Update, context: CallbackContext):
     user_input_data[USER_ID] = update.effective_user.id
     user_input_data[FIRST_NAME] = update.effective_user.first_name
     user_input_data[LAST_NAME] = update.effective_user.last_name
+
     # logger.info('user_input_data: %s', user_input_data)
 
     # with open('update.json', 'w') as update_file:
@@ -34,8 +35,6 @@ def do_command(update: Update, context: CallbackContext):
     # print('inside do command')
 
     user = get_user(update.effective_user.id)
-    # logger.info('user: %s', user)
-    # print('after', connection.is_connected())
 
     if command == '/start':
 
@@ -122,13 +121,12 @@ def full_name_callback(update: Update, context: CallbackContext):
     # with open('../update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
 
-    full_name = update.message.text
+    text = update.message.text
     user_input_data = context.user_data
-    user_input_data[FULL_NAME] = full_name
 
     logger.info('user_input_data: %s', user_input_data)
 
-    full_name = full_name_filter(full_name, user_input_data)
+    full_name = full_name_filter(text)
 
     if full_name and full_name != '/start' and full_name != '/menu':
 

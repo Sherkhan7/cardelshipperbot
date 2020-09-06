@@ -1,5 +1,5 @@
-def full_name_filter(full_name, user_input_data):
-    full_name = user_input_data.pop('full_name')
+def full_name_filter(full_name):
+
     full_name = full_name.strip()
     full_name = full_name.split()
 
@@ -7,9 +7,9 @@ def full_name_filter(full_name, user_input_data):
         if full_name[0].isalpha() and full_name[1].isalpha():
             return full_name
         else:
-            return None
+            return False
     else:
-        return None
+        return False
 
 
 def special_code_filter(special_code):

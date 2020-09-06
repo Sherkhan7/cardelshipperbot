@@ -84,7 +84,7 @@ class InlineKeyboard(object):
             button3_text = "Tilni o'zgartirish"
             button4_text = "Orqaga"
 
-        if lang == 'ru:':
+        if lang == 'ru':
             button1_text = "Изменить имя"
             button2_text = "Изменить фамилию"
             button3_text = "Изменить язык"
@@ -103,7 +103,7 @@ class InlineKeyboard(object):
         )
 
     def __get_regions_keyboard(self, regions, lang):
-        n = len(regions)
+        length = len(regions)
         if lang == 'uz':
             region_name = 'nameUz'
             odd_btn_text = 'Orqaga'
@@ -111,7 +111,7 @@ class InlineKeyboard(object):
             region_name = 'nameRu'
             odd_btn_text = 'Назад'
 
-        if n % 2 == 0:
+        if length % 2 == 0:
             keyboard = [
                 [
                     InlineKeyboardButton(regions[i][region_name],
@@ -121,29 +121,29 @@ class InlineKeyboard(object):
                                          callback_data=self.__btn_data(f"region_id_{regions[i + 1]['id']}"))
                 ]
 
-                for i in range(0, n, 2)
+                for i in range(0, length, 2)
             ]
 
-        if n % 2 != 0:
+        if length % 2 != 0:
             keyboard = [
                 [
                     InlineKeyboardButton(regions[i][region_name],
                                          callback_data=self.__btn_data(f"region_id_{regions[i]['id']}")),
                     InlineKeyboardButton(odd_btn_text, callback_data='back_btn')
                 ]
-                if i == n - 1 else
+                if i == length - 1 else
                 [
                     InlineKeyboardButton(regions[i][region_name],
                                          callback_data=self.__btn_data(f"region_id_{regions[i]['id']}")),
                     InlineKeyboardButton(regions[i + 1][region_name],
                                          callback_data=self.__btn_data(f"region_id_{regions[i + 1]['id']}"))
-                ] for i in range(0, n, 2)
+                ] for i in range(0, length, 2)
             ]
 
         return InlineKeyboardMarkup(keyboard)
 
     def __get_districts_keyboard(self, districts, lang):
-        n = len(districts)
+        length = len(districts)
         if lang == 'uz':
             district_name = 'nameUz'
             odd_btn_text = 'Orqaga'
@@ -151,7 +151,7 @@ class InlineKeyboard(object):
             district_name = 'nameRu'
             odd_btn_text = 'Назад'
 
-        if n % 2 == 0:
+        if length % 2 == 0:
             keyboard = [
                 [
                     InlineKeyboardButton(districts[i][district_name],
@@ -161,23 +161,23 @@ class InlineKeyboard(object):
                                          callback_data=self.__btn_data(f"district_id_{districts[i + 1]['id']}"))
                 ]
 
-                for i in range(0, n, 2)
+                for i in range(0, length, 2)
             ]
             keyboard.append([InlineKeyboardButton(odd_btn_text, callback_data=self.__btn_data("back_btn"))])
-        if n % 2 != 0:
+        if length % 2 != 0:
             keyboard = [
                 [
                     InlineKeyboardButton(districts[i][district_name],
                                          callback_data=self.__btn_data(f"district_id_{districts[i]['id']}")),
                     InlineKeyboardButton(odd_btn_text, callback_data='back_btn')
                 ]
-                if i == n - 1 else
+                if i == length - 1 else
                 [
                     InlineKeyboardButton(districts[i][district_name],
                                          callback_data=self.__btn_data(f"district_id_{districts[i]['id']}")),
                     InlineKeyboardButton(districts[i + 1][district_name],
                                          callback_data=self.__btn_data(f"district_id_{districts[i + 1]['id']}"))
-                ] for i in range(0, n, 2)
+                ] for i in range(0, length, 2)
             ]
 
         return InlineKeyboardMarkup(keyboard)

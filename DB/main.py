@@ -1,6 +1,8 @@
 import pymysql.cursors
 from contextlib import closing
 import json
+import datetime
+import pprint
 from config.config import DB_CONFIG
 
 
@@ -36,11 +38,19 @@ def insert_user(user_data):
     return cursor.rowcount
 
 
-def get_user(user_id):
-    with closing(get_connection()) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM testdb.users WHERE user_id = %s", user_id)
-            record = cursor.fetchone()
+def get_user(user_id=None, phone_number=None):
+    if user_id:
+        with closing(get_connection()) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT * FROM testdb.users WHERE user_id = %s", user_id)
+                record = cursor.fetchone()
+
+    if phone_number:
+        with closing(get_connection()) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT * FROM testdb.users WHERE phone_number = %s or phone_number2 = %s",
+                               (phone_number, phone_number))
+                record = cursor.fetchone()
 
     if record is None:
         return False
@@ -75,7 +85,6 @@ def check_user(user_id):
     if user:
         return True
 
-    # connection.close()
     return False
 
 
@@ -85,27 +94,10 @@ def select_all():
         cursor.execute(f'SELECT * FROM testdb.users')
         records = cursor.fetchall()
 
-    print(cursor.rowcount)
-    return records
-    """ returns list of dicts"""
+    # print(cursor.rowcount)
 
-    # if records is None:
-    #     return None
-    #
-    #
-    #     # record = dict()
-    #     # records_list = list()
-    #     #
-    #     # for record_item in records:
-    #     #     for j in range(len(columns)):
-    #     #         record.update({columns[j]: record_item[j]})
-    #
-    # # records['updated_at'] = records['updated_at'].strftime('%c')
-    # # records['created_at'] = records['created_at'].strftime('%c')
-    #
-    # # records_list.append(record)
-    # # record = {}
-    # # return json.dumps(records_list, indent=4)
+    """ returns list of dicts"""
+    return records
 
 
 def update_user_info(user_id, **kwargs):
@@ -163,8 +155,64 @@ def get_region_and_district(region_id, district_id):
     return regions
 
 
-y = [{'id': 1, 'name': 'name_1'}, {'id': 2, 'name': 'name_2'}, {'id': 3, 'name': 'name_3'}]
-n = len(y)
+def insert_cargo(cargo_data):
+    with open('cargo.json', 'w') as cargo:
+        cargo.write(json.dumps(cargo_data, indent=4))
+
+    date = cargo_data.pop('date')
+    time = cargo_data.pop('time')
+    shipping_datetime = datetime.datetime.strptime(date + ' ' + time, '%d-%m-%Y %H:%M')
+    cargo_data.update({'shipping_datetime': shipping_datetime})
+
+    from_location = cargo_data.pop('from_location')
+    to_location = cargo_data.pop('to_location')
+
+    cargo_data.update({'from_longitude': from_location['longitude']})
+    cargo_data.update({'from_latitude': from_location['latitude']})
+    cargo_data.update({'to_longitude': to_location['longitude']})
+    cargo_data.update({'to_latitude': to_location['latitude']})
+
+    cargo_photo = cargo_data.pop('photo')
+
+    if cargo_photo:
+        cargo_data.update({'photo_id': cargo_photo['file_id']})
+        cargo_data.update({'photo_width': cargo_photo['width']})
+        cargo_data.update({'photo_height': cargo_photo['height']})
+        cargo_data.update({'photo_size': cargo_photo['file_size']})
+
+    # pprint.pprint(cargo_data)
+    # exit()
+
+    cargo_data_field = tuple(cargo_data.keys())
+    cargo_data_values = tuple(cargo_data.values())
+    cargo_data_values_field = list()
+
+    cargo_data_values_field.extend(['%s'] * len(cargo_data_values))
+    cargo_data_values_field = tuple(cargo_data_values_field)
+
+    # print(cargo_data)
+    # print(cargo_data_values)
+    # print(cargo_data_field)
+    # exit()
+
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            sql = f"INSERT INTO testdb.cargoes ({','.join(cargo_data_field)})" \
+                  f"VALUES ({','.join(cargo_data_values_field)})"
+
+            cursor.execute(sql, cargo_data_values)
+            connection.commit()
+
+        # print(cursor.rowcount)
+
+        return cursor.rowcount
+
+
+# receiver = get_user(phone_number='+998998559819')
+# print(receiver)
+# print(insert_cargo(cargo_data))
+# y = [{'id': 1, 'name': 'name_1'}, {'id': 2, 'name': 'name_2'}, {'id': 3, 'name': 'name_3'}]
+# n = len(y)
 
 # def myfunc(n):
 #     if n % 2 == 0:

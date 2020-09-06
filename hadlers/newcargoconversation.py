@@ -3,9 +3,9 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKe
 from telegram.ext import (MessageHandler, ConversationHandler, CallbackQueryHandler, CallbackContext, Filters)
 from inlinekeyboards import InlineKeyboard
 from DB.main import *
-from languages import LANGS
 from buttonsdatadict import BUTTONS_DATA_DICT
 from units import UNITS
+from languages import LANGS
 from filters import phone_number_filter
 import datetime
 import logging
@@ -14,46 +14,46 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(level
 logger = logging.getLogger()
 
 USER_ID, FROM_REGION, FROM_DISTRICT, FROM_LOCATION, TO_REGION, TO_DISTRICT, TO_LOCATION, \
-CARGO_WEIGHT_UNIT, CARGO_WEIGHT, CARGO_VOLUME_UNIT, CARGO_VOLUME, CARGO_DEFINITION, CARGO_PHOTO, DATE, HOUR, MINUTE, \
+WEIGHT_UNIT, WEIGHT, VOLUME_UNIT, VOLUME, DEFINITION, PHOTO, DATE, HOUR, MINUTE, \
 RECEIVER_PHONE_NUMBER, CONFIRMATION = \
     ('user_id', 'from_region', 'from_district', 'from_location', 'to_region', 'to_district', 'to_location',
-     'cargo_weight_unit', 'cargo_weight', 'cargo_volume_unit', 'cargo_volume', 'cargo_definition', 'cargo_photo',
+     'weight_unit', 'weight', 'volume_unit', 'volume', 'definition', 'photo',
      'date', 'hour', 'minute', 'receiver_phone_number', 'confirmation')
 
 
 def get_caption(user_input_data, user, lang):
-    from_point = get_region_and_district(user_input_data['from_region_id'], user_input_data['from_district_id'])
-    to_point = get_region_and_district(user_input_data['to_region_id'], user_input_data['to_district_id'])
-    
-    if user_input_data['cargo_weight_unit'] == 'kilo':
+    from_point = get_region_and_district(user_input_data[FROM_REGION], user_input_data[FROM_DISTRICT])
+    to_point = get_region_and_district(user_input_data[TO_REGION], user_input_data[TO_DISTRICT])
+
+    if user_input_data[WEIGHT_UNIT] == 'kg':
         m = 0
-    else: 
+    else:
         m = 1
-        
+
     caption_uz = f"Qayerdan: {from_point[1]['nameUz']}, {from_point[0]['nameUz']}\n" \
                  f"Qayerga: {to_point[1]['nameUz']}, {to_point[0]['nameUz']}\n\n" \
-                 f"Yuk og'irligi: {user_input_data['cargo_weight']}, {UNITS['uz'][m]}\n" \
-                 f"Yuk hajmi: {user_input_data['cargo_volume']}, {UNITS['uz'][2]}\n\n" \
-                 f"Yuk tavsifi: {user_input_data['cargo_definition']}\n\n" \
-                 f"Yukni jo'natish kuni: {user_input_data['date']}\n" \
+                 f"Yuk og'irligi: {user_input_data[WEIGHT]}, {UNITS['uz'][m]}\n" \
+                 f"Yuk hajmi: {user_input_data[VOLUME]}, {UNITS['uz'][2]}\n\n" \
+                 f"Yuk tavsifi: {user_input_data[DEFINITION]}\n\n" \
+                 f"Yukni jo'natish kuni: {user_input_data[DATE]}\n" \
                  f"Yukni jo'natish vaqti: {user_input_data['time']}\n\n" \
                  f"E'lon beruvchi: {user['name']} {user['surname']}\n" \
                  f"Tel nomer 1: {user['phone_number']}\n" \
                  f"Tel nomer 2: {user['phone_number2']}\n\n" \
-                 f"Yukni qabul qiluvchi raqami: {user_input_data['receiver_phone_number']}\n" \
+                 f"Yukni qabul qiluvchi raqami: {user_input_data[RECEIVER_PHONE_NUMBER]}\n\n" \
                  f"\U0001F916 @cardelshipperbot \U000000A9"
 
     caption_ru = f"Откуда: {from_point[1]['nameRu']}, {from_point[0]['nameRu']}\n" \
                  f"Куда: {to_point[1]['nameRu']}, {to_point[0]['nameRu']}\n\n" \
-                 f"Вес груза: {user_input_data['cargo_weight']}, {UNITS['ru'][m]}\n" \
-                 f"Размер груза: {user_input_data['cargo_volume']}, {UNITS['ru'][2]}\n\n" \
-                 f"Описание груза: {user_input_data['cargo_definition']}\n\n" \
-                 f"Дата отправки груза: {user_input_data['date']}\n" \
+                 f"Вес груза: {user_input_data[WEIGHT]}, {UNITS['ru'][m]}\n" \
+                 f"Размер груза: {user_input_data[VOLUME]}, {UNITS['ru'][2]}\n\n" \
+                 f"Описание груза: {user_input_data[DEFINITION]}\n\n" \
+                 f"Дата отправки груза: {user_input_data[DATE]}\n" \
                  f"Время отправки груза: {user_input_data['time']}\n\n" \
                  f"Объявитель: {user['name']} {user['surname']}\n" \
                  f"Тел номер 1: {user['phone_number']}\n" \
                  f"Тел номер 2: {user['phone_number2']}\n\n" \
-                 f"Тел номер получателя груза: {user_input_data['receiver_phone_number']}\n" \
+                 f"Тел номер получателя груза: {user_input_data[RECEIVER_PHONE_NUMBER]}\n\n" \
                  f"\U0001F916 @cardelshipperbot \U000000A9"
 
     if lang == LANGS[0]:
@@ -66,8 +66,8 @@ def get_caption(user_input_data, user, lang):
 def get_layout_keyboard(user_input_data, user):
     from_latitude = user_input_data['from_location']['latitude']
     from_longitude = user_input_data['from_location']['longitude']
-    to_latitude = user_input_data['to_location']['latitude']
-    to_longitude = user_input_data['to_location']['longitude']
+    to_latitude = user_input_data[TO_LOCATION]['latitude']
+    to_longitude = user_input_data[TO_LOCATION]['longitude']
 
     inline_keyboard = []
 
@@ -110,7 +110,7 @@ def from_region_callback(update: Update, context: CallbackContext):
     # print('regions callback')
     # print(callback_query.data)
     region_id = int(data.replace("region_id_", ""))
-    user_input_data['from_region_id'] = region_id
+    user_input_data[FROM_REGION] = region_id
 
     logger.info('new_cargo_info: %s', user_input_data)
 
@@ -157,7 +157,7 @@ def from_district_callback(update: Update, context: CallbackContext):
         return FROM_REGION
 
     district_id = int(data.replace("district_id_", ""))
-    user_input_data['from_district_id'] = district_id
+    user_input_data[FROM_DISTRICT] = district_id
 
     logger.info('new_cargo_info: %s', user_input_data)
 
@@ -242,7 +242,7 @@ def to_region_callback(update: Update, context: CallbackContext):
     # print('regions callback')
     # print(callback_query.data)
     region_id = int(data.replace("region_id_", ""))
-    user_input_data['to_region_id'] = region_id
+    user_input_data[TO_REGION] = region_id
 
     logger.info('new_cargo_info: %s', user_input_data)
 
@@ -289,7 +289,7 @@ def to_district_callback(update: Update, context: CallbackContext):
         return TO_REGION
 
     district_id = int(data.replace("district_id_", ""))
-    user_input_data['to_district_id'] = district_id
+    user_input_data[TO_DISTRICT] = district_id
 
     logger.info('new_cargo_info: %s', user_input_data)
 
@@ -319,7 +319,7 @@ def to_location_callback(update: Update, context: CallbackContext):
         longitude = update.message.location.longitude
         latitude = update.message.location.latitude
 
-        user_input_data['to_location'] = {
+        user_input_data[TO_LOCATION] = {
             'longitude': longitude,
             'latitude': latitude
         }
@@ -327,7 +327,7 @@ def to_location_callback(update: Update, context: CallbackContext):
     else:
 
         if update.message.text == '/skip':
-            user_input_data['to_location'] = {
+            user_input_data[TO_LOCATION] = {
                 'longitude': None,
                 'latitude': None
             }
@@ -360,15 +360,15 @@ def to_location_callback(update: Update, context: CallbackContext):
 
     inline_keyboard = InlineKeyboardMarkup([
         [
-            InlineKeyboardButton(button1_text, callback_data='kilogramm'),
-            InlineKeyboardButton(button2_text, callback_data='tonna')
+            InlineKeyboardButton(button1_text, callback_data='kg'),
+            InlineKeyboardButton(button2_text, callback_data='t')
         ]
     ])
 
     update.message.reply_text(text, reply_markup=inline_keyboard)
 
-    user_input_data['state'] = CARGO_WEIGHT_UNIT
-    return CARGO_WEIGHT_UNIT
+    user_input_data['state'] = WEIGHT_UNIT
+    return WEIGHT_UNIT
 
 
 def cargo_weight_unit_callback(update: Update, context: CallbackContext):
@@ -379,7 +379,8 @@ def cargo_weight_unit_callback(update: Update, context: CallbackContext):
 
     user = get_user(update.effective_user.id)
 
-    user_input_data['cargo_weight_unit'] = data
+    user_input_data[WEIGHT_UNIT] = data
+
     logger.info('use_input_data: %s', user_input_data)
 
     if user['lang'] == LANGS[0]:
@@ -392,8 +393,8 @@ def cargo_weight_unit_callback(update: Update, context: CallbackContext):
 
     callback_query.edit_message_text(text)
 
-    user_input_data['state'] = CARGO_WEIGHT
-    return CARGO_WEIGHT
+    user_input_data['state'] = WEIGHT
+    return WEIGHT
 
 
 def cargo_weight_callback(update: Update, context: CallbackContext):
@@ -401,12 +402,10 @@ def cargo_weight_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_input_data = context.user_data
 
-    user_input_data['cargo_weight'] = text
-
     if text == '/skip':
-        user_input_data['cargo_weight'] = None
+        user_input_data[WEIGHT] = None
 
-    if not text.isdigit() and text != '/skip':
+    elif not text.isdigit():
 
         if user['lang'] == LANGS[0]:
             text = "Yuk og'irligini raqamda kiriting !!!"
@@ -416,7 +415,10 @@ def cargo_weight_callback(update: Update, context: CallbackContext):
 
         update.message.reply_text(text, reply_to_message_id=update.effective_message.message_id)
 
-        return CARGO_WEIGHT
+        return WEIGHT
+
+    else:
+        user_input_data[WEIGHT] = text
 
     logger.info('use_input_data: %s', user_input_data)
 
@@ -434,8 +436,8 @@ def cargo_weight_callback(update: Update, context: CallbackContext):
 
     update.message.reply_text(text, reply_markup=inline_keyboard)
 
-    user_input_data['state'] = CARGO_VOLUME_UNIT
-    return CARGO_VOLUME_UNIT
+    user_input_data['state'] = VOLUME_UNIT
+    return VOLUME_UNIT
 
 
 def cargo_volume_unit_callback(update: Update, context: CallbackContext):
@@ -444,7 +446,7 @@ def cargo_volume_unit_callback(update: Update, context: CallbackContext):
     user_input_data = context.user_data
 
     user = get_user(update.effective_user.id)
-    user_input_data['cargo_volume_unit'] = data
+    user_input_data[VOLUME_UNIT] = data
     logger.info('use_input_data: %s', user_input_data)
 
     if user['lang'] == LANGS[0]:
@@ -457,20 +459,19 @@ def cargo_volume_unit_callback(update: Update, context: CallbackContext):
 
     callback_query.edit_message_text(text)
 
-    user_input_data['state'] = CARGO_VOLUME
-    return CARGO_VOLUME
+    user_input_data['state'] = VOLUME
+    return VOLUME
 
 
 def cargo_volume_callback(update: Update, context: CallbackContext):
     text = update.message.text
     user = get_user(update.effective_user.id)
     user_input_data = context.user_data
-    user_input_data['cargo_volume'] = text
 
     if text == '/skip':
-        user_input_data['cargo_volume'] = None
+        user_input_data[VOLUME] = None
 
-    if not text.isdigit() and text != '/skip':
+    elif not text.isdigit():
 
         if user['lang'] == LANGS[0]:
             text = "Yuk hajmini raqamda kiriting !!!"
@@ -480,7 +481,10 @@ def cargo_volume_callback(update: Update, context: CallbackContext):
 
         update.message.reply_text(text, reply_to_message_id=update.effective_message.message_id)
 
-        return CARGO_VOLUME
+        return VOLUME
+
+    else:
+        user_input_data[VOLUME] = text
 
     logger.info('use_input_data: %s', user_input_data)
 
@@ -494,14 +498,14 @@ def cargo_volume_callback(update: Update, context: CallbackContext):
 
     update.message.reply_text(text)
 
-    user_input_data['state'] = CARGO_DEFINITION
-    return CARGO_DEFINITION
+    user_input_data['state'] = DEFINITION
+    return DEFINITION
 
 
 def cargo_definition_callback(update: Update, context: CallbackContext):
     text = update.message.text
     user_input_data = context.user_data
-    user_input_data['cargo_definition'] = text
+    user_input_data[DEFINITION] = text
 
     user = get_user(update.effective_user.id)
 
@@ -519,7 +523,7 @@ def cargo_definition_callback(update: Update, context: CallbackContext):
         return ConversationHandler.END
 
     if text == '/skip':
-        user_input_data['cargo_definition'] = None
+        user_input_data[DEFINITION] = None
 
     if text == '/menu' or text == '/start':
 
@@ -533,7 +537,7 @@ def cargo_definition_callback(update: Update, context: CallbackContext):
 
         update.message.reply_text(text, reply_to_message_id=update.effective_message.message_id)
 
-        return CARGO_DEFINITION
+        return DEFINITION
 
     logger.info('use_input_data: %s', user_input_data)
 
@@ -544,11 +548,11 @@ def cargo_definition_callback(update: Update, context: CallbackContext):
     if user['lang'] == LANGS[1]:
         text = "Отправите фотография груза:\n" \
                "Или нажмите /skip, чтобы пропустить этот шаг."
-        
+
     update.message.reply_text(text)
 
-    user_input_data['state'] = CARGO_PHOTO
-    return CARGO_PHOTO
+    user_input_data['state'] = PHOTO
+    return PHOTO
 
 
 def cargo_photo_callback(update: Update, context: CallbackContext):
@@ -564,10 +568,10 @@ def cargo_photo_callback(update: Update, context: CallbackContext):
     if text == '/skip' or len(cargo_photo) > 0:
 
         if text == '/skip':
-            user_input_data['cargo_photo'] = None
+            user_input_data[PHOTO] = None
 
         if len(cargo_photo) > 0:
-            user_input_data['cargo_photo'] = cargo_photo[-1]
+            user_input_data[PHOTO] = cargo_photo[-1].to_dict()
 
         if user['lang'] == LANGS[0]:
             text = "Yukni jo'natish kunini tanlang:"
@@ -595,7 +599,7 @@ def cargo_photo_callback(update: Update, context: CallbackContext):
 
         update.message.reply_text(text, reply_to_message_id=update.effective_message.message_id)
 
-        return CARGO_PHOTO
+        return PHOTO
 
 
 def date_callback(update: Update, context: CallbackContext):
@@ -605,10 +609,10 @@ def date_callback(update: Update, context: CallbackContext):
     user_input_data = context.user_data
     user = get_user(update.effective_user.id)
 
-    # print(user_input_data['cargo_photo'])
+    # print(user_input_data[PHOTO])
 
     if data == 'now':
-        user_input_data['date'] = datetime.datetime.now().strftime('%d-%m-%Y')
+        user_input_data[DATE] = datetime.datetime.now().strftime('%d-%m-%Y')
         user_input_data['time'] = datetime.datetime.now().strftime('%H:%M')
 
         if user['lang'] == LANGS[0]:
@@ -633,15 +637,15 @@ def date_callback(update: Update, context: CallbackContext):
     if data == 'today' or data == 'tomorrow' or data == 'after_tomorrow':
 
         if data == 'today':
-            user_input_data['date'] = datetime.datetime.now().strftime('%d-%m-%Y')
+            user_input_data[DATE] = datetime.datetime.now().strftime('%d-%m-%Y')
 
         if data == 'tomorrow':
             tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
-            user_input_data['date'] = tomorrow.strftime('%d-%m-%Y')
+            user_input_data[DATE] = tomorrow.strftime('%d-%m-%Y')
 
         if data == 'after_tomorrow':
             after_tomorrow = datetime.datetime.now() + datetime.timedelta(days=2)
-            user_input_data['date'] = after_tomorrow.strftime('%d-%m-%Y')
+            user_input_data[DATE] = after_tomorrow.strftime('%d-%m-%Y')
 
         if user['lang'] == LANGS[0]:
             text = 'Soatni belgilang:'
@@ -753,9 +757,9 @@ def receiver_callback(update: Update, context: CallbackContext):
     if phone_number or text == '/skip':
 
         if text == '/skip':
-            user_input_data['receiver_phone_number'] = None
+            user_input_data[RECEIVER_PHONE_NUMBER] = None
 
-        user_input_data['receiver_phone_number'] = phone_number
+        user_input_data[RECEIVER_PHONE_NUMBER] = phone_number
 
         if user['lang'] == LANGS[0]:
             caption = get_caption(user_input_data, user, LANGS[0])
@@ -765,11 +769,11 @@ def receiver_callback(update: Update, context: CallbackContext):
 
         inline_keyboard = get_layout_keyboard(user_input_data, user)
 
-        if user_input_data['cargo_photo']:
-            update.message.reply_photo(user_input_data['cargo_photo'].file_id,
-                                               caption=get_caption(user_input_data, user, user['lang']),
-                                               reply_markup=inline_keyboard
-                                               )
+        if user_input_data[PHOTO]:
+            update.message.reply_photo(user_input_data[PHOTO].get('file_id'),
+                                       caption=get_caption(user_input_data, user, user['lang']),
+                                       reply_markup=inline_keyboard
+                                       )
         else:
             update.message.reply_text(text=caption, reply_markup=inline_keyboard)
 
@@ -796,15 +800,16 @@ def receiver_callback(update: Update, context: CallbackContext):
         return RECEIVER_PHONE_NUMBER
 
 
-def confirmation_callback(update: Update, contex: CallbackContext):
+def confirmation_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
     data = callback_query.data
 
-    user_input_data = contex.user_data
+    user_input_data = context.user_data
 
     user = get_user(update.effective_user.id)
 
     logger.info('user_input_data: %s', user_input_data)
+
     if data == 'confirm':
 
         if user['lang'] == LANGS[0]:
@@ -815,7 +820,32 @@ def confirmation_callback(update: Update, contex: CallbackContext):
 
         callback_query.message.reply_text(text)
 
+        if user_input_data['receiver_phone_number']:
+            receiver = get_user(phone_number=user_input_data['receiver_phone_number'])
+        else:
+            receiver = False
+
+        if receiver:
+
+            if receiver['lang'] == LANGS[0]:
+                text = "Sizga yuk jo'natildi:"
+
+            if receiver['lang'] == LANGS[1]:
+                text = 'Вам груз отправлен:'
+
+            context.bot.send_message(receiver['user_id'], text)
+
+            if user_input_data[PHOTO]:
+                context.bot.send_photo(receiver['user_id'], user_input_data[PHOTO].get('file_id'),
+                                       caption=get_caption(user_input_data, user, receiver['lang']))
+            else:
+                context.bot.send_message(receiver['user_id'], get_caption(user_input_data, user, receiver['lang']))
+
     # user_input_data.clear()
+
+    insert_cargo(user_input_data)
+
+    user_input_data.clear()
     return ConversationHandler.END
 
 
@@ -872,7 +902,7 @@ def txt_callback(update: Update, context: CallbackContext):
 #
 #         inline_keyboard = InlineKeyboardMarkup([
 #             [
-#                 InlineKeyboardButton(button1_text, callback_data='kilogramm'),
+#                 InlineKeyboardButton(button1_text, callback_data='kilogramgramm'),
 #                 InlineKeyboardButton(button2_text, callback_data='tonna')
 #             ]
 #         ])
@@ -880,7 +910,7 @@ def txt_callback(update: Update, context: CallbackContext):
 #         update.message.reply_text(text, reply_markup=inline_keyboard,
 #                                   reply_to_message_id=update.effective_message.message_id)
 #
-#     return CARGO_WEIGHT_UNIT
+#     return WEIGHT_UNIT
 
 
 def txt_callback_in_confirmation(update: Update, context: CallbackContext):
@@ -912,6 +942,30 @@ def txt_callback_in_confirmation(update: Update, context: CallbackContext):
 
         update.message.reply_text(text)
 
+        if user_input_data['receiver_phone_number']:
+            receiver = get_user(phone_number=user_input_data['receiver_phone_number'])
+        else:
+            receiver = False
+
+        if receiver:
+
+            if receiver['lang'] == LANGS[0]:
+                text = "Sizga yuk jo'natildi:"
+
+            if receiver['lang'] == LANGS[1]:
+                text = 'Вам груз отправлен:'
+
+            context.bot.send_message(receiver['user_id'], text)
+
+            if user_input_data[PHOTO]:
+                context.bot.send_photo(receiver['user_id'], user_input_data[PHOTO].get('file_id'),
+                                       caption=get_caption(user_input_data, user, receiver['lang']))
+            else:
+                context.bot.send_message(receiver['user_id'], get_caption(user_input_data, user, receiver['lang']))
+        # user_input_data.clear()
+
+        insert_cargo(user_input_data)
+
         user_input_data.clear()
         return ConversationHandler.END
 
@@ -933,12 +987,18 @@ def new_cargo_conversation_callback(update: Update, context: CallbackContext):
             text = "Выберите свой область:"
 
     inline_keyboard = InlineKeyboard('regions_keyboard', user['lang'])
-    callback_query.edit_message_text(text)
-    callback_query.edit_message_reply_markup(reply_markup=inline_keyboard.get_keyboard())
+
+    callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard())
 
     user_input_data['state'] = FROM_REGION
+
+    user_input_data['sender_id'] = user['id']
+    user_input_data['sender_user_id'] = user['user_id']
+    user_input_data['sender_phone_number'] = user['phone_number']
+    user_input_data['sender_phone_number2'] = user['phone_number2']
+
     return FROM_REGION
-    # return CARGO_PHOTO
+    # return PHOTO
 
 
 new_cargo_conversation_handler = ConversationHandler(
@@ -960,19 +1020,19 @@ new_cargo_conversation_handler = ConversationHandler(
 
         TO_LOCATION: [MessageHandler(Filters.location | Filters.text, to_location_callback)],
 
-        CARGO_WEIGHT_UNIT: [CallbackQueryHandler(cargo_weight_unit_callback),
-                            MessageHandler(Filters.text, txt_callback)],
+        WEIGHT_UNIT: [CallbackQueryHandler(cargo_weight_unit_callback),
+                      MessageHandler(Filters.text, txt_callback)],
 
-        CARGO_WEIGHT: [MessageHandler(Filters.text, cargo_weight_callback)],
+        WEIGHT: [MessageHandler(Filters.text, cargo_weight_callback)],
 
-        CARGO_VOLUME_UNIT: [CallbackQueryHandler(cargo_volume_unit_callback),
-                            MessageHandler(Filters.text, txt_callback)],
+        VOLUME_UNIT: [CallbackQueryHandler(cargo_volume_unit_callback),
+                      MessageHandler(Filters.text, txt_callback)],
 
-        CARGO_VOLUME: [MessageHandler(Filters.text, cargo_volume_callback)],
+        VOLUME: [MessageHandler(Filters.text, cargo_volume_callback)],
 
-        CARGO_DEFINITION: [MessageHandler(Filters.text, cargo_definition_callback)],
+        DEFINITION: [MessageHandler(Filters.text, cargo_definition_callback)],
 
-        CARGO_PHOTO: [MessageHandler(Filters.photo | Filters.text, cargo_photo_callback)],
+        PHOTO: [MessageHandler(Filters.photo | Filters.text, cargo_photo_callback)],
 
         DATE: [CallbackQueryHandler(date_callback), MessageHandler(Filters.text, txt_callback)],
 

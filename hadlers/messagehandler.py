@@ -12,7 +12,6 @@ def message_handler_callback(update: Update, context: CallbackContext):
     text = update.message.text
     #
     # print(text)
-    # print(update.message)
 
     user = get_user(update.effective_user.id)
 
@@ -27,4 +26,4 @@ def message_handler_callback(update: Update, context: CallbackContext):
                                   "\nВы не зарегистрированы!\nДля этого нажмите /start")
 
 
-message_handler = MessageHandler(Filters.text | Filters.contact, message_handler_callback)
+message_handler = MessageHandler(Filters.text, message_handler_callback)
