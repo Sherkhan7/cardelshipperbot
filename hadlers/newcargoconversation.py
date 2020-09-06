@@ -347,14 +347,14 @@ def to_location_callback(update: Update, context: CallbackContext):
     logger.info('new_cargo_info: %s', user_input_data)
 
     if user['lang'] == LANGS[0]:
-        text = "3-Bosqich\n" \
-               "Yuk og'irligini tanlang:"
+        text_1 = "3-Bosqich"
+        text = "Yuk og'irligini tanlang:"
         button1_text = UNITS['uz'][0]
         button2_text = UNITS['uz'][1]
 
     if user['lang'] == LANGS[1]:
-        text = "Шаг 3\n" \
-               "Выберите вес груза:"
+        text_1 = "Шаг 3"
+        text = "Выберите вес груза:"
         button1_text = UNITS['ru'][0]
         button2_text = UNITS['ru'][1]
 
@@ -365,6 +365,7 @@ def to_location_callback(update: Update, context: CallbackContext):
         ]
     ])
 
+    update.message.reply_text(text_1)
     update.message.reply_text(text, reply_markup=inline_keyboard)
 
     user_input_data['state'] = WEIGHT_UNIT
