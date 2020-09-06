@@ -1,3 +1,5 @@
+# import sys
+# sys.path.extend(['/home/sherzodbek/PycharmProjects/cardelshipperbot'])
 import pymysql.cursors
 from contextlib import closing
 import json
@@ -156,7 +158,8 @@ def get_region_and_district(region_id, district_id):
 
 
 def insert_cargo(cargo_data):
-    with open('cargo.json', 'w') as cargo:
+
+    with open('jsons/cargo.json', 'w') as cargo:
         cargo.write(json.dumps(cargo_data, indent=4))
 
     date = cargo_data.pop('date')
@@ -203,12 +206,12 @@ def insert_cargo(cargo_data):
             cursor.execute(sql, cargo_data_values)
             connection.commit()
 
-        # print(cursor.rowcount)
+        print(cursor.rowcount)
 
         return cursor.rowcount
 
 
-# receiver = get_user(phone_number='+998998559819')
+# receiver = get_user(phone_number='+998998559815')
 # print(receiver)
 # print(insert_cargo(cargo_data))
 # y = [{'id': 1, 'name': 'name_1'}, {'id': 2, 'name': 'name_2'}, {'id': 3, 'name': 'name_3'}]

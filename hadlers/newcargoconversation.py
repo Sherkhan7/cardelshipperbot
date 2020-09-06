@@ -182,7 +182,7 @@ def from_district_callback(update: Update, context: CallbackContext):
 def from_location_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     # print(location)
-    # with open('update.json', 'w') as update_file:
+    # `with` open('update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
     user_input_data = context.user_data
 
@@ -821,25 +821,24 @@ def confirmation_callback(update: Update, context: CallbackContext):
         callback_query.message.reply_text(text)
 
         if user_input_data['receiver_phone_number']:
+
             receiver = get_user(phone_number=user_input_data['receiver_phone_number'])
-        else:
-            receiver = False
 
-        if receiver:
+            if receiver:
 
-            if receiver['lang'] == LANGS[0]:
-                text = "Sizga yuk jo'natildi:"
+                if receiver['lang'] == LANGS[0]:
+                    text = "Sizga yuk jo'natildi:"
 
-            if receiver['lang'] == LANGS[1]:
-                text = 'Вам груз отправлен:'
+                if receiver['lang'] == LANGS[1]:
+                    text = 'Вам груз отправлен:'
 
-            context.bot.send_message(receiver['user_id'], text)
+                context.bot.send_message(receiver['user_id'], text)
 
-            if user_input_data[PHOTO]:
-                context.bot.send_photo(receiver['user_id'], user_input_data[PHOTO].get('file_id'),
-                                       caption=get_caption(user_input_data, user, receiver['lang']))
-            else:
-                context.bot.send_message(receiver['user_id'], get_caption(user_input_data, user, receiver['lang']))
+                if user_input_data[PHOTO]:
+                    context.bot.send_photo(receiver['user_id'], user_input_data[PHOTO].get('file_id'),
+                                           caption=get_caption(user_input_data, user, receiver['lang']))
+                else:
+                    context.bot.send_message(receiver['user_id'], get_caption(user_input_data, user, receiver['lang']))
 
     # user_input_data.clear()
 
@@ -943,26 +942,24 @@ def txt_callback_in_confirmation(update: Update, context: CallbackContext):
         update.message.reply_text(text)
 
         if user_input_data['receiver_phone_number']:
+
             receiver = get_user(phone_number=user_input_data['receiver_phone_number'])
-        else:
-            receiver = False
 
-        if receiver:
+            if receiver:
 
-            if receiver['lang'] == LANGS[0]:
-                text = "Sizga yuk jo'natildi:"
+                if receiver['lang'] == LANGS[0]:
+                    text = "Sizga yuk jo'natildi:"
 
-            if receiver['lang'] == LANGS[1]:
-                text = 'Вам груз отправлен:'
+                if receiver['lang'] == LANGS[1]:
+                    text = 'Вам груз отправлен:'
 
-            context.bot.send_message(receiver['user_id'], text)
+                context.bot.send_message(receiver['user_id'], text)
 
-            if user_input_data[PHOTO]:
-                context.bot.send_photo(receiver['user_id'], user_input_data[PHOTO].get('file_id'),
-                                       caption=get_caption(user_input_data, user, receiver['lang']))
-            else:
-                context.bot.send_message(receiver['user_id'], get_caption(user_input_data, user, receiver['lang']))
-        # user_input_data.clear()
+                if user_input_data[PHOTO]:
+                    context.bot.send_photo(receiver['user_id'], user_input_data[PHOTO].get('file_id'),
+                                           caption=get_caption(user_input_data, user, receiver['lang']))
+                else:
+                    context.bot.send_message(receiver['user_id'], get_caption(user_input_data, user, receiver['lang']))
 
         insert_cargo(user_input_data)
 
