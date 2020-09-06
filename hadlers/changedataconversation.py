@@ -55,6 +55,7 @@ def change_name_callback(update: Update, context: CallbackContext):
 
     update.message.reply_text(text, reply_markup=inline_keyboard.get_keyboard())
 
+    user_input_data.clear()
     return ConversationHandler.END
 
 
@@ -95,6 +96,7 @@ def change_surname_callback(update: Update, context: CallbackContext):
 
     update.message.reply_text(text, reply_markup=inline_keyboard.get_keyboard())
 
+    user_input_data.clear()
     return ConversationHandler.END
 
 
@@ -120,6 +122,7 @@ def change_lang_callback(update: Update, context: CallbackContext):
     callback_query.edit_message_text('MENU:', reply_markup=inline_keyboard.get_keyboard())
 
     update_user_info(user['user_id'], lang=lang)
+
     return ConversationHandler.END
 
 
@@ -137,6 +140,7 @@ def txt_in_lang_callback(update: Update, context: CallbackContext):
     inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
 
     update.message.reply_text(text, reply_markup=inline_keyboard.get_keyboard())
+
     return ConversationHandler.END
 
 

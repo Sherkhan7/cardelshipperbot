@@ -231,6 +231,7 @@ def special_code_callback(update: Update, context: CallbackContext):
         if not result:
             update.message.reply_text('Error !!!')
 
+            user_input_data.clear()
             return ConversationHandler.END
 
         if user_input_data[LANG] == LANGS[0]:
@@ -243,6 +244,7 @@ def special_code_callback(update: Update, context: CallbackContext):
 
         update.message.reply_text(text, reply_markup=inline_keyboard.get_keyboard())
 
+        user_input_data.clear()
         return ConversationHandler.END
 
     else:
