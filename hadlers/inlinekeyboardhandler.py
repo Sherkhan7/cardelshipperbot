@@ -11,7 +11,7 @@ logger = logging.getLogger()
 
 
 def main_inline_keyboard_callback(update: Update, context: CallbackContext):
-    # print('main_inline_keyboard')
+    print('main_inline_keyboard')
     callback_query = update.callback_query
     data = callback_query.data
     user_input_data = context.user_data

@@ -10,8 +10,11 @@ def message_handler_callback(update: Update, context: CallbackContext):
     # print('message_handler')
     # print(update.message.contact.phone_number)
     text = update.message.text
-    #
-    # print(text)
+
+    # with open('jsons/update.json', 'w') as update_file:
+    #     update_file.write(update.to_json())
+
+    # print(update.message.contact)
 
     user = get_user(update.effective_user.id)
 
