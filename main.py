@@ -1,7 +1,5 @@
 # import sys
 # sys.path.extend(['/home/sherzodbek/PycharmProjects/cardelshipperbot'])
-
-'eqq'
 from telegram.ext import Updater, CallbackQueryHandler
 from config.config import TOKEN
 from hadlers import (message_handler, inline_keyboard_handler, conversation_handler,
@@ -49,12 +47,12 @@ def main():
     # updater.dispatcher.add_handler(hendler2)
     # updater.dispatcher.add_handler(hendler1)
 
-    updater.start_polling()
-    updater.idle()
-
-    # updater.start_webhook(listen='127.0.0.1', port=5001, url_path=TOKEN)
-    # updater.bot.set_webhook(url='https://cardel.ml/' + TOKEN)
+    # updater.start_polling()
     # updater.idle()
+
+    updater.start_webhook(listen='127.0.0.1', port=5001, url_path=TOKEN)
+    updater.bot.set_webhook(url='https://cardel.ml/' + TOKEN)
+    updater.idle()
 
 
 if __name__ == '__main__':
