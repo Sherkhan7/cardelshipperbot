@@ -1,5 +1,7 @@
 # import sys
 # sys.path.extend(['/home/sherzodbek/PycharmProjects/cardelshipperbot'])
+
+'eqq'
 from telegram.ext import Updater, CallbackQueryHandler
 from config.config import TOKEN
 from hadlers import (message_handler, inline_keyboard_handler, conversation_handler,
