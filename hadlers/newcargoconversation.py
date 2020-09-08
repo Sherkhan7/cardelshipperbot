@@ -374,9 +374,9 @@ def from_location_callback(update: Update, context: CallbackContext):
     elif update.message.text == '«next»':
 
         user_input_data['from_location'] = {
-                'longitude': None,
-                'latitude': None
-            }
+            'longitude': None,
+            'latitude': None
+        }
     else:
         if user['lang'] == LANGS[0]:
             text = 'Lokatsiyangizni yuboring yoki «next» ni bosing:'
@@ -549,12 +549,12 @@ def cargo_weight_unit_callback(update: Update, context: CallbackContext):
     logger.info('use_input_data: %s', user_input_data)
 
     if user['lang'] == LANGS[0]:
-        text_1 = "Yuk og'irligini kiriting (raqamda):"
-        text_2 = "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+        text_1 = "Yuk og'irligini kiriting (raqamda):\n" \
+                 "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
 
     if user['lang'] == LANGS[1]:
-        text_1 = "Введите вес груза (цифрами):"
-        text_2 = "Или нажмите «next», чтобы пропустить этот шаг."
+        text_1 = "Введите вес груза (цифрами):\n" \
+                 "Или нажмите «next», чтобы пропустить этот шаг."
 
     callback_query.edit_message_text(text_1, reply_markup=get_skip_keyboard())
 
@@ -750,7 +750,7 @@ def cargo_photo_callback(update: Update, context: CallbackContext):
 
     if user['lang'] == LANGS[1]:
         text_1 = "Шаг 4:"
-        text_1 = "Выберите дату доставки:"
+        text_2 = "Выберите дату доставки:"
 
     inline_keyboard = InlineKeyboard('dates_keyboard', user['lang'])
 
@@ -776,14 +776,14 @@ def date_callback(update: Update, context: CallbackContext):
         user_input_data['time'] = datetime.datetime.now().strftime('%H:%M')
 
         if user['lang'] == LANGS[0]:
-            text_1 = "Yukni qabul qiluvchining telefon raqamini yuboring:\n"\
+            text_1 = "Yukni qabul qiluvchining telefon raqamini yuboring:\n" \
                      "Raqamni quyidagi shaklda kiriting:\n\n" \
                      "<b><i><u>Misol: 99 1234567</u></i></b>\nYoki\n" \
                      "<b><i><u>Misol: +998 99 1234567</u></i></b>\n\n" \
                      "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
 
         if user['lang'] == LANGS[1]:
-            text_1 = "Отправьте номер телефона получателя груза:\n"\
+            text_1 = "Отправьте номер телефона получателя груза:\n" \
                      "Введите номер в виде ниже:\n\n" \
                      "<b><i><u>Пример: 99 1234567</u></i></b>\nYoki\n" \
                      "<b><i><u>Пример: +998 99 1234567</u></i></b>\n\n" \
@@ -979,6 +979,8 @@ def confirmation_callback(update: Update, context: CallbackContext):
 
         callback_query.message.reply_text(text)
 
+        lastrow_id = insert_cargo(dict(user_input_data))
+
         if user_input_data['receiver_phone_number']:
 
             receiver = get_user(phone_number=user_input_data['receiver_phone_number'])
@@ -986,22 +988,26 @@ def confirmation_callback(update: Update, context: CallbackContext):
             if receiver:
 
                 if receiver['lang'] == LANGS[0]:
-                    text = "Sizga yuk jo'natildi:"
+                    text_1 = "Sizga yuk jo'natildi:"
+                    text_2 = "Yukni qabul qildim"
 
                 if receiver['lang'] == LANGS[1]:
-                    text = 'Вам груз отправлен:'
+                    text_1 = 'Вам груз отправлен:'
+                    text_2 = 'Я получил груз'
 
-                context.bot.send_message(receiver['user_id'], text)
+                context.bot.send_message(receiver['user_id'], text_1)
+
+                inline_keyboard = InlineKeyboardMarkup([
+                    [InlineKeyboardButton(text_2, callback_data=f"received_{user['user_id']}_{lastrow_id}")]
+                ])
 
                 if user_input_data[PHOTO]:
                     context.bot.send_photo(receiver['user_id'], user_input_data[PHOTO].get('file_id'),
-                                           caption=get_caption(user_input_data, user, receiver['lang']))
+                                           caption=get_caption(user_input_data, user, receiver['lang']),
+                                           reply_markup=inline_keyboard)
                 else:
-                    context.bot.send_message(receiver['user_id'], get_caption(user_input_data, user, receiver['lang']))
-
-    # user_input_data.clear()
-
-    insert_cargo(user_input_data)
+                    context.bot.send_message(receiver['user_id'], get_caption(user_input_data, user, receiver['lang']),
+                                             reply_markup=inline_keyboard)
 
     user_input_data.clear()
     return ConversationHandler.END
@@ -1093,12 +1099,14 @@ def txt_callback_in_confirmation(update: Update, context: CallbackContext):
     else:
 
         if user['lang'] == LANGS[0]:
-            text = "Tasdiqlandi"
+            text = 'Tasdiqlandi !'
 
         if user['lang'] == LANGS[1]:
             text = 'Подтверждено !'
 
         update.message.reply_text(text)
+
+        lastrow_id = insert_cargo(dict(user_input_data))
 
         if user_input_data['receiver_phone_number']:
 
@@ -1107,20 +1115,26 @@ def txt_callback_in_confirmation(update: Update, context: CallbackContext):
             if receiver:
 
                 if receiver['lang'] == LANGS[0]:
-                    text = "Sizga yuk jo'natildi:"
+                    text_1 = "Sizga yuk jo'natildi:"
+                    text_2 = "Yukni qabul qildim"
 
                 if receiver['lang'] == LANGS[1]:
-                    text = 'Вам груз отправлен:'
+                    text_1 = 'Вам груз отправлен:'
+                    text_2 = 'Я получил груз'
 
-                context.bot.send_message(receiver['user_id'], text)
+                context.bot.send_message(receiver['user_id'], text_1)
+
+                inline_keyboard = InlineKeyboardMarkup([
+                    [InlineKeyboardButton(text_2, callback_data=f"received_{user['user_id']}_{lastrow_id}")]
+                ])
 
                 if user_input_data[PHOTO]:
                     context.bot.send_photo(receiver['user_id'], user_input_data[PHOTO].get('file_id'),
-                                           caption=get_caption(user_input_data, user, receiver['lang']))
+                                           caption=get_caption(user_input_data, user, receiver['lang']),
+                                           reply_markup=inline_keyboard)
                 else:
-                    context.bot.send_message(receiver['user_id'], get_caption(user_input_data, user, receiver['lang']))
-
-        insert_cargo(user_input_data)
+                    context.bot.send_message(receiver['user_id'], get_caption(user_input_data, user, receiver['lang']),
+                                             reply_markup=inline_keyboard)
 
         user_input_data.clear()
         return ConversationHandler.END

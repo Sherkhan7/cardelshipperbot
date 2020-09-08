@@ -158,9 +158,8 @@ def get_region_and_district(region_id, district_id):
 
 
 def insert_cargo(cargo_data):
-
-    with open('jsons/cargo.json', 'w') as cargo:
-        cargo.write(json.dumps(cargo_data, indent=4))
+    # with open('jsons/cargo.json', 'w') as cargo:
+    #     cargo.write(json.dumps(cargo_data, indent=4))
 
     date = cargo_data.pop('date')
     time = cargo_data.pop('time')
@@ -205,15 +204,37 @@ def insert_cargo(cargo_data):
 
             cursor.execute(sql, cargo_data_values)
             connection.commit()
+            #
+            # cursor.execute("SELECT * FROM testdb.cargoes WHERE id = %s", cursor.lastrowid)
+            # cargo = cursor.fetchone()
 
-        print(cursor.rowcount)
+    print(cursor.rowcount)
 
-        return cursor.rowcount
+    return cursor.lastrowid
 
 
+def update_cargo_status(cargo_id, status):
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("UPDATE testdb.cargoes SET state = %s WHERE id = %s", (status, cargo_id))
+            connection.commit()
+
+    if connection.affected_rows() != 0:
+        return 'updated'
+    else:
+        return 'not updated'
+
+# print(update_cargo_status(1, 'r'))
+# print(get_cargo(25))
+# f = open('../jsons/cargo.json', 'r')
+
+# print(type(f.read()))
+# cargo_data = json.loads(f.read())
+# print(type(cargo_data))
 # receiver = get_user(phone_number='+998998559815')
 # print(receiver)
 # print(insert_cargo(cargo_data))
+# print(get_user('653634001'))
 # y = [{'id': 1, 'name': 'name_1'}, {'id': 2, 'name': 'name_2'}, {'id': 3, 'name': 'name_3'}]
 # n = len(y)
 
