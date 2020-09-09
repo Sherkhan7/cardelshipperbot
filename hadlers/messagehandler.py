@@ -14,8 +14,6 @@ def message_handler_callback(update: Update, context: CallbackContext):
     # with open('jsons/update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
 
-    # print(update.message.contact)
-
     user = get_user(update.effective_user.id)
 
     if user:
