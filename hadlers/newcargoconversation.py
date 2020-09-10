@@ -881,9 +881,9 @@ def hour_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_input_data = context.user_data
 
-    if data == '«next»' or data == 'back':
+    if data == 'next' or data == 'back':
 
-        if data == '«next»':
+        if data == 'next':
             inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=18, end=29)
 
         if data == 'back':
