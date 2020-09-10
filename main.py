@@ -1,28 +1,9 @@
 # import sys
 # sys.path.extend(['/home/sherzodbek/PycharmProjects/cardelshipperbot'])
-from telegram.ext import Updater, CallbackQueryHandler
+from telegram.ext import Updater
 from config.config import TOKEN
 from hadlers import (message_handler, inline_keyboard_handler, conversation_handler,
                      changedataconversation_handler, new_cargo_conversation_handler)
-
-
-def do_new(update, context):
-    print('Inside do_new')
-
-
-def do_new2(update, context):
-    print('Inside do_new2')
-
-
-def handler_1_callback(update, context):
-    query = update.callback_query
-    data = query.data
-    print('Handled 1!')
-    print(data)
-
-
-def handler_2_callback(update, context):
-    print('Handled 2')
 
 
 def main():
