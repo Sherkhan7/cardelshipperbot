@@ -154,7 +154,7 @@ def get_user_info_layout(user):
 
         return f'({country_code}) {operator_code} {phone_number[:3]} - {phone_number[3:]}'
 
-    layout = f"<b><i>{name}:</i></b> <u>{user['name']}</u> \n\n" \
+    layout = f"<b><i>{name}:</i></b> <u>{user['name']}</u></b>\n\n" \
              f"<b><i>{surname}:</i> <u>{user['surname']}</u></b> \n\n" \
              f"<b><i>{'-'.ljust(30, '-')}</i></b> \n" \
              f"<b><i>\U0000260E {phone}: </i><u>{format_phone_number(user['phone_number'])}</u></b> \n\n" \
