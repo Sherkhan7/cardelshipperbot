@@ -115,6 +115,10 @@ def update_user_info(user_id, **kwargs):
         value = kwargs['lang']
         sql = "UPDATE testdb.users SET lang = %s WHERE user_id = %s"
 
+    if 'phone_number' in kwargs.keys():
+        value = kwargs['phone_number']
+        sql = "UPDATE testdb.users SET phone_number = %s WHERE user_id = %s"
+
     # print(value)
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
@@ -235,16 +239,3 @@ def update_cargo_status(cargo_id, status):
 # print(receiver)
 # print(insert_cargo(cargo_data))
 # print(get_user('653634001'))
-# y = [{'id': 1, 'name': 'name_1'}, {'id': 2, 'name': 'name_2'}, {'id': 3, 'name': 'name_3'}]
-# n = len(y)
-
-# def myfunc(n):
-#     if n % 2 == 0:
-#         x = [[y[i], y[i + 1]] for i in range(0, n, 2)]
-#         # print(x)
-#         return x
-#     if n % 2 != 0:
-#         x = [[y[i], '.'] if i == n - 1 else [y[i], y[i + 1]] for i in range(0, n, 2)]
-#         # print(x)
-#         return x
-#

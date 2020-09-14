@@ -1,6 +1,7 @@
 from telegram import Update, ParseMode
 from telegram.ext import CallbackQueryHandler, CallbackContext
 from inlinekeyboards import InlineKeyboard
+from replykeyboards import ReplyKeyboard
 from buttonsdatadict import BUTTONS_DATA_DICT
 from DB.main import *
 from languages import LANGS
@@ -12,7 +13,7 @@ logger = logging.getLogger()
 
 
 def main_inline_keyboard_callback(update: Update, context: CallbackContext):
-    print('main_inline_keyboard')
+    # print('main_inline_keyboard')
 
     callback_query = update.callback_query
     data = callback_query.data
@@ -29,36 +30,28 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
 
     match_obj = re.search('^received', data)
 
-    if data == BUTTONS_DATA_DICT[1]:
+    if data == BUTTONS_DATA_DICT[7] or data == BUTTONS_DATA_DICT[8]:
 
-        if user['lang'] == LANGS[0]:
-            name = 'Ism'
-            surname = 'Familya'
-            phone = 'Tel 1'
-            phone_2 = 'Tel 2'
+        if data == BUTTONS_DATA_DICT[7]:
 
-        if user['lang'] == LANGS[1]:
-            name = 'Имя'
-            surname = 'Фамиля'
-            phone = 'Тел номер 1'
-            phone_2 = 'Тел номер 2'
+            lang = LANGS[0]
+            text = "Til: O'zbekcha"
+            reply_text = "Til o'zgartirildi"
+            edited_text = '\U0001F1FA\U0001F1FF'
 
-        inline_keyboard = InlineKeyboard('user_data_keyboard', user['lang'])
+        elif data == BUTTONS_DATA_DICT[8]:
 
-        text = f"<b><i>{name}:</i></b> <u>{user['name']}</u> \n\n" \
-               f"<b><i>{surname}:</i> <u>{user['surname']}</u></b> \n\n" \
-               f"<b><i>{'-'.ljust(30, '-')}</i></b> \n" \
-               f"<b><i>\U0000260E {phone}: </i><u>{user['phone_number']}</u></b> \n\n" \
-               f"<b><i>\U0000260E {phone_2}: </i><u>{user['phone_number2']}</u></b> \n"
+            lang = LANGS[1]
+            text = "Язык: русский"
+            reply_text = 'Язык был изменен'
+            edited_text = '\U0001F1F7\U0001F1FA'
 
-        callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard(),
-                                         parse_mode=ParseMode.HTML)
+        context.bot.answer_callback_query(callback_query.id, reply_text)
+        update_user_info(user['user_id'], lang=lang)
 
-    elif data == BUTTONS_DATA_DICT[6]:
-
-        inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
-
-        callback_query.edit_message_text('MENU', reply_markup=inline_keyboard.get_keyboard())
+        reply_keyboard = ReplyKeyboard('menu_keyboard', lang)
+        callback_query.edit_message_text(edited_text)
+        callback_query.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
 
     elif match_obj:
 

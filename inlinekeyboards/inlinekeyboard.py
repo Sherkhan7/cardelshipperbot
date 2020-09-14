@@ -21,18 +21,16 @@ class InlineKeyboard(object):
         if keyb_type == 'langs_keyboard':
             return InlineKeyboardMarkup(
                 [
-                    [InlineKeyboardButton("\U0001F1FA\U0001F1FF O'zbekcha",
-                                          callback_data=self.__btn_data('uz_btn')), ],
-
-                    [InlineKeyboardButton("\U0001F1F7\U0001F1FA Русский",
-                                          callback_data=self.__btn_data('ru_btn')), ],
-
+                    [
+                        InlineKeyboardButton("\U0001F1FA\U0001F1FF UZB",
+                                             callback_data=self.__btn_data('uz')),
+                    ],
+                    [
+                        InlineKeyboardButton("\U0001F1F7\U0001F1FA RUS",
+                                             callback_data=self.__btn_data('ru')),
+                    ]
                 ]
             )
-
-        elif keyb_type == 'main_keyboard':
-
-            return self.__get_main_keyboard(lang)
 
         elif keyb_type == 'user_data_keyboard':
             return self.__get_user_data_keyboard(lang)
@@ -57,48 +55,32 @@ class InlineKeyboard(object):
 
             return self.__get_minutes_keyboard(data, lang)
 
-    def __get_main_keyboard(self, lang):
-
-        if lang == 'uz':
-            button1_text = "Mening ma'lmotlarim"
-            button2_text = "Yuk e'lon qilish"
-
-        if lang == 'ru':
-            button1_text = 'Мои данные'
-            button2_text = 'Объявить груз'
-
-        return InlineKeyboardMarkup(
-            [
-                [InlineKeyboardButton('\U0001F4D4 ' + button1_text, callback_data=self.__btn_data('user_data_btn')), ],
-
-                [InlineKeyboardButton('\U0001F4E6 ' + button2_text,
-                                      callback_data=self.__btn_data('new_cargo_btn')), ],
-
-            ]
-        )
-
     def __get_user_data_keyboard(self, lang):
         if lang == 'uz':
             button1_text = "Ismni o'zgartirish"
             button2_text = "Familyani o'zgartirish"
-            button3_text = "Tilni o'zgartirish"
-            button4_text = "Orqaga"
+            button3_text = "Telefon nomerini o'zgartirish"
 
         if lang == 'ru':
             button1_text = "Изменить имя"
             button2_text = "Изменить фамилию"
-            button3_text = "Изменить язык"
-            button4_text = "Назад"
-
+            button3_text = "Изменить номер телефона"
         return InlineKeyboardMarkup(
             [
-                [InlineKeyboardButton(button1_text, callback_data=self.__btn_data('change_name_btn')), ],
+                [
+                    InlineKeyboardButton(f'\U0001F464 {button1_text}',
+                                         callback_data=self.__btn_data('change_name_btn')),
+                ],
 
-                [InlineKeyboardButton(button2_text, callback_data=self.__btn_data('change_surname_btn')), ],
+                [
+                    InlineKeyboardButton(f'\U0001F465 {button2_text}',
+                                         callback_data=self.__btn_data('change_surname_btn')),
+                ],
 
-                [InlineKeyboardButton(button3_text, callback_data=self.__btn_data('change_lang_btn')), ],
-
-                [InlineKeyboardButton(button4_text, callback_data=self.__btn_data('back_btn')), ],
+                [
+                    InlineKeyboardButton(f'\U0001F4F1 {button3_text}',
+                                         callback_data=self.__btn_data('change_phone_btn')),
+                ],
             ]
         )
 
@@ -286,7 +268,6 @@ class InlineKeyboard(object):
     def get_keyboard(self):
 
         return self.__keyboard
-
 
 # z = InlineKeyboard('dates_keyboard', 'ru')
 # x = InlineKeyboard('hours_keyboard', 'uz', begin=18, end=29)

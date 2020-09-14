@@ -9,12 +9,13 @@ from hadlers import (message_handler, inline_keyboard_handler, conversation_hand
 def main():
     updater = Updater(TOKEN, use_context=True)
 
-    updater.dispatcher.add_handler(new_cargo_conversation_handler)
     updater.dispatcher.add_handler(conversation_handler)
+    updater.dispatcher.add_handler(new_cargo_conversation_handler)
     updater.dispatcher.add_handler(changedataconversation_handler)
 
-    updater.dispatcher.add_handler(inline_keyboard_handler)
     updater.dispatcher.add_handler(message_handler)
+
+    updater.dispatcher.add_handler(inline_keyboard_handler)
 
     # updater.dispatcher.add_handler(handler_2)
     # updater.dispatcher.add_handler(handler_1)
