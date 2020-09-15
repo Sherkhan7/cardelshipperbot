@@ -9,7 +9,8 @@ from DB import *
 def message_handler_callback(update: Update, context: CallbackContext):
     # print('message_handler')
     # print(update.message.contact.phone_number)
-    text = update.message.text.split(' ', 1)[-1]
+    full_text = update.message.text
+    text = full_text.split(' ', 1)[-1]
 
     # with open('jsons/update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
@@ -17,11 +18,21 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
     if user:
 
-        if text == 'Sozlamalar' or text == 'Настройки':
+        if text == '/menu':
+
+            if user['lang'] == LANGS[0]:
+                reply_text = '\U0001F4D6 Menu'
+            if user['lang'] == LANGS[1]:
+                reply_text = '\U0001F4D6 Меню'
+
+            reply_keyboard = ReplyKeyboard('menu_keyboard', user['lang'])
+            update.message.reply_text(reply_text, reply_markup=reply_keyboard.get_keyboard())
+
+        elif text == 'Sozlamalar' or text == 'Настройки':
 
             reply_keyboard = ReplyKeyboard('settings_keyboard', user['lang'])
 
-            update.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
+            update.message.reply_text(full_text, reply_markup=reply_keyboard.get_keyboard())
 
         elif text == "Mening ma'lumotlarim" or text == 'Мои данные':
 
@@ -40,12 +51,14 @@ def message_handler_callback(update: Update, context: CallbackContext):
         elif text == 'Ortga' or text == 'Назад':
 
             reply_keyboard = ReplyKeyboard('menu_keyboard', user['lang'])
-            update.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
+            update.message.reply_text(full_text, reply_markup=reply_keyboard.get_keyboard())
         else:
 
             reply_keyboard = ReplyKeyboard('menu_keyboard', user['lang'])
 
-            update.message.reply_text('\U0001F914', reply_markup=reply_keyboard.get_keyboard(),
+            thinking_emoji = '\U0001F914'
+
+            update.message.reply_text(thinking_emoji, reply_markup=reply_keyboard.get_keyboard(),
                                       reply_to_message_id=update.message.message_id)
 
     else:

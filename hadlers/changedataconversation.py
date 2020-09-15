@@ -142,22 +142,19 @@ def change_phone_callback(update: Update, context: CallbackContext):
         else:
 
             if user['lang'] == LANGS[0]:
-                text = "Telefon raqami xato kiritildi !!!\n" \
-                       "Qaytadan quyidagi shaklda kiriting:\n\n" \
-                       "<b><i><u>Misol: 99 1234567</u></i></b>\nYoki\n" \
-                       "<b><i><u>Misol: +998 99 1234567</u></i></b>\n"
+                text = "Telefon raqami xato kiritildi !!!"
 
             if user['lang'] == LANGS[1]:
-                text = "Номер телефона введен неправильно !!!\n" \
-                       "Введите еще раз в виде ниже:\n\n" \
-                       "<b><i><u>Например: 99 1234567</u></i></b>\nИли\n" \
-                       "<b><i><u>Например: +998 99 991234567</u></i></b>"
+                text = "Номер телефона введен неправильно !!!"
 
-            update.message.reply_text(text, reply_to_message_id=update.message.message_id, parse_mode=ParseMode.HTML)
+            reply_text = get_phone_number_layout(user['lang'])
+
+            update.message.reply_text(text, reply_to_message_id=update.message.message_id)
+            update.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
 
             return NEW_PHONE_NUMBER
 
-    update.message.reply_text(text)
+    update.message.reply_text(text, reply_to_message_id=update.message.message_id)
 
     inline_keyboard = InlineKeyboard('user_data_keyboard', user['lang'])
     update.message.reply_text(get_user_info_layout(user), reply_markup=inline_keyboard.get_keyboard(),
@@ -204,17 +201,13 @@ def change_data_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             text = "<i>Telefon raqamini o'zgartirish</i>"
-            reply_text = "Telefon raqamni quyidagi shaklda yuboring:\n\n" \
-                         "<b><i><u>Misol: 99 1234567</u></i></b>\nYoki\n" \
-                         "<b><i><u>Misol: +998 99 1234567</u></i></b>\n\n"
 
         if user['lang'] == LANGS[1]:
             text = '<i>Изменить номер телефона</i>'
-            reply_text = "Отправьте номер телефона в виде ниже:\n\n" \
-                         "<b><i><u>Например: 99 1234567</u></i></b>\nYoki\n" \
-                         "<b><i><u>Например: +998 99 1234567</u></i></b>\n\n"
 
         return_value = NEW_PHONE_NUMBER
+
+        reply_text = get_phone_number_layout(user['lang'])
 
     callback_query.edit_message_text(text, parse_mode=ParseMode.HTML)
     callback_query.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
