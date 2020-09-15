@@ -154,10 +154,10 @@ def get_user_info_layout(user):
 
         return f'{country_code} ({operator_code}) {phone_number[:3]} - {phone_number[3:]}'
 
-    layout = f"<b><i>{name}:</i> <u>{user['name']}</u></b>\n\n" \
-             f"<b><i>{surname}:</i> <u>{user['surname']}</u></b> \n\n" \
+    layout = f"<b>{name}: <i><u>{user['name']}</u></i></b>\n\n" \
+             f"<b>{surname}: <i><u>{user['surname']}</u></i></b> \n\n" \
              f"<b><i>{'-'.ljust(30, '-')}</i></b> \n" \
-             f"<b><i>\U0000260E {phone}: </i><u>{format_phone_number(user['phone_number'])}</u></b> \n\n"
+             f"<b>\U0000260E {phone}: <i><u>{format_phone_number(user['phone_number'])}</u></i></b> \n\n"
     # f"<b><i>\U0000260E {phone_2}: </i><u>{user['phone_number2']}</u></b> \n"
 
     return layout
@@ -167,16 +167,16 @@ def get_phone_number_layout(lang):
 
     if lang == LANGS[0]:
         text_1 = "Telefon raqamni quyidagi shaklda yuboring"
-        text_2 = "Misol: 99 1234567"
+        text_2 = "Misol"
         text_3 = "Yoki"
-        text_4 = "Misol: +998 99 1234567"
+        text_4 = "Misol"
 
     if lang == LANGS[1]:
         text_1 = 'Отправьте номер телефона в виде ниже'
-        text_2 = 'Например: 99 1234567'
+        text_2 = 'Например'
         text_3 = 'Или'
-        text_4 = 'Например: +998 99 1234567'
+        text_4 = 'Например'
 
     return f"{text_1}:\n\n" \
-           f"<b><i><u>{text_2}</u></i></b>\n{text_3}\n" \
-           f"<b><i><u>{text_4}</u></i></b>\n\n"
+           f"<b>{text_2}: <i><u>99 1234567</u></i></b>\n{text_3}\n" \
+           f"<b>{text_4}: <i><u>+998 99 1234567</u></i></b>\n"
