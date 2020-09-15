@@ -4,6 +4,7 @@ from telegram.ext import (MessageHandler, ConversationHandler, CallbackQueryHand
 from inlinekeyboards import InlineKeyboard
 from buttonsdatadict import BUTTONS_DATA_DICT
 from filters import phone_number_filter
+from replykeyboards import ReplyKeyboard
 from layouts import *
 import datetime
 import logging
@@ -865,7 +866,8 @@ def confirmation_callback(update: Update, context: CallbackContext):
 
         user_input_data['state'] = 'confirmed'
 
-        callback_query.message.reply_text(text)
+        reply_keyboard = ReplyKeyboard('menu_keyboard', user['lang'])
+        callback_query.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
 
         lastrow_id = insert_cargo(dict(user_input_data))
 
@@ -992,7 +994,10 @@ def txt_callback_in_confirmation(update: Update, context: CallbackContext):
         if user['lang'] == LANGS[1]:
             text = 'Подтверждено !'
 
-        update.message.reply_text(text)
+        user_input_data['state'] = 'confirmed'
+
+        reply_keyboard = ReplyKeyboard('menu_keyboard', user['lang'])
+        update.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
 
         lastrow_id = insert_cargo(dict(user_input_data))
 

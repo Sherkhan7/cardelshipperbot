@@ -135,10 +135,10 @@ def change_phone_callback(update: Update, context: CallbackContext):
 
             elif result == 'not updated':
                 if user['lang'] == LANGS[0]:
-                    text = "Telefon raqamingiz o'zgartirilmadi."
+                    text = "Bu raqam ro'yxatdan o'tgan."
 
                 if user['lang'] == LANGS[1]:
-                    text = 'Ваш номер телефона не был изменен.'
+                    text = 'Этот номер зарегистрирован.'
         else:
 
             if user['lang'] == LANGS[0]:

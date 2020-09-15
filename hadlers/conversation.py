@@ -32,7 +32,7 @@ def do_command(update: Update, context: CallbackContext):
     # with open('update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
 
-    print('inside do command')
+    # print('inside do command')
 
     user = get_user(update.effective_user.id)
 
