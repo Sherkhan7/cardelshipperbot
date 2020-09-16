@@ -227,10 +227,10 @@ def skip_callback(update: Update, context: CallbackContext):
             if user_input_data[PHOTO]:
                 callback_query.edit_message_text(text)
                 callback_query.message.reply_photo(user_input_data[PHOTO].get('file_id'), layout,
-                                                   reply_markup=inline_keyboard, parse_mode=ParseMode.HTML
+                                                   reply_markup=inline_keyboard.get_keyboard(), parse_mode=ParseMode.HTML
                                                    )
             else:
-                callback_query.edit_message_text(text=layout, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+                callback_query.edit_message_text(text=layout, reply_markup=inline_keyboard.get_keyboard(), parse_mode=ParseMode.HTML)
 
             user_input_data['state'] = CONFIRMATION
             return CONFIRMATION
@@ -770,10 +770,10 @@ def receiver_callback(update: Update, context: CallbackContext):
 
         if user_input_data[PHOTO]:
             update.message.reply_photo(user_input_data[PHOTO].get('file_id'), layout,
-                                       reply_markup=inline_keyboard, parse_mode=ParseMode.HTML
+                                       reply_markup=inline_keyboard.get_keyboard(), parse_mode=ParseMode.HTML
                                        )
         else:
-            update.message.reply_html(text=layout, reply_markup=inline_keyboard)
+            update.message.reply_html(text=layout, reply_markup=inline_keyboard.get_keyboard())
 
         user_input_data['state'] = CONFIRMATION
         return CONFIRMATION
