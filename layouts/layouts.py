@@ -157,14 +157,13 @@ def get_user_info_layout(user):
     layout = f"<b>{name}: <i><u>{user['name']}</u></i></b>\n\n" \
              f"<b>{surname}: <i><u>{user['surname']}</u></i></b> \n\n" \
              f"<b><i>{'-'.ljust(30, '-')}</i></b> \n" \
-             f"<b>\U0000260E {phone}: <i><u>{format_phone_number(user['phone_number'])}</u></i></b> \n\n"
+             f"<b>\U0000260E {phone}: <i><u>{format_phone_number(user['phone_number'])}</u></i></b>"
     # f"<b><i>\U0000260E {phone_2}: </i><u>{user['phone_number2']}</u></b> \n"
 
     return layout
 
 
 def get_phone_number_layout(lang):
-
     if lang == LANGS[0]:
         text_1 = "Telefon raqamni quyidagi shaklda yuboring"
         text_2 = "Misol"
