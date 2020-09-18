@@ -18,6 +18,8 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
     data = callback_query.data
 
+    # print(data)
+
     user = get_user(update.effective_user.id)
 
     # with open('update.json', 'w') as update_file:
@@ -25,7 +27,7 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
     #
     # with open('callback_query.json', 'w') as callback_query_file:
     #     callback_query_file.write(callback_query.to_json())
-
+    #
     # logger.info('user_input_data: %s', user_input_data)
 
     match_obj = re.search('^received', data)

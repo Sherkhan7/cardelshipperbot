@@ -16,6 +16,12 @@ def message_handler_callback(update: Update, context: CallbackContext):
     #     update_file.write(update.to_json())
     user = get_user(update.effective_user.id)
 
+    # update.message.reply_text('bla bla', reply_markup=InlineKeyboardMarkup([
+    #     [InlineKeyboardButton('next', callback_data='skip_to_location')],
+    #     [InlineKeyboardButton('123', callback_data='skip_location')],
+    #     [InlineKeyboardButton('fdffd', callback_data='location')]
+    # ]))
+
     if user:
 
         if text == '/menu':

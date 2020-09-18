@@ -93,11 +93,11 @@ class InlineKeyboard(object):
 
         if lang == LANGS[0]:
             region_name = 'nameUz'
-            odd_btn_text = 'Orqaga'
+            odd_btn_text = '« Orqaga'
 
         if lang == LANGS[1]:
             region_name = 'nameRu'
-            odd_btn_text = 'Назад'
+            odd_btn_text = '« Назад'
 
         if length % 2 == 0:
             keyboard = [
@@ -131,11 +131,11 @@ class InlineKeyboard(object):
 
         if lang == LANGS[0]:
             district_name = 'nameUz'
-            odd_btn_text = 'Orqaga'
+            odd_btn_text = '« Orqaga'
 
         if lang == LANGS[1]:
             district_name = 'nameRu'
-            odd_btn_text = 'Назад'
+            odd_btn_text = '« Назад'
 
         if length % 2 == 0:
             keyboard = [
