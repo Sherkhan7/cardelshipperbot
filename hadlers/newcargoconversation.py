@@ -177,11 +177,11 @@ def get_skip_keyboard(state):
 
 def skip_callback_in_to_location(update: Update, context: CallbackContext):
     callback_query = update.callback_query
-
+    data = callback_query.data
     user_input_data = context.user_data
     user = get_user(update.effective_user.id)
 
-    if user_input_data['state'] == TO_LOCATION:
+    if data == TO_LOCATION:
         user_input_data[TO_LOCATION] = {
             'longitude': None,
             'latitude': None

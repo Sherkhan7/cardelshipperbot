@@ -2,9 +2,8 @@ from languages import LANGS
 from DB import *
 from units import UNITS
 
-USER_ID, FROM_REGION, FROM_DISTRICT, FROM_LOCATION, TO_REGION, TO_DISTRICT, TO_LOCATION, \
-WEIGHT_UNIT, WEIGHT, VOLUME_UNIT, VOLUME, DEFINITION, PHOTO, DATE, HOUR, \
-MINUTE, RECEIVER_PHONE_NUMBER, CONFIRMATION = \
+(USER_ID, FROM_REGION, FROM_DISTRICT, FROM_LOCATION, TO_REGION, TO_DISTRICT, TO_LOCATION, WEIGHT_UNIT, WEIGHT,
+ VOLUME_UNIT, VOLUME, DEFINITION, PHOTO, DATE, HOUR, MINUTE, RECEIVER_PHONE_NUMBER, CONFIRMATION) = \
     ('user_id', 'from_region', 'from_district', 'from_location', 'to_region', 'to_district', 'to_location',
      'weight_unit', 'weight', 'volume_unit', 'volume', 'definition', 'photo',
      'date', 'hour', 'minute', 'receiver_phone_number', 'confirmation')
@@ -119,12 +118,12 @@ def get_new_cargo_layout(user_input_data, user):
               f"\U0001F3C1  {to_text}: {wrap_tags((to_district_name, to_region_name))}\n\n" \
               f"\U0001F4E6  {weght_text}: {wrap_tags(weight_info)}\n" \
               f"\U0001F4E6  {volume_text}: {wrap_tags(volume_info)}\n" \
-              f"\U0001F5D2	{definiton_text}: {wrap_tags(definition_info)}\n\n" \
               f"\U0001F4C5	{date_text}: {wrap_tags(user_input_data[DATE])}\n" \
-              f"\U0001F553  {time_text}: {wrap_tags(time_info)}\n\n" \
+              f"\U0001F553  {time_text}: {wrap_tags(time_info)}\n" \
+              f"\U0001F4DE  {receiver_phone_number_text}: {wrap_tags(receiver_phone_number_info)}\n" \
+              f"\U0001F5D2	{definiton_text}: {wrap_tags(definition_info)}\n\n" \
               f"\U0001F464  {sender_text}: {wrap_tags((user['name'], user['surname']))}\n" \
               f"\U0001F4DE  {sender_phone_number_1_text}: {wrap_tags(user['phone_number'])}\n\n" \
-              f"\U0001F4DE  {receiver_phone_number_text}: {wrap_tags(receiver_phone_number_info)}\n\n" \
               f"\U0001F916  @cardelshipperbot \U000000A9\n" \
               f"\U0001F6E1  Cardel Online \U00002122"
 

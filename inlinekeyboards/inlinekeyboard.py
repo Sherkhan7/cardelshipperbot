@@ -294,12 +294,15 @@ class InlineKeyboard(object):
             inline_keyboard.append([InlineKeyboardButton('A->B', url=direction)])
 
         if lang == LANGS[0]:
-            button_text = 'Tasdiqlash'
+            button_1_text = 'Tasdiqlash'
+            button_2_text = 'Tahrirlash'
 
         if lang == LANGS[1]:
-            button_text = 'Подтвердить'
+            button_1_text = 'Подтвердить'
+            button_2_text = 'Редактировать'
 
-        inline_keyboard.append([InlineKeyboardButton(button_text, callback_data='confirm')])
+        inline_keyboard.append([InlineKeyboardButton(button_1_text, callback_data='confirm'),
+                                InlineKeyboardButton(button_2_text, callback_data='edit')])
 
         inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
 
@@ -309,6 +312,10 @@ class InlineKeyboard(object):
 
         return self.__keyboard
 
+
+# inline_keyboard = InlineKeyboard('dates_keyboard', 'uz').get_keyboard()
+# inline_keyboard['inline_keyboard'].append([InlineKeyboardButton('back', callback_data='back')])
+# print(inline_keyboard)
 # z = InlineKeyboard('dates_keyboard', 'ru')
 # x = InlineKeyboard('hours_keyboard', 'uz', begin=18, end=29)
 # y = InlineKeyboard('minutes_keyboard', 'ru', data=13)

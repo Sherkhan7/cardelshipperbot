@@ -234,7 +234,7 @@ def update_cargo_status(cargo_id, status):
 
 # print(type(f.read()))
 # cargo_data = json.loads(f.read())
-# print(type(cargo_data))
+# print(cargo_data)
 # receiver = get_user(phone_number='+998998559815')
 # print(receiver)
 # print(insert_cargo(cargo_data))
