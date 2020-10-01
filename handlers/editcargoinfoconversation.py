@@ -2,7 +2,7 @@ from telegram.ext import ConversationHandler, CallbackQueryHandler, CallbackCont
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from DB import *
 from inlinekeyboards import InlineKeyboard
-from hadlers.newcargoconversation import get_skip_keyboard
+from handlers.newcargoconversation import get_skip_keyboard
 import logging
 from units import UNITS
 from layouts import get_new_cargo_layout, get_phone_number_layout

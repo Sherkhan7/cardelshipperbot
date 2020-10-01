@@ -1,10 +1,10 @@
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CallbackContext
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
-# from hadlers import (edit_address_conversation_handler, edit_cargo_info_conversation_handler,
+# from handlers import (edit_address_conversation_handler, edit_cargo_info_conversation_handler,
 #                      edit_date_and_time_conversation_handler)
-from hadlers.editcargoinfoconversation import edit_cargo_info_conversation_handler
-from hadlers.editaddressconversation import edit_address_conversation_handler
-from hadlers.editdateandtimeconversation import edit_date_and_time_conversation_handler
+from handlers.editcargoinfoconversation import edit_cargo_info_conversation_handler
+from handlers.editaddressconversation import edit_address_conversation_handler
+from handlers.editdateandtimeconversation import edit_date_and_time_conversation_handler
 from DB import *
 from inlinekeyboards import InlineKeyboard
 import logging
@@ -26,8 +26,8 @@ def edit_callback(update: Update, context: CallbackContext):
     if data == 'edit_address':
         inline_keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton('Yuboruvchi manzilini tahrirlash', callback_data='edit_from_address')],
-            [InlineKeyboardButton('Qabul qiluvchi manzilini tahrirlash', callback_data='edit_to_address')],
             [InlineKeyboardButton('Yuboruvchi lokatsiyasini tahrirlash', callback_data='edit_from_location')],
+            [InlineKeyboardButton('Qabul qiluvchi manzilini tahrirlash', callback_data='edit_to_address')],
             [InlineKeyboardButton('Qabul qiluvchi lokatsiyasini tahrirlash', callback_data='edit_to_location')],
             [InlineKeyboardButton('« Ortga', callback_data='back')],
 

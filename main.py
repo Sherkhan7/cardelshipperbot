@@ -4,12 +4,12 @@ from telegram.ext import Updater, ConversationHandler, CallbackQueryHandler, Cal
     MessageHandler, Filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ParseMode
 from config.config import TOKEN
-from hadlers import (message_handler, inline_keyboard_handler, conversation_handler,
-                     changedataconversation_handler, new_cargo_conversation_handler)
+from handlers import (message_handler, inline_keyboard_handler, conversation_handler,
+                      changedataconversation_handler, new_cargo_conversation_handler)
 from layouts import *
 from inlinekeyboards import InlineKeyboard
 from replykeyboards import ReplyKeyboard
-from hadlers import edit_conversation_handler
+from handlers import edit_conversation_handler
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
@@ -24,19 +24,19 @@ def cargo_callback(update: Update, context: CallbackContext):
     user_input_data = context.user_data
     user_input_data.update(cargo_data)
 
-    logger.info('user_input_data: %s', user_input_data)
-
     user = get_user(update.effective_user.id)
     layout = get_new_cargo_layout(user_input_data, user)
 
     inline_keyboard = InlineKeyboard('confirm_keyboard', user['lang'], data=user_input_data)
 
     if user_input_data[PHOTO]:
-        update.message.reply_photo(user_input_data[PHOTO].get('file_id'), layout,
-                                   reply_markup=inline_keyboard.get_keyboard(), parse_mode=ParseMode.HTML
-                                   )
+        message = update.message.reply_photo(user_input_data[PHOTO].get('file_id'), layout,
+                                             reply_markup=inline_keyboard.get_keyboard(), parse_mode=ParseMode.HTML
+                                             )
+        user_input_data['message_id'] = message.message_id
     else:
         update.message.reply_html(text=layout, reply_markup=inline_keyboard.get_keyboard())
+    logger.info('user_input_data: %s', user_input_data)
 
     user_input_data['state'] = CONFIRMATION
     return CONFIRMATION
@@ -63,6 +63,7 @@ def confirmation_callback(update: Update, context: CallbackContext):
 
         reply_keyboard = ReplyKeyboard('menu_keyboard', user['lang'])
         callback_query.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
+        callback_query.edit_message_reply_markup(None)
 
         lastrow_id = insert_cargo(dict(user_input_data))
 
@@ -126,7 +127,6 @@ def message_callback(update: Update, context: CallbackContext):
         print(f'{CONFIRMATION} STATE')
 
 
-
 def message_callback_in_edit(update: Update, context: CallbackContext):
     print('message callback in edit')
 
@@ -160,12 +160,12 @@ def main():
     #
     # updater.dispatcher.add_handler(inline_keyboard_handler)
 
-    # updater.start_polling()
-    # updater.idle()
-
-    updater.start_webhook(listen='127.0.0.1', port=5001, url_path=TOKEN)
-    updater.bot.set_webhook(url='https://cardel.ml/' + TOKEN)
+    updater.start_polling()
     updater.idle()
+
+    # updater.start_webhook(listen='127.0.0.1', port=5001, url_path=TOKEN)
+    # updater.bot.set_webhook(url='https://cardel.ml/' + TOKEN)
+    # updater.idle()
 
 
 if __name__ == '__main__':
