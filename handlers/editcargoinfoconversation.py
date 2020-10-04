@@ -35,17 +35,28 @@ def edit_cargo_info_callback(update: Update, context: CallbackContext):
         state = 'EDIT'
 
     if data == 'edit_weight':
-        text_2 = "Yuk og'irlik birligini tanlang:"
         button1_text = UNITS['uz'][0]
         button2_text = UNITS['uz'][1]
 
-        inline_keyboard = InlineKeyboardMarkup([
-            [
-                InlineKeyboardButton(button1_text, callback_data='kg'),
-                InlineKeyboardButton(button2_text, callback_data='t')
-            ],
-            [InlineKeyboardButton('« Ortga', callback_data='back')],
-        ])
+        text_2 = "Yuk og'irlik birligini tanlang:"
+        if user_input_data['weight']:
+            inline_keyboard = InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton(button1_text, callback_data='kg'),
+                    InlineKeyboardButton(button2_text, callback_data='t')
+                ],
+                [InlineKeyboardButton("Og'irlikni o'chirish", callback_data='next')],
+                [InlineKeyboardButton('« Ortga', callback_data='back')],
+            ])
+        else:
+            text_2 += "\nYoki eskisini o'chirish uchun «o'chirish» ni bosing"
+            inline_keyboard = InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton(button1_text, callback_data='kg'),
+                    InlineKeyboardButton(button2_text, callback_data='t')
+                ],
+                [InlineKeyboardButton('« Ortga', callback_data='back')],
+            ])
 
         if user_input_data['photo']:
             callback_query.edit_message_caption(text_2, reply_markup=inline_keyboard)
@@ -168,26 +179,31 @@ def edit_weight_callback(update: Update, context: CallbackContext):
             answer = None
             layout = get_new_cargo_layout(user_input_data, user)
 
-        else:
+        if callback_query.data == 'next':
+            user_input_data['weight'] = None
+            inline_keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton('Manzilni tahrirlash', callback_data='edit_address')],
+                [InlineKeyboardButton("Yuk ma'lumotlarini tahrirlash", callback_data='edit_cargo_info')],
+                [InlineKeyboardButton('Kun va vaqtni tahrirlash', callback_data='edit_date_and_time')],
+                [InlineKeyboardButton('« Tahrirni yakunlash', callback_data='terminate_editing')]
+            ])
+            state = 'EDIT'
+            user_input_data['state'] = state
+
+            layout = get_new_cargo_layout(user_input_data, user)
+            answer = "Yuk og'irligi tahrirlandi"
+
+        if callback_query.data == 'kg' or callback_query.data == 't':
             user_input_data['weight_unit'] = callback_query.data
             state = 'edit_weight'
             user_input_data['state'] = state
             answer = None
 
-            if user_input_data['weight']:
-                reply_text = "Yangi yuk og'irligini yuboring (raqamda):\n" \
-                             "Yoki eskisini o'chirish uchun «o'chirish» ni bosing"
-                inline_keyboard = InlineKeyboardMarkup([
-                    [InlineKeyboardButton("O'g'rilikni o'chirish", callback_data='next')],
-                    [InlineKeyboardButton('« Ortga', callback_data='back')],
-                ])
-                layout = reply_text
-            else:
-                reply_text = "Yangi yuk og'irligini yuboring (raqamda):\n"
-                inline_keyboard = InlineKeyboardMarkup([
-                    [InlineKeyboardButton('« Ortga', callback_data='back')],
-                ])
-                layout = reply_text
+            reply_text = "Yangi yuk og'irligini yuboring (raqamda):\n"
+            inline_keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton('« Ortga', callback_data='back')],
+            ])
+            layout = reply_text
 
         callback_query.answer(answer)
 
@@ -208,33 +224,29 @@ def edit_weight_callback(update: Update, context: CallbackContext):
             if data == 'back':
                 state = 'edit_weight'
                 user_input_data['state'] = 'edit_weight_unit'
-                text_2 = "Yuk og'irlik birligini tanlang:"
                 button1_text = UNITS['uz'][0]
                 button2_text = UNITS['uz'][1]
-
-                inline_keyboard = InlineKeyboardMarkup([
-                    [
-                        InlineKeyboardButton(button1_text, callback_data='kg'),
-                        InlineKeyboardButton(button2_text, callback_data='t')
-                    ],
-                    [InlineKeyboardButton('« Ortga', callback_data='back')],
-                ])
+                text_2 = "Yuk og'irlik birligini tanlang:"
+                if user_input_data['weight']:
+                    inline_keyboard = InlineKeyboardMarkup([
+                        [
+                            InlineKeyboardButton(button1_text, callback_data='kg'),
+                            InlineKeyboardButton(button2_text, callback_data='t')
+                        ],
+                        [InlineKeyboardButton("Og'irlikni o'chirish", callback_data='next')],
+                        [InlineKeyboardButton('« Ortga', callback_data='back')],
+                    ])
+                else:
+                    text_2 += "\nYoki eskisini o'chirish uchun «o'chirish» ni bosing"
+                    inline_keyboard = InlineKeyboardMarkup([
+                        [
+                            InlineKeyboardButton(button1_text, callback_data='kg'),
+                            InlineKeyboardButton(button2_text, callback_data='t')
+                        ],
+                        [InlineKeyboardButton('« Ortga', callback_data='back')],
+                    ])
                 answer = None
                 layout = text_2
-
-            if data == 'next':
-                user_input_data['weight'] = None
-                inline_keyboard = InlineKeyboardMarkup([
-                    [InlineKeyboardButton('Manzilni tahrirlash', callback_data='edit_address')],
-                    [InlineKeyboardButton("Yuk ma'lumotlarini tahrirlash", callback_data='edit_cargo_info')],
-                    [InlineKeyboardButton('Kun va vaqtni tahrirlash', callback_data='edit_date_and_time')],
-                    [InlineKeyboardButton('« Tahrirni yakunlash', callback_data='terminate_editing')]
-                ])
-                state = 'EDIT'
-                user_input_data['state'] = state
-
-                layout = get_new_cargo_layout(user_input_data, user)
-                answer = "Yuk og'irligi tahrirlandi"
 
             callback_query.answer(answer)
 

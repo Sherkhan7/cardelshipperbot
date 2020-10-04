@@ -48,24 +48,19 @@ def edit_callback(update: Update, context: CallbackContext):
         user_input_data['state'] = 'edit_cargo_info'
         state = 'edit_cargo_info'
 
-    if data == 'edit_date':
+    if data == 'edit_date_and_time':
         inline_keyboard = InlineKeyboard('dates_keyboard', user['lang']).get_keyboard()
         inline_keyboard['inline_keyboard'].append([InlineKeyboardButton('« Ortga', callback_data='back')])
 
-        user_input_data['state'] = 'EDIT DATE'
-        state = 'edit_date'
-
-    if data == 'edit_date_and_time':
-        # inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=6, end=17).get_keyboard()
-        # inline_keyboard['inline_keyboard'].append([InlineKeyboardButton('« Ortga', callback_data='back')])
-
-        inline_keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton('Kunni tahrirlash', callback_data='edit_date')],
-            [InlineKeyboardButton('Vaqtni tahrirlash', callback_data='edit_time')],
-            [InlineKeyboardButton('« Ortga', callback_data='back')],
-        ])
         user_input_data['state'] = 'edit_date_and_time'
         state = 'edit_date_and_time'
+
+        if user_input_data['photo']:
+            callback_query.edit_message_caption('Kunni tanlang', reply_markup=inline_keyboard)
+        else:
+            callback_query.edit_message_text('Kunni tanlang', reply_markup=inline_keyboard)
+        callback_query.answer()
+        return state
 
     if data == 'terminate_editing':
         inline_keyboard = InlineKeyboard('confirm_keyboard', user['lang'], data=user_input_data).get_keyboard()
