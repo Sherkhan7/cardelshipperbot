@@ -31,8 +31,7 @@ def cargo_callback(update: Update, context: CallbackContext):
 
     if user_input_data[PHOTO]:
         message = update.message.reply_photo(user_input_data[PHOTO].get('file_id'), layout,
-                                             reply_markup=inline_keyboard.get_keyboard(), parse_mode=ParseMode.HTML
-                                             )
+                                             reply_markup=inline_keyboard.get_keyboard(), parse_mode=ParseMode.HTML)
         user_input_data['message_id'] = message.message_id
     else:
         message = update.message.reply_html(text=layout, reply_markup=inline_keyboard.get_keyboard())
@@ -104,45 +103,21 @@ def confirmation_callback(update: Update, context: CallbackContext):
         # with open('jsons/callback_query.json', 'w') as cargo:
         #     cargo.write(callback_query.to_json())
 
-        inline_keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton('Manzilni tahrirlash', callback_data='edit_address')],
-            [InlineKeyboardButton("Yuk ma'lumotlarini tahrirlash", callback_data='edit_cargo_info')],
-            [InlineKeyboardButton('Kun va vaqtni tahrirlash', callback_data='edit_date_and_time')],
-            [InlineKeyboardButton('« Tahrirni yakunlash', callback_data='terminate_editing')]
-        ])
+        inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
 
         callback_query.answer()
         callback_query.edit_message_reply_markup(inline_keyboard)
 
-        user_input_data['state'] = 'EDIT'
-        return 'EDIT'
-
-
-def message_callback(update: Update, context: CallbackContext):
-    print('message_callback')
-
-    user_input_data = context.user_data
-
-    if user_input_data['state'] == 'EDIT':
-        print('EDIT STATE')
-    if user_input_data['state'] == CONFIRMATION:
-        print(f'{CONFIRMATION} STATE')
-
-
-def message_callback_in_edit(update: Update, context: CallbackContext):
-    print('message callback in edit')
-
-    # return ConversationHandler.END
+        user_input_data['state'] = EDIT
+        return EDIT
 
 
 def main():
     conv_1_handler = ConversationHandler(
         entry_points=[CommandHandler('cargo', cargo_callback)],
         states={
-            CONFIRMATION: [CallbackQueryHandler(confirmation_callback, pattern='confirm|edit'),
-                           MessageHandler(Filters.text & ~Filters.command, message_callback)],
-            'EDIT': [edit_conversation_handler,
-                     MessageHandler(Filters.text & ~Filters.command | Filters.photo, message_callback_in_edit)]
+            CONFIRMATION: [CallbackQueryHandler(confirmation_callback, pattern='^(confirm|edit)$')],
+            EDIT: [edit_conversation_handler]
         },
         fallbacks=[]
 
@@ -156,7 +131,7 @@ def main():
     #
     # updater.dispatcher.add_handler(new_cargo_conversation_handler)
     #
-    # updater.dispatcher.add_handler(changedataconversation_handler)
+    updater.dispatcher.add_handler(changedataconversation_handler)
     #
     # updater.dispatcher.add_handler(message_handler)
     #

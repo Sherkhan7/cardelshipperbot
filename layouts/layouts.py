@@ -3,10 +3,10 @@ from DB import *
 from units import UNITS
 
 (USER_ID, FROM_REGION, FROM_DISTRICT, FROM_LOCATION, TO_REGION, TO_DISTRICT, TO_LOCATION, WEIGHT_UNIT, WEIGHT,
- VOLUME_UNIT, VOLUME, DEFINITION, PHOTO, DATE, HOUR, MINUTE, RECEIVER_PHONE_NUMBER, CONFIRMATION) = \
+ VOLUME_UNIT, VOLUME, DEFINITION, PHOTO, DATE, HOUR, MINUTE, RECEIVER_PHONE_NUMBER, CONFIRMATION, EDIT) = \
     ('user_id', 'from_region', 'from_district', 'from_location', 'to_region', 'to_district', 'to_location',
      'weight_unit', 'weight', 'volume_unit', 'volume', 'definition', 'photo',
-     'date', 'hour', 'minute', 'receiver_phone_number', 'confirmation')
+     'date', 'hour', 'minute', 'receiver_phone_number', 'confirmation', 'edit')
 
 
 def get_new_cargo_layout(user_input_data, user):

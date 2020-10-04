@@ -55,9 +55,22 @@ class InlineKeyboard(object):
         elif keyb_type == 'minutes_keyboard':
 
             return self.__get_minutes_keyboard(lang, data)
+
         elif keyb_type == 'confirm_keyboard':
 
             return self.__get_confirm_keyboard(lang, data)
+
+        elif keyb_type == 'edit_keyboard':
+
+            return self.__get_edit_keyboard(lang)
+
+        elif keyb_type == 'edit_address_keyboard':
+
+            return self.__get_edit_address_keyboard(lang)
+
+        elif keyb_type == 'edit_cargo_info_keyboard':
+
+            return self.__get_edit_cargo_info_keyboard(lang)
 
     @staticmethod
     def __get_user_data_keyboard(lang):
@@ -294,24 +307,94 @@ class InlineKeyboard(object):
             inline_keyboard.append([InlineKeyboardButton('A->B', url=direction)])
 
         if lang == LANGS[0]:
-            button_1_text = 'Tasdiqlash'
-            button_2_text = 'Tahrirlash'
+            button1_text = 'Tasdiqlash'
+            button2_text = 'Tahrirlash'
 
         if lang == LANGS[1]:
-            button_1_text = 'Подтвердить'
-            button_2_text = 'Редактировать'
+            button1_text = 'Подтвердить'
+            button2_text = 'Редактировать'
 
-        inline_keyboard.append([InlineKeyboardButton(button_1_text, callback_data='confirm'),
-                                InlineKeyboardButton(button_2_text, callback_data='edit')])
+        inline_keyboard.append([InlineKeyboardButton(button1_text, callback_data='confirm'),
+                                InlineKeyboardButton(button2_text, callback_data='edit')])
 
         inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
 
         return inline_keyboard
 
+    @staticmethod
+    def __get_edit_keyboard(lang):
+        if lang == LANGS[0]:
+            button1_text = 'Manzilni tahrirlash'
+            button2_text = 'Yuk ma\'lumotlarini tahrirlash'
+            button3_text = 'Kun va vaqtni tahrirlash'
+            button4_text = '« Tahrirni yakunlash'
+        if lang == LANGS[1]:
+            button1_text = 'Редактировать адрес'
+            button2_text = 'Редактировать информацию о грузе'
+            button3_text = 'Редактировать дату и время'
+            button4_text = '« Закончить редактирование'
+
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(button1_text, callback_data='edit_address')],
+            [InlineKeyboardButton(button2_text, callback_data='edit_cargo_info')],
+            [InlineKeyboardButton(button3_text, callback_data='edit_date_and_time')],
+            [InlineKeyboardButton(button4_text, callback_data='terminate_editing')]
+        ])
+
+    @staticmethod
+    def __get_edit_address_keyboard(lang):
+        if lang == LANGS[0]:
+            button1_text = 'Yuboruvchi manzilini tahrirlash'
+            button2_text = 'Yuboruvchi geolokatsiyasini tahrirlash'
+            button3_text = 'Qabul qiluvchi manzilini tahrirlash'
+            button4_text = '« Qabul qiluvchi geolokatsiyasini tahrirlash'
+            button5_text = '« Ortga'
+        if lang == LANGS[1]:
+            button1_text = 'Редактировать адрес отправителя'
+            button2_text = 'Редактировать геолокацию отправителя'
+            button3_text = 'Редактировать адрес получателя'
+            button4_text = 'Редактировать геолокацию получателя'
+            button5_text = '« Назад'
+
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(button1_text, callback_data='edit_from_address')],
+            [InlineKeyboardButton(button2_text, callback_data='edit_from_location')],
+            [InlineKeyboardButton(button3_text, callback_data='edit_to_address')],
+            [InlineKeyboardButton(button4_text, callback_data='edit_to_location')],
+            [InlineKeyboardButton(button5_text, callback_data='back')],
+
+        ])
+
+    @staticmethod
+    def __get_edit_cargo_info_keyboard(lang):
+        if lang == LANGS[0]:
+            button1_text = 'Og\'irlikni tahrirlash'
+            button2_text = 'Hajmni tahrirlash'
+            button3_text = 'Tavsifni tahrirlash'
+            button4_text = 'Rasmni tahrirlash'
+            button5_text = 'Qabul qiluvchi telefonini tahrirlash'
+            button6_text = '« Ortga'
+        if lang == LANGS[1]:
+            button1_text = 'Изменить вес'
+            button2_text = 'Изменить объем'
+            button3_text = 'Изменить описание'
+            button4_text = 'Изменить фотография'
+            button5_text = 'Изменить телефон получателя'
+            button6_text = '« Назад'
+
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(button1_text, callback_data='edit_weight'),
+             InlineKeyboardButton(button2_text, callback_data='edit_volume')],
+            [InlineKeyboardButton(button3_text, callback_data='edit_definition'),
+             InlineKeyboardButton(button4_text, callback_data='edit_photo')],
+            [InlineKeyboardButton(button5_text, callback_data='edit_receiver_phone')],
+            [InlineKeyboardButton(button6_text, callback_data='back')],
+
+        ])
+
     def get_keyboard(self):
 
         return self.__keyboard
-
 
 # inline_keyboard = InlineKeyboard('dates_keyboard', 'uz').get_keyboard()
 # inline_keyboard['inline_keyboard'].append([InlineKeyboardButton('back', callback_data='back')])
