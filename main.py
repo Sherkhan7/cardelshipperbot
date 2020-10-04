@@ -35,7 +35,9 @@ def cargo_callback(update: Update, context: CallbackContext):
                                              )
         user_input_data['message_id'] = message.message_id
     else:
-        update.message.reply_html(text=layout, reply_markup=inline_keyboard.get_keyboard())
+        message = update.message.reply_html(text=layout, reply_markup=inline_keyboard.get_keyboard())
+        user_input_data['message_id'] = message.message_id
+
     logger.info('user_input_data: %s', user_input_data)
 
     user_input_data['state'] = CONFIRMATION
