@@ -36,17 +36,6 @@ def edit_address_callback(update: Update, context: CallbackContext):
         user_input_data['state'] = 'edit_from_address'
         state = 'edit_from_address'
 
-    if data == 'edit_to_address':
-        # print('edit_to_address')
-        inline_keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton('Viloyatni tahrirlash', callback_data='edit_region'),
-             InlineKeyboardButton('Tumanni tahrirlash', callback_data='edit_district')],
-            [InlineKeyboardButton('« Ortga', callback_data='back')]
-        ])
-
-        user_input_data['state'] = 'edit_to_address'
-        state = 'edit_to_address'
-
     if data == 'edit_from_location':
         # print('edit_from_location')
 
@@ -67,11 +56,22 @@ def edit_address_callback(update: Update, context: CallbackContext):
                 [KeyboardButton(button_text_2)],
                 [KeyboardButton('« Ortga')]
             ], resize_keyboard=True)
-        context.bot.delete_message(update.effective_chat.id, user_input_data.pop('message_id'))
+        context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data.pop('message_id'))
         callback_query.message.reply_text(reply_text, reply_markup=reply_keyboard)
         user_input_data['state'] = 'edit_from_location'
         state = 'edit_from_location'
         return state
+
+    if data == 'edit_to_address':
+        # print('edit_to_address')
+        inline_keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton('Viloyatni tahrirlash', callback_data='edit_region'),
+             InlineKeyboardButton('Tumanni tahrirlash', callback_data='edit_district')],
+            [InlineKeyboardButton('« Ortga', callback_data='back')]
+        ])
+
+        user_input_data['state'] = 'edit_to_address'
+        state = 'edit_to_address'
 
     if data == 'edit_to_location':
         # print('edit_to_location')
@@ -83,7 +83,7 @@ def edit_address_callback(update: Update, context: CallbackContext):
                 [InlineKeyboardButton('« Ortga', callback_data='back')]
             ])
         else:
-            text = "Yangi yukni jo'natish geolokatsiyasini yuboring.\n\n" \
+            text = "Yukni jo'natish geolokatsiyasini yuboring.\n\n" \
                    "Yoki eskisini o'chirish uchun «o'chirish» ni bosing"
             inline_keyboard = InlineKeyboardMarkup([
                 [InlineKeyboardButton("«Eski geolokatsiyani o'chirish»", callback_data='next')],
@@ -96,10 +96,9 @@ def edit_address_callback(update: Update, context: CallbackContext):
 
         user_input_data['state'] = 'edit_to_location'
         state = 'edit_to_location'
+        callback_query.answer()
         if user_input_data[PHOTO]:
-            context.bot.delete_message(update.effective_chat.id, user_input_data.pop('message_id'))
-            message = callback_query.message.reply_text(text, reply_markup=inline_keyboard)
-            user_input_data['message_id'] = message.message_id
+            callback_query.edit_message_caption(text, reply_markup=inline_keyboard)
         else:
             callback_query.edit_message_text(text, reply_markup=inline_keyboard)
         return state
@@ -362,10 +361,7 @@ def edit_to_location_callback(update: Update, context: CallbackContext):
 
             callback_query.answer()
             if user_input_data['photo']:
-                context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data.pop('message_id'))
-                message = callback_query.message.reply_photo(user_input_data['photo']['file_id'], caption=text,
-                                                             reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
-                user_input_data['message_id'] = message.message_id
+                callback_query.edit_message_caption(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
             else:
                 callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
