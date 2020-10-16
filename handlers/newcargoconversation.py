@@ -8,6 +8,7 @@ from replykeyboards import ReplyKeyboard
 from layouts import *
 import datetime
 import logging
+from handlers.editconversation import edit_conversation_handler
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
@@ -860,19 +861,20 @@ def receiver_callback(update: Update, context: CallbackContext):
     if phone_number and phone_number != user['phone_number']:
 
         user_input_data[RECEIVER_PHONE_NUMBER] = phone_number
-        logger.info('use_input_data: %s', user_input_data)
 
         layout = get_new_cargo_layout(user_input_data, user)
 
-        inline_keyboard = InlineKeyboard('confirm_keyboard', user['lang'], data=user_input_data)
+        inline_keyboard = InlineKeyboard('confirm_keyboard', user['lang'], data=user_input_data).get_keyboard()
 
         if user_input_data[PHOTO]:
-            update.message.reply_photo(user_input_data[PHOTO].get('file_id'), layout,
-                                       reply_markup=inline_keyboard.get_keyboard(), parse_mode=ParseMode.HTML
-                                       )
+            message = update.message.reply_photo(user_input_data[PHOTO].get('file_id'), layout,
+                                                 reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+            user_input_data['message_id'] = message.message_id
         else:
-            update.message.reply_html(text=layout, reply_markup=inline_keyboard.get_keyboard())
+            message = update.message.reply_html(layout, reply_markup=inline_keyboard)
+            user_input_data['message_id'] = message.message_id
 
+        logger.info('use_input_data: %s', user_input_data)
         user_input_data['state'] = CONFIRMATION
         return CONFIRMATION
 
@@ -921,9 +923,11 @@ def confirmation_callback(update: Update, context: CallbackContext):
         user_input_data['state'] = 'confirmed'
 
         reply_keyboard = ReplyKeyboard('menu_keyboard', user['lang'])
+        callback_query.edit_message_reply_markup(None)
         callback_query.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
 
         lastrow_id = insert_cargo(dict(user_input_data))
+        state = ConversationHandler.END
 
         if user_input_data['receiver_phone_number']:
 
@@ -953,8 +957,19 @@ def confirmation_callback(update: Update, context: CallbackContext):
                     context.bot.send_message(receiver['user_id'], layout, reply_markup=inline_keyboard,
                                              parse_mode=ParseMode.HTML)
 
-    user_input_data.clear()
-    return ConversationHandler.END
+    if data == 'edit':
+        # with open('jsons/callback_query.json', 'w') as cargo:
+        #     cargo.write(callback_query.to_json())
+
+        inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
+
+        callback_query.answer()
+        callback_query.edit_message_reply_markup(inline_keyboard)
+
+        state = EDIT
+        user_input_data['state'] = state
+
+    return state
 
 
 def txt_callback(update: Update, context: CallbackContext):
@@ -1025,6 +1040,7 @@ def txt_callback_in_confirmation(update: Update, context: CallbackContext):
         user_input_data['state'] = 'confirmed'
 
         reply_keyboard = ReplyKeyboard('menu_keyboard', user['lang'])
+        context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data.pop('message_id'))
         update.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
 
         lastrow_id = insert_cargo(dict(user_input_data))
@@ -1131,8 +1147,11 @@ new_cargo_conversation_handler = ConversationHandler(
         RECEIVER_PHONE_NUMBER: [CallbackQueryHandler(skip_callback_in_receiver, pattern='.*receiver_phone$'),
                                 MessageHandler(Filters.text | Filters.contact, receiver_callback)],
 
-        CONFIRMATION: [CallbackQueryHandler(confirmation_callback, pattern='confirm'),
-                       MessageHandler(Filters.text, txt_callback_in_confirmation)]
+        CONFIRMATION: [CallbackQueryHandler(confirmation_callback, pattern='^(confirm|edit)$'),
+                       MessageHandler(Filters.text, txt_callback_in_confirmation)],
+
+        EDIT: [edit_conversation_handler]
+
     },
     fallbacks=[
         # CommandHandler('cancel', do_cancel)

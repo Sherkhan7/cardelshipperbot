@@ -166,8 +166,13 @@ def insert_cargo(cargo_data):
     #     cargo.write(json.dumps(cargo_data, indent=4))
     if cargo_data.get('message_id'):
         cargo_data.pop('message_id')
+
     date = cargo_data.pop('date')
     time = cargo_data.pop('time')
+
+    if time == 'now':
+        time = datetime.datetime.now().strftime('%H:%M')
+
     shipping_datetime = datetime.datetime.strptime(date + ' ' + time, '%d-%m-%Y %H:%M')
     cargo_data.update({'shipping_datetime': shipping_datetime})
 

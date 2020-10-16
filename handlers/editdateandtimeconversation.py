@@ -76,14 +76,14 @@ def edit_time_callback(update: Update, context: CallbackContext):
 
     if data == 'back_btn' or data == 'next' or data == 'back':
 
+        if user['lang'] == LANGS[0]:
+            button_text = '« Ortga'
+        if user['lang'] == LANGS[1]:
+            button_text = '« Назад'
+
         if data == 'back_btn':
 
             user_input_data.pop('new_date')
-
-            if user['lang'] == LANGS[0]:
-                button_text = '« Ortga'
-            if user['lang'] == LANGS[1]:
-                button_text = '« Назад'
 
             inline_keyboard = InlineKeyboard('dates_keyboard', user['lang']).get_keyboard()
             inline_keyboard['inline_keyboard'].append([InlineKeyboardButton(button_text, callback_data='back')])
@@ -96,6 +96,7 @@ def edit_time_callback(update: Update, context: CallbackContext):
                 inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=18, end=29).get_keyboard()
             if data == 'back':
                 inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=6, end=17).get_keyboard()
+                inline_keyboard['inline_keyboard'].append([InlineKeyboardButton(button_text, callback_data='back_btn')])
 
             state = user_input_data['state']
 

@@ -102,7 +102,6 @@ def get_new_cargo_layout(user_input_data, user):
 
         if user_input_data['time'] == 'now':
             time_info = "Сейчас"
-            user_input_data['time'] = datetime.datetime.now().strftime('%H:%M')
         else:
             time_info = user_input_data['time']
 
