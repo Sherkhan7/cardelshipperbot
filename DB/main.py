@@ -115,6 +115,10 @@ def update_user_info(user_id, **kwargs):
         value = kwargs['lang']
         sql = "UPDATE testdb.users SET lang = %s WHERE user_id = %s"
 
+    if 'phone_number' in kwargs.keys():
+        value = kwargs['phone_number']
+        sql = "UPDATE testdb.users SET phone_number = %s WHERE user_id = %s"
+
     # print(value)
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
@@ -160,9 +164,15 @@ def get_region_and_district(region_id, district_id):
 def insert_cargo(cargo_data):
     # with open('jsons/cargo.json', 'w') as cargo:
     #     cargo.write(json.dumps(cargo_data, indent=4))
+    if cargo_data.get('message_id'):
+        cargo_data.pop('message_id')
 
     date = cargo_data.pop('date')
     time = cargo_data.pop('time')
+
+    if time == 'now':
+        time = datetime.datetime.now().strftime('%H:%M')
+
     shipping_datetime = datetime.datetime.strptime(date + ' ' + time, '%d-%m-%Y %H:%M')
     cargo_data.update({'shipping_datetime': shipping_datetime})
 
@@ -230,21 +240,8 @@ def update_cargo_status(cargo_id, status):
 
 # print(type(f.read()))
 # cargo_data = json.loads(f.read())
-# print(type(cargo_data))
+# print(cargo_data)
 # receiver = get_user(phone_number='+998998559815')
 # print(receiver)
 # print(insert_cargo(cargo_data))
 # print(get_user('653634001'))
-# y = [{'id': 1, 'name': 'name_1'}, {'id': 2, 'name': 'name_2'}, {'id': 3, 'name': 'name_3'}]
-# n = len(y)
-
-# def myfunc(n):
-#     if n % 2 == 0:
-#         x = [[y[i], y[i + 1]] for i in range(0, n, 2)]
-#         # print(x)
-#         return x
-#     if n % 2 != 0:
-#         x = [[y[i], '.'] if i == n - 1 else [y[i], y[i + 1]] for i in range(0, n, 2)]
-#         # print(x)
-#         return x
-#

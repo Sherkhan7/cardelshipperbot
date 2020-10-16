@@ -1,15 +1,12 @@
 def full_name_filter(full_name):
-
     full_name = full_name.strip()
     full_name = full_name.split()
 
     if len(full_name) == 2:
-        if full_name[0].isalpha() and full_name[1].isalpha():
+        if full_name[0].isalpha() and full_name[-1].isalpha():
             return full_name
-        else:
-            return False
-    else:
-        return False
+
+    return False
 
 
 def special_code_filter(special_code):
@@ -20,7 +17,6 @@ def special_code_filter(special_code):
 
 
 def phone_number_filter(phone_number):
-
     phone_number = phone_number.replace(" ", "")
 
     if phone_number.isdigit():
@@ -36,7 +32,6 @@ def phone_number_filter(phone_number):
     elif phone_number.startswith('+998') and len(phone_number) == 13 and phone_number[1:].isdigit():
         return phone_number
 
-    return None
-
+    return False
 
 # print(phone_number_filter('+998998559819'))

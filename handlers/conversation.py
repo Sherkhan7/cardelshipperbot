@@ -4,7 +4,7 @@ from telegram.ext import (CommandHandler, MessageHandler, ConversationHandler,
 from telegram import ReplyKeyboardRemove, ParseMode
 from inlinekeyboards import InlineKeyboard
 from filters import *
-from replykeyboards import replykeyboard_uz, replykeyboard_ru
+from replykeyboards import ReplyKeyboard
 from DB.main import *
 from languages import LANGS
 import logging
@@ -46,13 +46,15 @@ def do_command(update: Update, context: CallbackContext):
             if user['lang'] == LANGS[1]:
                 text = "Вы зарегистрированы !"
 
-            inline_keyboard = InlineKeyboard('main_keyboard', user['lang'])
+            reply_keyboard = ReplyKeyboard('menu_keyboard', user['lang'])
 
-            update.message.reply_text(text, reply_markup=inline_keyboard.get_keyboard())
+            update.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
 
+            user_input_data.clear()
             return ConversationHandler.END
 
         else:
+
             inline_keyboard = InlineKeyboard('langs_keyboard')
             update.message.reply_text('Tilni tanlang. Выберите язык.', reply_markup=inline_keyboard.get_keyboard())
 
@@ -64,35 +66,26 @@ def text_callback(update: Update, context: CallbackContext):
 
     # with open('../update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
-
-    text = update.message.text
-    user = get_user(update.effective_user.id)
-
     inline_keyboard = InlineKeyboard('langs_keyboard')
 
-    if text == '/start':
+    update.message.reply_text("Avval ro'yxatdan o'ting.\nСначала зарегистрируйтесь.")
 
-        update.message.reply_text('Tilni tanlang. Выберите язык.',
-                                  reply_markup=inline_keyboard.get_keyboard())
-
-    else:
-        update.message.reply_text("Avval ro'yxatdan o'ting.\nСначала зарегистрируйтесь.")
-
-        update.message.reply_text('Tilni tanlang. Выберите язык.',
-                                  reply_markup=inline_keyboard.get_keyboard())
+    update.message.reply_text('Tilni tanlang. Выберите язык.',
+                              reply_markup=inline_keyboard.get_keyboard(),
+                              reply_to_message_id=update.message.message_id)
 
     return LANG
 
 
 def lang_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
+    data = callback_query.data
 
     # with open('../update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
     #
     # with open('../callback_query.json', 'w') as callback_query_file:
     #     callback_query_file.write(callback_query.to_json())
-    data = callback_query.data.replace('_btn', '')
 
     # print('inside lang callback')
 
@@ -128,20 +121,20 @@ def full_name_callback(update: Update, context: CallbackContext):
 
     full_name = full_name_filter(text)
 
-    if full_name and full_name != '/start' and full_name != '/menu':
+    if full_name:
 
         user_input_data.update({'name': full_name[0]})
         user_input_data.update({'surname': full_name[1]})
 
         if user_input_data[LANG] == LANGS[0]:
-            text = f'Davom etish uchun kontaktingizni yuboring:'
-            replykeyboard = replykeyboard_uz
+            text = 'Davom etish uchun kontaktingizni yuboring:'
 
         if user_input_data[LANG] == LANGS[1]:
-            text = f'Чтобы продолжить, отправьте свой контакт:'
-            replykeyboard = replykeyboard_ru
+            text = 'Чтобы продолжить, отправьте свой контакт:'
 
-        update.message.reply_text(text, reply_markup=replykeyboard)
+        reply_keyboard = ReplyKeyboard('phone_number_keyboard', user_input_data[LANG])
+
+        update.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
 
         return PHONE_NUMBER
 
@@ -226,23 +219,17 @@ def special_code_callback(update: Update, context: CallbackContext):
 
     if special_code == SPECIAL_CODE[update.effective_user.id]:
 
-        result = insert_user(user_input_data)
-
-        if not result:
-            update.message.reply_text('Error !!!')
-
-            user_input_data.clear()
-            return ConversationHandler.END
+        insert_user(user_input_data)
 
         if user_input_data[LANG] == LANGS[0]:
-            text = "\U0001F44F\U0001F44F\U0001F44F Tabriklaymiz, siz registratsiyadan muvofaqqiyatli o'tdingiz"
-            inline_keyboard = InlineKeyboard('main_keyboard', LANGS[0])
+            text = "\U0001F44F\U0001F44F\U0001F44F Tabriklaymiz\nSiz registratsiyadan muvofaqqiyatli o'tdingiz"
 
         if user_input_data[LANG] == LANGS[1]:
-            text = "\U0001F44F\U0001F44F\U0001F44F Поздравляем, вы успешно зарегистрировались"
-            inline_keyboard = InlineKeyboard('main_keyboard', LANGS[1])
+            text = "\U0001F44F\U0001F44F\U0001F44F Поздравляем\nВы успешно зарегистрировались"
 
-        update.message.reply_text(text, reply_markup=inline_keyboard.get_keyboard())
+        reply_keyboard = ReplyKeyboard('menu_keyboard', user_input_data[LANG])
+
+        update.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
 
         user_input_data.clear()
         return ConversationHandler.END
@@ -250,11 +237,9 @@ def special_code_callback(update: Update, context: CallbackContext):
     else:
 
         if user_input_data[LANG] == LANGS[0]:
-
             text = "Maxsus kodni xato kiritdingiz.\nKodni qaytadan kiriting !"
 
         elif user_input_data[LANG] == LANGS[1]:
-
             text = "Вы ввели специальный код по ошибке.\nВведите код еще раз !"
 
         update.message.reply_text(text, reply_to_message_id=update.message.message_id)
