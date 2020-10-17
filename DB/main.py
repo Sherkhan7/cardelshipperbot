@@ -179,10 +179,13 @@ def insert_cargo(cargo_data):
     from_location = cargo_data.pop('from_location')
     to_location = cargo_data.pop('to_location')
 
-    cargo_data.update({'from_longitude': from_location['longitude']})
-    cargo_data.update({'from_latitude': from_location['latitude']})
-    cargo_data.update({'to_longitude': to_location['longitude']})
-    cargo_data.update({'to_latitude': to_location['latitude']})
+    if from_location:
+        cargo_data.update({'from_longitude': from_location['longitude']})
+        cargo_data.update({'from_latitude': from_location['latitude']})
+
+    if to_location:
+        cargo_data.update({'to_longitude': to_location['longitude']})
+        cargo_data.update({'to_latitude': to_location['latitude']})
 
     cargo_photo = cargo_data.pop('photo')
 
