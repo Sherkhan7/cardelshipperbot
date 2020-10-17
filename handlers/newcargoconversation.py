@@ -186,21 +186,20 @@ def skip_callback_in_to_location(update: Update, context: CallbackContext):
     user_input_data = context.user_data
     user = get_user(update.effective_user.id)
 
-    if data == TO_LOCATION:
-        user_input_data[TO_LOCATION] = {
-            'longitude': None,
-            'latitude': None
-        }
+    if user_input_data['state'] == TO_LOCATION:
+        user_input_data[TO_LOCATION] = None
 
         if user['lang'] == LANGS[0]:
-            text = "3-Bosqich."
-            reply_text = "Yuk og'irligini tanlang:"
+            text = '3-Bosqich.'
+            reply_text = 'Yuk og\'irligini tanlang:' \
+                         'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
             button1_text = UNITS['uz'][0]
             button2_text = UNITS['uz'][1]
 
         if user['lang'] == LANGS[1]:
-            text = "Шаг 3."
-            reply_text = "Выберите вес груза:"
+            text = 'Шаг 3.'
+            reply_text = 'Выберите вес груза:\n' \
+                         'Или нажмите «next», чтобы пропустить этот шаг'
             button1_text = UNITS['ru'][0]
             button2_text = UNITS['ru'][1]
 
@@ -208,8 +207,10 @@ def skip_callback_in_to_location(update: Update, context: CallbackContext):
             [
                 InlineKeyboardButton(button1_text, callback_data='kg'),
                 InlineKeyboardButton(button2_text, callback_data='t')
-            ]
+            ],
+            [InlineKeyboardButton('«next»', callback_data='skip_weight')]
         ])
+
         callback_query.edit_message_text(text)
         callback_query.message.reply_text(reply_text, reply_markup=inline_keyboard)
 
@@ -516,13 +517,20 @@ def cargo_weight_unit_callback(update: Update, context: CallbackContext):
         user_input_data[WEIGHT_UNIT] = None
         user_input_data[WEIGHT] = None
 
+        if user['lang'] == LANGS[0]:
+            text_1 = 'Yuk hajmini kiriting (raqamda):\n' \
+                     'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+
+        if user['lang'] == LANGS[1]:
+            text_1 = 'Введите объем груза (цифрами):\n' \
+                     'Или нажмите «next», чтобы пропустить этот шаг.'
+
         state = VOLUME
+        callback_query.edit_message_text(text_1, reply_markup=get_skip_keyboard(state))
 
     else:
 
         user_input_data[WEIGHT_UNIT] = data
-
-        logger.info('use_input_data: %s', user_input_data)
 
         if user['lang'] == LANGS[0]:
             reply_text = 'Yuk og\'irligini kiriting (raqamda):\n' \
@@ -536,7 +544,9 @@ def cargo_weight_unit_callback(update: Update, context: CallbackContext):
 
         callback_query.edit_message_text(reply_text)
 
+    logger.info('use_input_data: %s', user_input_data)
     callback_query.answer()
+
     user_input_data['state'] = state
     return state
 
@@ -550,14 +560,12 @@ def cargo_weight_callback(update: Update, context: CallbackContext):
     if not text.isdigit():
 
         if user['lang'] == LANGS[0]:
-            text = 'Yuk og\'irligini raqamda kiriting !!!\n' \
-                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+            text = 'Yuk og\'irligini raqamda kiriting !!!\n'
 
         if user['lang'] == LANGS[1]:
-            text = 'Введите вес груза цифрами !!!\n' \
-                   'Или нажмите «next», чтобы пропустить этот шаг.'
+            text = 'Введите вес груза цифрами !!!\n'
 
-        update.message.reply_text(text, quote=True, reply_markup=get_skip_keyboard(user_input_data['state']))
+        update.message.reply_text(text, quote=True)
 
         return user_input_data['state']
 
@@ -959,8 +967,8 @@ def confirmation_callback(update: Update, context: CallbackContext):
             if receiver:
 
                 if receiver['lang'] == LANGS[0]:
-                    text_1 = "Sizga yuk jo'natildi:"
-                    text_2 = "Yukni qabul qildim"
+                    text_1 = 'Sizga yuk jo\'natildi:'
+                    text_2 = 'Yukni qabul qildim'
 
                 if receiver['lang'] == LANGS[1]:
                     text_1 = 'Вам груз отправлен:'
@@ -1075,8 +1083,8 @@ def txt_callback_in_confirmation(update: Update, context: CallbackContext):
             if receiver:
 
                 if receiver['lang'] == LANGS[0]:
-                    text_1 = "Sizga yuk jo'natildi:"
-                    text_2 = "Yukni qabul qildim"
+                    text_1 = 'Sizga yuk jo\'natildi:'
+                    text_2 = 'Yukni qabul qildim'
 
                 if receiver['lang'] == LANGS[1]:
                     text_1 = 'Вам груз отправлен:'
