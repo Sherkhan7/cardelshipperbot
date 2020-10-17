@@ -168,6 +168,7 @@ class InlineKeyboard(object):
             keyboard = [
                 [
                     InlineKeyboardButton(districts[i][district_name], callback_data=districts[i]['id']),
+
                     InlineKeyboardButton(odd_btn_text, callback_data='back_btn')
                 ]
                 if i == length - 1 else

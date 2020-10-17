@@ -16,42 +16,41 @@ logger = logging.getLogger()
 
 def from_region_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
-    data = callback_query.data
+    region_id = callback_query.data
 
-    user = get_user(update.effective_user.id)
     user_input_data = context.user_data
-    # print('regions callback')
-    # print(callback_query.data)
-    region_id = int(data.replace("region_id_", ""))
+    user = context.bot_data['user_data']
+
     user_input_data[FROM_REGION] = region_id
 
     logger.info('new_cargo_info: %s', user_input_data)
 
-    if data == BUTTONS_DATA_DICT['regions'][region_id]:
+    if user['lang'] == LANGS[0]:
+        text = "Tumaningizni tanlang:"
 
-        if user['lang'] == LANGS[0]:
-            text = "Tumaningizni tanlang:"
+    if user['lang'] == LANGS[1]:
+        text = "Выберите свой район:"
 
-        if user['lang'] == LANGS[1]:
-            text = "Выберите свой район:"
+    inline_keyboard = InlineKeyboard('districts_keyboard', user['lang'], region_id).get_keyboard()
 
-        inline_keyboard = InlineKeyboard('districts_keyboard', user['lang'], region_id)
-        callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard())
+    callback_query.answer()
+    callback_query.edit_message_text(text, reply_markup=inline_keyboard)
 
-    user_input_data['state'] = FROM_DISTRICT
-    return FROM_DISTRICT
+    state = FROM_DISTRICT
+    user_input_data['state'] = state
+
+    return state
 
 
 def from_district_callback(update: Update, context: CallbackContext):
+    # with open('update.json', 'w') as update_file:
+    #     update_file.write(update.to_json())
+
     callback_query = update.callback_query
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
-    # with open('update.json', 'w') as update_file:
-    #     update_file.write(update.to_json())
-
-    # print('district callback')
+    user = context.bot_data['user_data']
 
     if data == BUTTONS_DATA_DICT[6]:
 
@@ -61,45 +60,48 @@ def from_district_callback(update: Update, context: CallbackContext):
         if user['lang'] == LANGS[1]:
             text = "Выберите свой область:"
 
-        inline_keyboard = InlineKeyboard('regions_keyboard', user['lang'])
-        callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard())
+        inline_keyboard = InlineKeyboard('regions_keyboard', user['lang']).get_keyboard()
 
-        user_input_data['state'] = FROM_REGION
-        return FROM_REGION
+        callback_query.edit_message_text(text, reply_markup=inline_keyboard)
 
-    district_id = int(data.replace("district_id_", ""))
-    user_input_data[FROM_DISTRICT] = district_id
+        state = FROM_REGION
 
-    logger.info('new_cargo_info: %s', user_input_data)
+    else:
 
-    if user['lang'] == LANGS[0]:
-        edit_message_text = 'Geolokatsiyangizni yuboring:'
-        button_text = "\U0001F4CD Geolokatsiyamni jo'natish"
-        reply_text = "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+        user_input_data[FROM_DISTRICT] = data
 
-    if user['lang'] == LANGS[1]:
-        edit_message_text = 'Отправьте свою геолокацию:'
-        button_text = "\U0001F4CD Отправить мою геолокацию"
-        reply_text = "Или нажмите «next», чтобы пропустить этот шаг"
+        logger.info('new_cargo_info: %s', user_input_data)
 
-    reply_keyboard = ReplyKeyboardMarkup([
-        [KeyboardButton(button_text, request_location=True)],
-        [KeyboardButton('«next»')]
-    ], resize_keyboard=True)
+        if user['lang'] == LANGS[0]:
+            edit_message_text = 'Geolokatsiyangizni yuboring:'
+            button_text = "\U0001F4CD Geolokatsiyamni jo'natish"
+            reply_text = 'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
-    callback_query.edit_message_text(edit_message_text)
-    callback_query.message.reply_text(reply_text, reply_markup=reply_keyboard)
+        if user['lang'] == LANGS[1]:
+            edit_message_text = 'Отправьте свою геолокацию:'
+            button_text = "\U0001F4CD Отправить мою геолокацию"
+            reply_text = 'Или нажмите «next», чтобы пропустить этот шаг'
 
-    user_input_data['state'] = FROM_LOCATION
-    return FROM_LOCATION
+        reply_keyboard = ReplyKeyboardMarkup([
+            [KeyboardButton(button_text, request_location=True)],
+            [KeyboardButton('«next»')]
+        ], resize_keyboard=True)
+
+        callback_query.edit_message_text(edit_message_text)
+        callback_query.message.reply_text(reply_text, reply_markup=reply_keyboard)
+
+        state = FROM_LOCATION
+
+    callback_query.answer()
+    user_input_data['state'] = state
+    return state
 
 
 def from_location_callback(update: Update, context: CallbackContext):
-    # print(location)
     # with open('jsons/update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data['user_data']
 
     if update.message.location:
 
@@ -113,36 +115,38 @@ def from_location_callback(update: Update, context: CallbackContext):
 
     elif update.message.text == '«next»':
 
-        user_input_data['from_location'] = {
-            'longitude': None,
-            'latitude': None
-        }
+        user_input_data['from_location'] = None
+
     else:
+
         if user['lang'] == LANGS[0]:
-            text = 'Geolokatsiyangizni yuboring yoki «next» ni bosing:'
+            error_text = 'Geolokatsiya yuborilmadi !!! \U0001F615\n' \
+                         'Geolokatsiyangizni yuboring yoki «next» ni bosing.'
 
         if user['lang'] == LANGS[1]:
-            text = 'Укажите свою геолокацию или нажмите «next»:'
+            error_text = 'Геолокация не отправлена !!! \U0001F615\n' \
+                         'Отправьте свою геолокацию или нажмите «next»:'
 
-        update.message.reply_text(text, quote=True)
+        update.message.reply_text(error_text, quote=True)
 
-        return FROM_LOCATION
+        return user_input_data['state']
 
     logger.info('new_cargo_info: %s', user_input_data)
 
     if user['lang'] == LANGS[0]:
         text_1 = '2-Bosqich.'
-        text_2 = "Yukni jo'natish manzilini tanlang:"
+        text_2 = 'Yukni jo\'natish manzilini tanlang:'
 
     if user['lang'] == LANGS[1]:
         text_1 = 'Шаг 2'
-        text_2 = "Выберите адрес доставки:"
+        text_2 = 'Выберите адрес доставки:'
 
     update.message.reply_text(text_1, reply_markup=ReplyKeyboardRemove())
-    inline_keyboard = InlineKeyboard('regions_keyboard', user['lang'])
-    update.message.reply_text(text_2, reply_markup=inline_keyboard.get_keyboard())
+    inline_keyboard = InlineKeyboard('regions_keyboard', user['lang']).get_keyboard()
+    update.message.reply_text(text_2, reply_markup=inline_keyboard)
 
-    user_input_data['state'] = TO_REGION
+    state = TO_REGION
+    user_input_data['state'] = state
     return TO_REGION
 
 
@@ -366,78 +370,78 @@ def skip_callback_in_receiver(update: Update, context: CallbackContext):
 
 def to_region_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
-    data = callback_query.data
+    region_id = callback_query.data
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
-    # print('regions callback')
-    # print(callback_query.data)
-    region_id = int(data.replace("region_id_", ""))
+    user = context.bot_data['user_data']
+
     user_input_data[TO_REGION] = region_id
 
     logger.info('new_cargo_info: %s', user_input_data)
 
-    if data == BUTTONS_DATA_DICT['regions'][region_id]:
+    if user['lang'] == LANGS[0]:
+        text = 'Tumanni tanlang:'
 
-        if user['lang'] == LANGS[0]:
-            text = "Tumanni tanlang:"
+    if user['lang'] == LANGS[1]:
+        text = 'Выберите район:'
 
-        elif user['lang'] == LANGS[1]:
-            text = "Выберите район:"
+    inline_keyboard = InlineKeyboard('districts_keyboard', user['lang'], region_id).get_keyboard()
 
-        inline_keyboard = InlineKeyboard('districts_keyboard', user['lang'], region_id)
-        callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard())
+    callback_query.answer()
+    callback_query.edit_message_text(text, reply_markup=inline_keyboard)
 
-    user_input_data['state'] = TO_DISTRICT
-    return TO_DISTRICT
+    state = TO_DISTRICT
+    user_input_data['state'] = state
+
+    return state
 
 
 def to_district_callback(update: Update, context: CallbackContext):
+    # with open('update.json', 'w') as update_file:
+    #     update_file.write(update.to_json())
     callback_query = update.callback_query
     data = callback_query.data
 
     user_input_data = context.user_data
     user = get_user(update.effective_user.id)
-    # with open('update.json', 'w') as update_file:
-    #     update_file.write(update.to_json())
-
-    # print('district callback')
 
     if data == BUTTONS_DATA_DICT[6]:
 
         if user['lang'] == LANGS[0]:
-            text = "Yukni jo'natish manzilini tanlang:"
+            text = 'Yukni jo\'natish manzilini tanlang:'
 
         if user['lang'] == LANGS[1]:
-            text = "Выберите адрес доставки:"
+            text = 'Выберите адрес доставки:'
 
-        inline_keyboard = InlineKeyboard('regions_keyboard', user['lang'])
-        callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard())
+        inline_keyboard = InlineKeyboard('regions_keyboard', user['lang']).get_keyboard()
+        callback_query.edit_message_text(text, reply_markup=inline_keyboard)
 
-        user_input_data['state'] = TO_REGION
-        return TO_REGION
+        state = TO_REGION
 
-    district_id = int(data.replace("district_id_", ""))
-    user_input_data[TO_DISTRICT] = district_id
+    else:
 
-    logger.info('new_cargo_info: %s', user_input_data)
+        user_input_data[TO_DISTRICT] = data
 
-    if user['lang'] == LANGS[0]:
-        text = "Yukni jo'natish geolokatsiyasini yuboring.\n\n" \
-               "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+        logger.info('new_cargo_info: %s', user_input_data)
 
-    if user['lang'] == LANGS[1]:
-        text = 'Отправите геолокацию доставки.\n\n' \
-               'Или нажмите «next», чтобы пропустить этот шаг'
+        if user['lang'] == LANGS[0]:
+            text = 'Yukni jo\'natish geolokatsiyasini yuboring.\n ' \
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
-    user_input_data['state'] = TO_LOCATION
+        if user['lang'] == LANGS[1]:
+            text = 'Отправите геолокацию доставки.\n' \
+                   'Или нажмите «next», чтобы пропустить этот шаг'
 
-    callback_query.edit_message_text(text, reply_markup=get_skip_keyboard(user_input_data['state']))
-    return TO_LOCATION
+        state = TO_LOCATION
+
+        callback_query.edit_message_text(text, reply_markup=get_skip_keyboard(state))
+
+    callback_query.answer()
+    user_input_data['state'] = state
+    return state
 
 
 def to_location_callback(update: Update, context: CallbackContext):
-    # print(location)
     # with open('update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
     user = get_user(update.effective_user.id)
@@ -456,29 +460,31 @@ def to_location_callback(update: Update, context: CallbackContext):
     else:
 
         if user['lang'] == LANGS[0]:
-            error = "Geolokatsiya noto'g'ri !!!"
-            text = "Yukni jo'natish geolokatsiyasini yuboring yoki «next» ni bosing:"
+            error_text = 'Geolokatsiya yuborilmadi !!! \U0001F615\n' \
+                         'Yukni jo\'natish geolokatsiyasini yuboring yoki «next» ni bosing:'
 
         if user['lang'] == LANGS[1]:
-            error = "Геолокация неправильная !!!"
-            text = 'Отправите геолокацию доставки или нажмите «next» :'
+            error_text = 'Геолокация не отправлена !!! \U0001F615\n'
+            text = 'Отправите геолокацию доставки или нажмите «next»:'
 
-        update.message.reply_text(error, quote=True)
+        update.message.reply_text(error_text, quote=True)
         update.message.reply_text(text, reply_markup=get_skip_keyboard(user_input_data['state']))
 
-        return TO_LOCATION
+        return user_input_data['state']
 
     logger.info('new_cargo_info: %s', user_input_data)
 
     if user['lang'] == LANGS[0]:
-        text_1 = "3-Bosqich."
-        text_2 = "Yuk og'irligini tanlang:"
+        text_1 = '3-Bosqich.'
+        text_2 = 'Yuk og\'irligini tanlang:' \
+                 'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
         button1_text = UNITS['uz'][0]
         button2_text = UNITS['uz'][1]
 
     if user['lang'] == LANGS[1]:
-        text_1 = "Шаг 3."
-        text_2 = "Выберите вес груза:"
+        text_1 = 'Шаг 3.'
+        text_2 = 'Выберите вес груза:\n' \
+                 'Или нажмите «next», чтобы пропустить этот шаг'
         button1_text = UNITS['ru'][0]
         button2_text = UNITS['ru'][1]
 
@@ -486,13 +492,16 @@ def to_location_callback(update: Update, context: CallbackContext):
         [
             InlineKeyboardButton(button1_text, callback_data='kg'),
             InlineKeyboardButton(button2_text, callback_data='t')
-        ]
+        ],
+        [InlineKeyboardButton('«next»', callback_data='skip_weight')]
     ])
+
     update.message.reply_text(text_1)
     update.message.reply_text(text_2, reply_markup=inline_keyboard)
 
-    user_input_data['state'] = WEIGHT_UNIT
-    return WEIGHT_UNIT
+    state = WEIGHT_UNIT
+    user_input_data['state'] = state
+    return state
 
 
 def cargo_weight_unit_callback(update: Update, context: CallbackContext):
@@ -501,123 +510,126 @@ def cargo_weight_unit_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
-    user_input_data[WEIGHT_UNIT] = data
+    user = context.bot_data['user_data']
 
-    logger.info('use_input_data: %s', user_input_data)
+    if data == 'skip_weight':
+        user_input_data[WEIGHT_UNIT] = None
+        user_input_data[WEIGHT] = None
 
-    if user['lang'] == LANGS[0]:
-        if data == 'kg':
-            unit = 'kilogramm'
-        if data == 't':
-            unit = 'tonna'
+        state = VOLUME
 
-        text = f"Og'irlik birligi: {unit}"
+    else:
 
-        reply_text = "Yuk og'irligini kiriting (raqamda):\n\n" \
-                     "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+        user_input_data[WEIGHT_UNIT] = data
 
-    if user['lang'] == LANGS[1]:
-        if data == 'kg':
-            unit = 'килограмм'
-        if data == 't':
-            unit = 'тонны'
-        text = f"Единица веса: {unit}"
+        logger.info('use_input_data: %s', user_input_data)
 
-        reply_text = "Введите вес груза (цифрами):\n\n" \
-                     "Или нажмите «next», чтобы пропустить этот шаг."
+        if user['lang'] == LANGS[0]:
+            reply_text = 'Yuk og\'irligini kiriting (raqamda):\n' \
+                         'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
-    user_input_data['state'] = WEIGHT
+        if user['lang'] == LANGS[1]:
+            reply_text = "Введите вес груза (цифрами):\n" \
+                         "Или нажмите «next», чтобы пропустить этот шаг."
 
-    callback_query.edit_message_text(text)
-    callback_query.message.reply_text(reply_text, reply_markup=get_skip_keyboard(user_input_data['state']))
-    return WEIGHT
+        state = WEIGHT
+
+        callback_query.edit_message_text(reply_text)
+
+    callback_query.answer()
+    user_input_data['state'] = state
+    return state
 
 
 def cargo_weight_callback(update: Update, context: CallbackContext):
     text = update.message.text
 
-    user = get_user(update.effective_user.id)
     user_input_data = context.user_data
+    user = context.bot_data['user_data']
 
     if not text.isdigit():
 
         if user['lang'] == LANGS[0]:
-            text = "Yuk og'irligini raqamda kiriting !!!\n\n" \
-                   "Yoki «next» ni bosing."
+            text = 'Yuk og\'irligini raqamda kiriting !!!\n' \
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
         if user['lang'] == LANGS[1]:
-            text = "Введите вес груза цифрами !!!\n\n" \
-                   "Или нажмите «next»."
+            text = 'Введите вес груза цифрами !!!\n' \
+                   'Или нажмите «next», чтобы пропустить этот шаг.'
 
         update.message.reply_text(text, quote=True, reply_markup=get_skip_keyboard(user_input_data['state']))
 
-        return WEIGHT
+        return user_input_data['state']
 
     else:
+
         user_input_data[WEIGHT] = text
 
-    logger.info('use_input_data: %s', user_input_data)
+        logger.info('use_input_data: %s', user_input_data)
 
-    if user['lang'] == LANGS[0]:
-        text_1 = "Yuk hajmini kiriting (raqamda):\n\n" \
-                 "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+        if user['lang'] == LANGS[0]:
+            text_1 = 'Yuk hajmini kiriting (raqamda):\n' \
+                     'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
-    if user['lang'] == LANGS[1]:
-        text_1 = "Введите объем груза (цифрами):\n" \
-                 "Или нажмите «next», чтобы пропустить этот шаг."
+        if user['lang'] == LANGS[1]:
+            text_1 = 'Введите объем груза (цифрами):\n' \
+                     'Или нажмите «next», чтобы пропустить этот шаг.'
 
-    user_input_data['state'] = VOLUME
+        state = VOLUME
+        update.message.reply_text(text_1, reply_markup=get_skip_keyboard(state))
 
-    update.message.reply_text(text_1, reply_markup=get_skip_keyboard(user_input_data['state']))
-    return VOLUME
+        user_input_data['state'] = state
+        return state
 
 
 def cargo_volume_callback(update: Update, context: CallbackContext):
     text = update.message.text
-    user = get_user(update.effective_user.id)
+
     user_input_data = context.user_data
+    user = context.bot_data['user_data']
 
     if not text.isdigit():
 
         if user['lang'] == LANGS[0]:
-            text = "Yuk hajmini raqamda kiriting !!!\n\n" \
-                   "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+            text = 'Yuk hajmini raqamda kiriting !!!\n' \
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
         if user['lang'] == LANGS[1]:
-            text = "Введите объем груза цифрами !!!\n\n" \
-                   "Или нажмите «next», чтобы пропустить этот шаг."
+            text = 'Введите объем груза цифрами !!!\n' \
+                   'Или нажмите «next», чтобы пропустить этот шаг.'
 
         update.message.reply_text(text, quote=True, reply_markup=get_skip_keyboard(user_input_data['state']))
 
-        return VOLUME
+        return user_input_data['state']
 
     else:
 
         user_input_data[VOLUME] = text
 
-    logger.info('use_input_data: %s', user_input_data)
+        logger.info('use_input_data: %s', user_input_data)
 
-    if user['lang'] == LANGS[0]:
-        text = "Yuk tavsifini kiriting:\n" \
-               "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+        if user['lang'] == LANGS[0]:
+            text = 'Yuk tavsifini kiriting:\n' \
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
-    if user['lang'] == LANGS[1]:
-        text = "Введите описание груза:\n" \
-               "Или нажмите «next», чтобы пропустить этот шаг."
+        if user['lang'] == LANGS[1]:
+            text = 'Введите описание груза:\n' \
+                   'Или нажмите «next», чтобы пропустить этот шаг.'
 
-    user_input_data['state'] = DEFINITION
+        state = DEFINITION
+        update.message.reply_text(text, reply_markup=get_skip_keyboard(user_input_data['state']))
 
-    update.message.reply_text(text, reply_markup=get_skip_keyboard(user_input_data['state']))
-    return DEFINITION
+        user_input_data['state'] = state
+        return state
 
 
 def cargo_definition_callback(update: Update, context: CallbackContext):
     text = update.message.text
-    user_input_data = context.user_data
-    user_input_data[DEFINITION] = text
 
-    user = get_user(update.effective_user.id)
+    user_input_data = context.user_data
+    user = context.bot_data['user_data']
+
+    user_input_data[DEFINITION] = text
 
     if text == '/cancel':
 
@@ -649,67 +661,69 @@ def cargo_definition_callback(update: Update, context: CallbackContext):
     logger.info('use_input_data: %s', user_input_data)
 
     if user['lang'] == LANGS[0]:
-        text = "Yuk rasmini yuboring:\n" \
-               "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+        text = 'Yuk rasmini yuboring:\n' \
+               'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
     if user['lang'] == LANGS[1]:
-        text = "Отправите фотография груза:\n" \
-               "Или нажмите «next», чтобы пропустить этот шаг."
+        text = 'Отправите фотография груза:\n' \
+               'Или нажмите «next», чтобы пропустить этот шаг.'
 
-    user_input_data['state'] = PHOTO
+    state = PHOTO
+    update.message.reply_text(text, reply_markup=get_skip_keyboard(state))
 
-    update.message.reply_text(text, reply_markup=get_skip_keyboard(user_input_data['state']))
-    return PHOTO
+    user_input_data['state'] = state
+    return state
 
 
 def cargo_photo_callback(update: Update, context: CallbackContext):
-    # print('cargo photo callback ')
     # with open('update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
     text = update.message.text
-    user_input_data = context.user_data
-    cargo_photo = update.message.photo
 
-    user = get_user(update.effective_user.id)
+    user_input_data = context.user_data
+    user = context.bot_data['user_data']
+
+    cargo_photo = update.message.photo
 
     if len(cargo_photo) > 0:
 
         user_input_data[PHOTO] = cargo_photo[-1].to_dict()
 
+        if user['lang'] == LANGS[0]:
+            text_1 = '4-Bosqich:'
+            text_2 = 'Yukni jo\'natish kunini belgilang:'
+
+        if user['lang'] == LANGS[1]:
+            text_1 = "Шаг 4:"
+            text_2 = "Установите дату доставки:"
+
+        logger.info('use_input_data: %s', user_input_data)
+
+        inline_keyboard = InlineKeyboard('dates_keyboard', user['lang']).get_keyboard()
+
+        update.message.reply_text(text_1)
+        update.message.reply_text(text_2, reply_markup=inline_keyboard)
+
+        state = DATE
+        user_input_data['state'] = state
+        return state
+
     else:
 
         if user['lang'] == LANGS[0]:
             error_text = "Yuk rasmi yuborilmadi !!!"
-            text = "Yuk rasmini yuboring:\n" \
-                   "Bu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+            text = 'Yuk rasmini yuboring:\n' \
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
         if user['lang'] == LANGS[1]:
             error_text = 'Фотография груза не отправлено !!!'
-            text = "Отправите фотография груза:\n" \
-                   "Или нажмите «next», чтобы пропустить этот шаг."
+            text = 'Отправите фотография груза:\n' \
+                   'Или нажмите «next», чтобы пропустить этот шаг.'
 
         update.message.reply_text(error_text, quote=True)
         update.message.reply_text(text, quote=True, reply_markup=get_skip_keyboard(user_input_data['state']))
 
-        return PHOTO
-
-    if user['lang'] == LANGS[0]:
-        text_1 = '4-Bosqich:'
-        text_2 = "Yukni jo'natish kunini tanlang:"
-
-    if user['lang'] == LANGS[1]:
-        text_1 = "Шаг 4:"
-        text_2 = "Выберите дату доставки:"
-
-    logger.info('use_input_data: %s', user_input_data)
-
-    inline_keyboard = InlineKeyboard('dates_keyboard', user['lang'])
-
-    update.message.reply_text(text_1)
-    update.message.reply_text(text_2, reply_markup=inline_keyboard.get_keyboard())
-
-    user_input_data['state'] = DATE
-    return DATE
+        return user_input_data['state']
 
 
 def date_callback(update: Update, context: CallbackContext):
@@ -717,7 +731,7 @@ def date_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data['user_data']
 
     # print(user_input_data[PHOTO])
 
@@ -725,21 +739,21 @@ def date_callback(update: Update, context: CallbackContext):
 
         user_input_data[DATE] = datetime.datetime.now().strftime('%d-%m-%Y')
         user_input_data['time'] = 'now'
+
         reply_text = get_phone_number_layout(user['lang'])
 
         if user['lang'] == LANGS[0]:
-            text = "Yukni qabul qiluvchining telefon raqamini yuboring:"
-            reply_text += "\nBu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+            text = 'Yukni qabul qiluvchining telefon raqamini yuboring:'
+            reply_text += '\nYoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
         if user['lang'] == LANGS[1]:
             text = "Отправьте номер телефона получателя груза:"
-            reply_text += "\nИли нажмите «next», чтобы пропустить этот шаг."
+            reply_text += '\nИли нажмите «next», чтобы пропустить этот шаг.'
 
-        user_input_data['state'] = RECEIVER_PHONE_NUMBER
+        state = RECEIVER_PHONE_NUMBER
 
         callback_query.edit_message_text(text)
-        callback_query.message.reply_html(reply_text, reply_markup=get_skip_keyboard(user_input_data['state']))
-        return RECEIVER_PHONE_NUMBER
+        callback_query.message.reply_html(reply_text, reply_markup=get_skip_keyboard(state))
 
     if data == 'today' or data == 'tomorrow' or data == 'after_tomorrow':
 
@@ -760,45 +774,51 @@ def date_callback(update: Update, context: CallbackContext):
         if user['lang'] == LANGS[1]:
             text = 'Выберите время:'
 
-        inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=6, end=17)
-        callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard())
+        inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=6, end=17).get_keyboard()
+        callback_query.edit_message_text(text, reply_markup=inline_keyboard)
 
-    user_input_data['state'] = HOUR
-    return HOUR
+        state = HOUR
+
+    callback_query.answer()
+    user_input_data['state'] = state
+    return state
 
 
 def hour_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
     data = callback_query.data
 
-    user = get_user(update.effective_user.id)
     user_input_data = context.user_data
+    user = context.bot_data['user_data']
 
     if data == 'next' or data == 'back':
 
         if data == 'next':
-            inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=18, end=29)
+            inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=18, end=29).get_keyboard()
 
         if data == 'back':
-            inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=6, end=17)
+            inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=6, end=17).get_keyboard()
 
-        callback_query.edit_message_reply_markup(inline_keyboard.get_keyboard())
+        callback_query.edit_message_reply_markup(inline_keyboard)
 
-        return HOUR
+        state = user_input_data['state']
 
     else:
 
         if user['lang'] == LANGS[0]:
-            text = "Daqiqani belgilang:"
+            text = 'Daqiqani belgilang:'
 
         if user['lang'] == LANGS[1]:
-            text = "Выберите минуту:"
+            text = 'Выберите минуту:'
 
-        inline_keyboard = InlineKeyboard('minutes_keyboard', user['lang'], data=data)
-        callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard())
+        inline_keyboard = InlineKeyboard('minutes_keyboard', user['lang'], data=data).get_keyboard()
+        callback_query.edit_message_text(text, reply_markup=inline_keyboard)
 
-        user_input_data['state'] = MINUTE
-        return MINUTE
+        state = MINUTE
+        user_input_data['state'] = state
+
+    callback_query.answer()
+    return state
 
 
 def minute_callback(update: Update, context: CallbackContext):
@@ -806,7 +826,7 @@ def minute_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data['user_data']
 
     if data == 'back':
 
@@ -816,12 +836,11 @@ def minute_callback(update: Update, context: CallbackContext):
         if user['lang'] == LANGS[1]:
             text = 'Выберите время:'
 
-        inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=6, end=17)
+        inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=6, end=17).get_keyboard()
 
-        callback_query.edit_message_text(text, reply_markup=inline_keyboard.get_keyboard())
+        callback_query.edit_message_text(text, reply_markup=inline_keyboard)
 
-        user_input_data['state'] = HOUR
-        return HOUR
+        state = HOUR
 
     else:
 
@@ -830,19 +849,21 @@ def minute_callback(update: Update, context: CallbackContext):
         reply_text = get_phone_number_layout(user['lang'])
 
         if user['lang'] == LANGS[0]:
-            text = "Yukni qabul qiluvchining telefon raqamini yuboring:"
-            reply_text += "\nBu bosqichni o'tkazib yuborish uchun «next» ni bosing."
+            text = 'Yukni qabul qiluvchining telefon raqamini yuboring:'
+            reply_text += '\nYoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
 
         if user['lang'] == LANGS[1]:
-            text = "Отправьте номер телефона получателя груза:"
-            reply_text += "\nИли нажмите «next», чтобы пропустить этот шаг."
+            text = 'Отправьте номер телефона получателя груза:'
+            reply_text += '\nИли нажмите «next», чтобы пропустить этот шаг.'
 
-        user_input_data['state'] = RECEIVER_PHONE_NUMBER
+        state = RECEIVER_PHONE_NUMBER
 
         callback_query.edit_message_text(text)
-        callback_query.message.reply_html(reply_text, reply_markup=get_skip_keyboard(user_input_data['state']))
+        callback_query.message.reply_html(reply_text, reply_markup=get_skip_keyboard(state))
 
-        return RECEIVER_PHONE_NUMBER
+    callback_query.answer()
+    user_input_data['state'] = state
+    return state
 
 
 def receiver_callback(update: Update, context: CallbackContext):
@@ -850,7 +871,7 @@ def receiver_callback(update: Update, context: CallbackContext):
     contact = update.message.contact
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data['user_data']
 
     if contact:
         phone_number = phone_number_filter(contact.phone_number)
@@ -875,32 +896,34 @@ def receiver_callback(update: Update, context: CallbackContext):
             user_input_data['message_id'] = message.message_id
 
         logger.info('use_input_data: %s', user_input_data)
-        user_input_data['state'] = CONFIRMATION
-        return CONFIRMATION
+        state = CONFIRMATION
 
     else:
 
         reply_text = get_phone_number_layout(user['lang'])
 
         if user['lang'] == LANGS[0]:
-            text = "Xato telefon raqami yuborildi !!!"
-            reply_text += "\nBu bosqichni o'tkazib yuborish uchun «next» ni bosing."
-            error_text = "Siz o'z telefon raqmingizni yubordingiz !!!\n\n" \
-                         "Yukni qabul qiluvchining telefon raqamini yuboring:"
+            text = 'Xato telefon raqami yuborildi !!!'
+            reply_text += '\nBu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+            error_text = 'Siz o\'z telefon raqmingizni yubordingiz !!!\n\n' \
+                         'Yukni qabul qiluvchining telefon raqamini yuboring:'
 
         if user['lang'] == LANGS[1]:
-            text = "Номер телефона с ошибкой отправлен !!!"
-            reply_text += "\nИли нажмите «next», чтобы пропустить этот шаг."
+            text = 'Номер телефона с ошибкой отправлен !!!'
+            reply_text += '\nИли нажмите «next», чтобы пропустить этот шаг.'
             error_text = 'Вы отправили свой номер телефона !!!\n\n' \
                          'Отправьте номер телефона получателя груза:'
 
         if phone_number == user['phone_number']:
             text = error_text
 
-        update.message.reply_text(text, quote=True)
-        update.message.reply_html(reply_text, reply_markup=get_skip_keyboard(user_input_data['state']))
+        state = user_input_data['state']
 
-        return RECEIVER_PHONE_NUMBER
+        update.message.reply_text(text, quote=True)
+        update.message.reply_html(reply_text, reply_markup=get_skip_keyboard(state))
+
+    user_input_data['state'] = state
+    return state
 
 
 def confirmation_callback(update: Update, context: CallbackContext):
@@ -1080,9 +1103,13 @@ def txt_callback_in_confirmation(update: Update, context: CallbackContext):
 def new_cargo_callback(update: Update, context: CallbackContext):
     text = update.message.text.split(' ', 1)[-1]
 
-    # print('New cargo')
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    bot_data = context.bot_data
+
+    if not bot_data:
+        bot_data['user_data'] = get_user(update.effective_user.id)
+
+    user = bot_data['user_data']
 
     if text == "Yuk e'lon qilish" or text == "Объявить груз":
 
@@ -1092,21 +1119,23 @@ def new_cargo_callback(update: Update, context: CallbackContext):
         if user['lang'] == LANGS[1]:
             text = "Выберите свой область:"
 
-        inline_keyboard = InlineKeyboard('regions_keyboard', user['lang'])
+        inline_keyboard = InlineKeyboard('regions_keyboard', user['lang']).get_keyboard()
 
-        update.message.reply_text(text, reply_markup=inline_keyboard.get_keyboard())
+        update.message.reply_text(text, reply_markup=inline_keyboard)
 
-        user_input_data['state'] = FROM_REGION
+        state = FROM_REGION
+
+        user_input_data['state'] = state
         user_input_data['sender_id'] = user['id']
         user_input_data['sender_user_id'] = user['user_id']
         user_input_data['sender_phone_number'] = user['phone_number']
-        user_input_data['sender_phone_number2'] = user['phone_number2']
+        # user_input_data['sender_phone_number2'] = user['phone_number2']
 
-        return FROM_REGION
+        return state
 
 
 new_cargo_conversation_handler = ConversationHandler(
-    entry_points=[MessageHandler(Filters.regex(r'Yuk|Объявить'), new_cargo_callback)],
+    entry_points=[MessageHandler(Filters.regex('(Yuk e\'lon qilish|Объявить груз)$'), new_cargo_callback)],
     states={
         FROM_REGION: [CallbackQueryHandler(from_region_callback), MessageHandler(Filters.text, txt_callback)],
 
@@ -1121,7 +1150,7 @@ new_cargo_conversation_handler = ConversationHandler(
         TO_LOCATION: [CallbackQueryHandler(skip_callback_in_to_location, pattern='.*location$'),
                       MessageHandler(Filters.location | Filters.text, to_location_callback)],
 
-        WEIGHT_UNIT: [CallbackQueryHandler(cargo_weight_unit_callback, pattern='kg|t'),
+        WEIGHT_UNIT: [CallbackQueryHandler(cargo_weight_unit_callback, pattern='^(kg|t|skip_weight)$'),
                       MessageHandler(Filters.text, txt_callback)],
 
         WEIGHT: [CallbackQueryHandler(skip_callback_in_weight, pattern='.*weight$'),
