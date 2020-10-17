@@ -106,35 +106,36 @@ class InlineKeyboard(object):
 
         if lang == LANGS[0]:
             region_name = 'nameUz'
-            odd_btn_text = '« Orqaga'
+            # odd_btn_text = '« Orqaga'
 
         if lang == LANGS[1]:
             region_name = 'nameRu'
-            odd_btn_text = '« Назад'
+            # odd_btn_text = '« Назад'
 
         if length % 2 == 0:
             keyboard = [
                 [
-                    InlineKeyboardButton(regions[i][region_name], callback_data=f"region_id_{regions[i]['id']}"),
+                    InlineKeyboardButton(regions[i][region_name], callback_data=regions[i]['id']),
 
-                    InlineKeyboardButton(regions[i + 1][region_name], callback_data=f"region_id_{regions[i + 1]['id']}")
+                    InlineKeyboardButton(regions[i + 1][region_name], callback_data=regions[i + 1]['id'])
                 ]
 
                 for i in range(0, length, 2)
             ]
 
-        if length % 2 != 0:
-            keyboard = [
-                [
-                    InlineKeyboardButton(regions[i][region_name], callback_data=f"region_id_{regions[i]['id']}"),
-                    InlineKeyboardButton(odd_btn_text, callback_data='back_btn')
-                ]
-                if i == length - 1 else
-                [
-                    InlineKeyboardButton(regions[i][region_name], callback_data=f"region_id_{regions[i]['id']}"),
-                    InlineKeyboardButton(regions[i + 1][region_name], callback_data=f"region_id_{regions[i + 1]['id']}")
-                ] for i in range(0, length, 2)
-            ]
+        # if length % 2 != 0:
+        #     keyboard = [
+        #         [
+        #             InlineKeyboardButton(regions[i][region_name], callback_data=f"region_id_{regions[i]['id']}"),
+        #             InlineKeyboardButton(odd_btn_text, callback_data='back_btn')
+        #         ]
+        #         if i == length - 1 else
+        #         [
+        #             InlineKeyboardButton(regions[i][region_name], callback_data=f"region_id_{regions[i]['id']}"),
+        #             InlineKeyboardButton(regions[i + 1][region_name],
+        #             callback_data=f"region_id_{regions[i + 1]['id']}")
+        #         ] for i in range(0, length, 2)
+        #     ]
 
         return InlineKeyboardMarkup(keyboard)
 
@@ -153,30 +154,26 @@ class InlineKeyboard(object):
         if length % 2 == 0:
             keyboard = [
                 [
-                    InlineKeyboardButton(districts[i][district_name],
-                                         callback_data=f"district_id_{districts[i]['id']}"),
+                    InlineKeyboardButton(districts[i][district_name], callback_data=districts[i]['id']),
 
-                    InlineKeyboardButton(districts[i + 1][district_name],
-                                         callback_data=f"district_id_{districts[i + 1]['id']}")
+                    InlineKeyboardButton(districts[i + 1][district_name], callback_data=districts[i + 1]['id'])
                 ]
 
                 for i in range(0, length, 2)
             ]
+
             keyboard.append([InlineKeyboardButton(odd_btn_text, callback_data="back_btn")])
 
         if length % 2 != 0:
             keyboard = [
                 [
-                    InlineKeyboardButton(districts[i][district_name],
-                                         callback_data=f"district_id_{districts[i]['id']}"),
+                    InlineKeyboardButton(districts[i][district_name], callback_data=districts[i]['id']),
                     InlineKeyboardButton(odd_btn_text, callback_data='back_btn')
                 ]
                 if i == length - 1 else
                 [
-                    InlineKeyboardButton(districts[i][district_name],
-                                         callback_data=f"district_id_{districts[i]['id']}"),
-                    InlineKeyboardButton(districts[i + 1][district_name],
-                                         callback_data=f"district_id_{districts[i + 1]['id']}")
+                    InlineKeyboardButton(districts[i][district_name], callback_data=districts[i]['id']),
+                    InlineKeyboardButton(districts[i + 1][district_name], callback_data=districts[i + 1]['id'])
                 ] for i in range(0, length, 2)
             ]
 
@@ -283,26 +280,27 @@ class InlineKeyboard(object):
     @staticmethod
     def __get_confirm_keyboard(lang, data):
 
-        from_latitude = data['from_location']['latitude']
-        from_longitude = data['from_location']['longitude']
-        to_latitude = data['to_location']['latitude']
-        to_longitude = data['to_location']['longitude']
-
         inline_keyboard = []
 
-        if from_latitude and from_longitude:
+        if data['from_location']:
+            from_latitude = data['from_location']['latitude']
+            from_longitude = data['from_location']['longitude']
+
             inline_keyboard.append(
                 [InlineKeyboardButton('A',
                                       url=f'http://www.google.com/maps/place/{from_latitude},{from_longitude}/'
                                           f'@{from_latitude},{from_longitude},12z')])
 
-        if to_latitude and to_longitude:
+        if data['to_location']:
+            to_latitude = data['to_location']['latitude']
+            to_longitude = data['to_location']['longitude']
+
             inline_keyboard.append(
                 [InlineKeyboardButton('B',
                                       url=f'http://www.google.com/maps/place/{to_latitude},{to_longitude}/'
                                           f'@{to_latitude},{to_longitude},12z')])
 
-        if from_latitude and from_longitude and to_latitude and to_longitude:
+        if data['from_location'] and data['to_location']:
             direction = f'https://www.google.com/maps/dir/{from_latitude},{from_longitude}/{to_latitude},{to_longitude}'
             inline_keyboard.append([InlineKeyboardButton('A->B', url=direction)])
 
