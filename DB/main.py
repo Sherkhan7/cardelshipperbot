@@ -137,8 +137,12 @@ def update_user_info(user_id, **kwargs):
 def select_all_regions():
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM testdb.regions WHERE parent_id = %s", 0)
+            cursor.execute("SELECT * FROM testdb.regions WHERE id IN (%s, %s, %s, %s, %s)", (1, 74, 167, 144, 132))
             regions = cursor.fetchall()
+
+    fergana = regions[-1]
+    regions[-1] = regions[2]
+    regions[2] = fergana
 
     return regions
 
