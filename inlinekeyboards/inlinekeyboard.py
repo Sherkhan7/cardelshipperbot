@@ -123,19 +123,18 @@ class InlineKeyboard(object):
                 for i in range(0, length, 2)
             ]
 
-        # if length % 2 != 0:
-        #     keyboard = [
-        #         [
-        #             InlineKeyboardButton(regions[i][region_name], callback_data=f"region_id_{regions[i]['id']}"),
-        #             InlineKeyboardButton(odd_btn_text, callback_data='back_btn')
-        #         ]
-        #         if i == length - 1 else
-        #         [
-        #             InlineKeyboardButton(regions[i][region_name], callback_data=f"region_id_{regions[i]['id']}"),
-        #             InlineKeyboardButton(regions[i + 1][region_name],
-        #             callback_data=f"region_id_{regions[i + 1]['id']}")
-        #         ] for i in range(0, length, 2)
-        #     ]
+        if length % 2 != 0:
+            keyboard = [
+                [
+                    InlineKeyboardButton(regions[i][region_name], callback_data=f"region_id_{regions[i]['id']}"),
+                    # InlineKeyboardButton(odd_btn_text, callback_data='back_btn')
+                ]
+                if i == length - 1 else
+                [
+                    InlineKeyboardButton(regions[i][region_name], callback_data=f"region_id_{regions[i]['id']}"),
+                    InlineKeyboardButton(regions[i + 1][region_name], callback_data=f"region_id_{regions[i + 1]['id']}")
+                ] for i in range(0, length, 2)
+            ]
 
         return InlineKeyboardMarkup(keyboard)
 
