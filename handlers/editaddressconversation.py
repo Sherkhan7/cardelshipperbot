@@ -58,7 +58,7 @@ def edit_address_callback(update: Update, context: CallbackContext):
             text = "Отправьте свою геолокацию:\n\n" \
                    "Или нажмите «удалить», чтобы удалить старую"
 
-        if None in user_input_data['from_location'].values():
+        if not user_input_data['from_location']:
             reply_keyboard = ReplyKeyboardMarkup([
                 [KeyboardButton(button1_text, request_location=True)],
                 [KeyboardButton(button2_text)]
@@ -92,7 +92,7 @@ def edit_address_callback(update: Update, context: CallbackContext):
             text = "Отправите геолокацию доставки:\n\n" \
                    "Или нажмите «удалить», чтобы удалить старую."
 
-        if None in user_input_data['to_location'].values():
+        if not user_input_data['to_location']:
             inline_keyboard = InlineKeyboardMarkup([
                 [InlineKeyboardButton(button2_text, callback_data='back')]
             ])
