@@ -18,9 +18,13 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
     data = callback_query.data
 
-    # print(data)
+    bot_data = context.bot_data
 
-    user = get_user(update.effective_user.id)
+    if not bot_data:
+        user_data = get_user(update.effective_user.id)
+        bot_data['user_data'] = user_data
+
+    user = bot_data['user_data']
 
     # with open('update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
@@ -50,10 +54,11 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
 
         context.bot.answer_callback_query(callback_query.id, reply_text)
         update_user_info(user['user_id'], lang=lang)
+        bot_data['user_data']['lang'] = lang
 
-        reply_keyboard = ReplyKeyboard('menu_keyboard', lang)
+        reply_keyboard = ReplyKeyboard('menu_keyboard', lang).get_keyboard()
         callback_query.edit_message_text(edited_text)
-        callback_query.message.reply_text(text, reply_markup=reply_keyboard.get_keyboard())
+        callback_query.message.reply_text(text, reply_markup=reply_keyboard)
 
     elif match_obj:
 
