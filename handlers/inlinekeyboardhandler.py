@@ -1,6 +1,5 @@
 from telegram import Update, ParseMode
 from telegram.ext import CallbackQueryHandler, CallbackContext
-from inlinekeyboards import InlineKeyboard
 from replykeyboards import ReplyKeyboard
 from buttonsdatadict import BUTTONS_DATA_DICT
 from DB.main import *
@@ -13,8 +12,13 @@ logger = logging.getLogger()
 
 
 def main_inline_keyboard_callback(update: Update, context: CallbackContext):
-    # print('main_inline_keyboard')
-
+    # with open('update.json', 'w') as update_file:
+    #     update_file.write(update.to_json())
+    #
+    # with open('callback_query.json', 'w') as callback_query_file:
+    #     callback_query_file.write(callback_query.to_json())
+    #
+    # logger.info('user_input_data: %s', user_input_data)
     callback_query = update.callback_query
     data = callback_query.data
 
@@ -25,14 +29,6 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
         bot_data['user_data'] = user_data
 
     user = bot_data['user_data']
-
-    # with open('update.json', 'w') as update_file:
-    #     update_file.write(update.to_json())
-    #
-    # with open('callback_query.json', 'w') as callback_query_file:
-    #     callback_query_file.write(callback_query.to_json())
-    #
-    # logger.info('user_input_data: %s', user_input_data)
 
     match_obj = re.search('^received', data)
 
