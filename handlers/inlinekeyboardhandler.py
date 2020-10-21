@@ -4,6 +4,7 @@ from replykeyboards import ReplyKeyboard
 from buttonsdatadict import BUTTONS_DATA_DICT
 from DB.main import *
 from languages import LANGS
+from helpers import set_user_data_in_bot_data
 import re
 import logging
 
@@ -24,11 +25,9 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
 
     bot_data = context.bot_data
 
-    if not bot_data:
-        user_data = get_user(update.effective_user.id)
-        bot_data['user_data'] = user_data
-
-    user = bot_data['user_data']
+    # set bot_data[update.effective_user.id] -> dict
+    set_user_data_in_bot_data(update.effective_user.id, bot_data)
+    user = bot_data[update.effective_user.id]
 
     match_obj = re.search('^received', data)
 
@@ -50,7 +49,7 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
 
         context.bot.answer_callback_query(callback_query.id, reply_text)
         update_user_info(user['user_id'], lang=lang)
-        bot_data['user_data']['lang'] = lang
+        bot_data[update.effective_user.id]['lang'] = lang
 
         reply_keyboard = ReplyKeyboard('menu_keyboard', lang).get_keyboard()
         callback_query.edit_message_text(edited_text)

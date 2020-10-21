@@ -5,13 +5,48 @@ from inlinekeyboards import InlineKeyboard
 from buttonsdatadict import BUTTONS_DATA_DICT
 from filters import phone_number_filter
 from replykeyboards import ReplyKeyboard
+from handlers.editconversation import edit_conversation_handler
 from layouts import *
+from helpers import set_user_data_in_bot_data
 import datetime
 import logging
-from handlers.editconversation import edit_conversation_handler
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
+
+
+def new_cargo_callback(update: Update, context: CallbackContext):
+    text = update.message.text.split(' ', 1)[-1]
+
+    user_input_data = context.user_data
+    bot_data = context.bot_data
+
+    # set bot_data[update.effective_user.id] -> dict
+    set_user_data_in_bot_data(update.effective_user.id, bot_data)
+    user = bot_data[update.effective_user.id]
+
+    if text == 'Yuk e\'lon qilish' or text == 'Объявить груз':
+
+        if user['lang'] == LANGS[0]:
+            text = 'Viloyatingizni tanlang:'
+
+        if user['lang'] == LANGS[1]:
+            text = 'Выберите свой область:'
+
+        inline_keyboard = InlineKeyboard('regions_keyboard', user['lang']).get_keyboard()
+
+        message = update.message.reply_text(text, reply_markup=inline_keyboard)
+
+        state = FROM_REGION
+
+        user_input_data['state'] = state
+        user_input_data['sender_id'] = user['id']
+        user_input_data['sender_user_id'] = user['user_id']
+        user_input_data['sender_phone_number'] = user['phone_number']
+        user_input_data['message_id'] = message.message_id
+        # user_input_data['sender_phone_number2'] = user['phone_number2']
+
+        return state
 
 
 def from_region_callback(update: Update, context: CallbackContext):
@@ -19,7 +54,7 @@ def from_region_callback(update: Update, context: CallbackContext):
     region_id = callback_query.data
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     user_input_data[FROM_REGION] = region_id
 
@@ -50,7 +85,7 @@ def from_district_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if data == BUTTONS_DATA_DICT[6]:
 
@@ -101,7 +136,7 @@ def from_location_callback(update: Update, context: CallbackContext):
     # with open('jsons/update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if update.message.location:
 
@@ -184,7 +219,7 @@ def to_region_callback(update: Update, context: CallbackContext):
     region_id = callback_query.data
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     user_input_data[TO_REGION] = region_id
 
@@ -214,7 +249,7 @@ def to_district_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if data == BUTTONS_DATA_DICT[6]:
 
@@ -256,7 +291,7 @@ def to_location_callback(update: Update, context: CallbackContext):
     # with open('update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if update.message.location:
 
@@ -323,7 +358,7 @@ def cargo_weight_unit_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'skip_weight':
         user_input_data[WEIGHT_UNIT] = None
@@ -365,7 +400,7 @@ def cargo_weight_callback(update: Update, context: CallbackContext):
     text = update.message.text
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if not text.isdigit():
 
@@ -406,7 +441,7 @@ def cargo_volume_callback(update: Update, context: CallbackContext):
     text = update.message.text
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if not text.isdigit():
 
@@ -450,7 +485,7 @@ def cargo_definition_callback(update: Update, context: CallbackContext):
     text = update.message.text
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     user_input_data[DEFINITION] = text
 
@@ -508,7 +543,7 @@ def cargo_photo_callback(update: Update, context: CallbackContext):
     text = update.message.text
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     cargo_photo = update.message.photo
 
@@ -560,7 +595,7 @@ def date_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     # print(user_input_data[PHOTO])
 
@@ -621,7 +656,7 @@ def hour_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'next' or data == 'back':
 
@@ -657,7 +692,7 @@ def minute_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'back':
 
@@ -706,7 +741,7 @@ def receiver_callback(update: Update, context: CallbackContext):
     contact = update.message.contact
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if contact:
         phone_number = phone_number_filter(contact.phone_number)
@@ -767,7 +802,7 @@ def confirmation_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     logger.info('user_input_data: %s', user_input_data)
 
@@ -836,7 +871,7 @@ def txt_callback(update: Update, context: CallbackContext):
     text = update.message.text
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     logger.info('user_inpt_data: %s', user_input_data)
 
@@ -942,7 +977,7 @@ def skip_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = context.bot_data['user_data']
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'skip_to_location':
         user_input_data[TO_LOCATION] = None
@@ -1066,42 +1101,6 @@ def skip_callback(update: Update, context: CallbackContext):
 
     user_input_data['state'] = state
     return state
-
-
-def new_cargo_callback(update: Update, context: CallbackContext):
-    text = update.message.text.split(' ', 1)[-1]
-
-    user_input_data = context.user_data
-    bot_data = context.bot_data
-
-    if not bot_data:
-        user = get_user(update.effective_user.id)
-        bot_data['user_data'] = user
-
-    user = bot_data['user_data']
-
-    if text == 'Yuk e\'lon qilish' or text == 'Объявить груз':
-
-        if user['lang'] == LANGS[0]:
-            text = 'Viloyatingizni tanlang:'
-
-        if user['lang'] == LANGS[1]:
-            text = 'Выберите свой область:'
-
-        inline_keyboard = InlineKeyboard('regions_keyboard', user['lang']).get_keyboard()
-
-        message = update.message.reply_text(text, reply_markup=inline_keyboard)
-
-        state = FROM_REGION
-
-        user_input_data['state'] = state
-        user_input_data['sender_id'] = user['id']
-        user_input_data['sender_user_id'] = user['user_id']
-        user_input_data['sender_phone_number'] = user['phone_number']
-        user_input_data['message_id'] = message.message_id
-        # user_input_data['sender_phone_number2'] = user['phone_number2']
-
-        return state
 
 
 new_cargo_conversation_handler = ConversationHandler(

@@ -1,9 +1,9 @@
 from telegram.ext import Filters, MessageHandler, CallbackContext
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from telegram import Update
 from inlinekeyboards import InlineKeyboard
 from layouts import *
 from replykeyboards import ReplyKeyboard
-from DB import *
+from helpers import set_user_data_in_bot_data
 
 
 def message_handler_callback(update: Update, context: CallbackContext):
@@ -14,11 +14,9 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
     bot_data = context.bot_data
 
-    if not bot_data:
-        user_data = get_user(update.effective_user.id)
-        bot_data['user_data'] = user_data
-
-    user = bot_data['user_data']
+    # set bot_data[update.effective_user.id] -> dict
+    set_user_data_in_bot_data(update.effective_user.id, bot_data)
+    user = bot_data[update.effective_user.id]
 
     if user:
 
