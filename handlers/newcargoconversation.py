@@ -582,7 +582,9 @@ def date_callback(update: Update, context: CallbackContext):
         state = RECEIVER_PHONE_NUMBER
 
         callback_query.edit_message_text(text)
+
         message = callback_query.message.reply_html(reply_text, reply_markup=get_skip_keyboard(state))
+        user_input_data['message_id'] = message.message_id
 
     if data == 'today' or data == 'tomorrow' or data == 'after_tomorrow':
 
@@ -609,9 +611,6 @@ def date_callback(update: Update, context: CallbackContext):
         state = HOUR
 
     callback_query.answer()
-
-    if message:
-        user_input_data['message_id'] = message.message_id
 
     user_input_data['state'] = state
     return state
