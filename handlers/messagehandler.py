@@ -17,6 +17,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
     # set bot_data[update.effective_user.id] -> dict
     set_user_data_in_bot_data(update.effective_user.id, bot_data)
     user = bot_data[update.effective_user.id]
+    print(bot_data)
 
     if user:
 
