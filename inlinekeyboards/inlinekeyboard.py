@@ -2,6 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from DB import *
 import datetime
 from languages import LANGS
+from units import UNITS
 
 
 class InlineKeyboard(object):
@@ -43,6 +44,10 @@ class InlineKeyboard(object):
         elif keyb_type == 'districts_keyboard':
 
             return self.__get_districts_keyboard(lang, select_all_districts(region_id))
+
+        elif keyb_type == 'weights_keyboard':
+
+            return self.__get_weights_keyboard(lang)
 
         elif keyb_type == 'dates_keyboard':
 
@@ -178,6 +183,18 @@ class InlineKeyboard(object):
             ]
 
         return InlineKeyboardMarkup(keyboard)
+
+    @staticmethod
+    def __get_weights_keyboard(lang):
+        button1_text = UNITS[lang][0]
+        button2_text = UNITS[lang][1]
+
+        return InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton(button1_text, callback_data='kg'),
+                InlineKeyboardButton(button2_text, callback_data='t')
+            ]
+        ])
 
     @staticmethod
     def __get_dates_keyboard(lang):
