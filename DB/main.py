@@ -168,9 +168,6 @@ def get_region_and_district(region_id, district_id):
 def insert_cargo(cargo_data):
     # with open('jsons/cargo.json', 'w') as cargo:
     #     cargo.write(json.dumps(cargo_data, indent=4))
-    if cargo_data.get('message_id'):
-        cargo_data.pop('message_id')
-
     date = cargo_data.pop('date')
     time = cargo_data.pop('time')
 
