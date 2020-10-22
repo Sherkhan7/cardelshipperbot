@@ -1,9 +1,8 @@
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CallbackContext
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Update, InlineKeyboardButton
 from handlers.editcargoinfoconversation import edit_cargo_info_conversation_handler
 from handlers.editaddressconversation import edit_address_conversation_handler
 from handlers.editdateandtimeconversation import edit_date_and_time_conversation_handler
-from DB import *
 from inlinekeyboards import InlineKeyboard
 from languages import LANGS
 import logging
@@ -13,28 +12,25 @@ logger = logging.getLogger()
 
 
 def edit_callback(update: Update, context: CallbackContext):
-    # print('edit_callback')
-
     callback_query = update.callback_query
     data = callback_query.data
 
-    user = get_user(update.effective_user.id)
     user_input_data = context.user_data
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'edit_address':
         inline_keyboard = InlineKeyboard('edit_address_keyboard', user['lang']).get_keyboard()
         state = 'edit_address'
-        user_input_data['state'] = state
 
     if data == 'edit_cargo_info':
         inline_keyboard = InlineKeyboard('edit_cargo_info_keyboard', user['lang']).get_keyboard()
         state = 'edit_cargo_info'
-        user_input_data['state'] = state
+
+    if data == 'terminate_editing':
+        inline_keyboard = InlineKeyboard('confirm_keyboard', user['lang'], data=user_input_data).get_keyboard()
+        state = 'confirmation'
 
     if data == 'edit_date_and_time':
-
-        state = 'edit_date_and_time'
-        user_input_data['state'] = state
 
         if user['lang'] == LANGS[0]:
             text = 'Kunni tanlang'
@@ -53,18 +49,14 @@ def edit_callback(update: Update, context: CallbackContext):
         else:
             callback_query.edit_message_text(text, reply_markup=inline_keyboard)
 
+        state = 'edit_date_and_time'
+        user_input_data['state'] = state
+
         return state
-
-    if data == 'terminate_editing':
-        inline_keyboard = InlineKeyboard('confirm_keyboard', user['lang'], data=user_input_data).get_keyboard()
-
-        user_input_data['state'] = 'confirmation'
-
-        state = ConversationHandler.END
-
     callback_query.answer()
     callback_query.edit_message_reply_markup(inline_keyboard)
 
+    user_input_data['state'] = state
     return state
 
 
@@ -78,7 +70,7 @@ edit_conversation_handler = ConversationHandler(
     fallbacks=[],
 
     map_to_parent={
-        -1: 'confirmation',
+        'confirmation': 'confirmation',
         'edit': 'edit'
     }
 )

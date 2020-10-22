@@ -12,7 +12,7 @@ def edit_address_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'back':
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
@@ -125,7 +125,7 @@ def edit_region_or_district_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
     data = callback_query.data
 
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
     user_input_data = context.user_data
 
     # print('---state---', user_input_data['state'])
@@ -180,7 +180,7 @@ def edit_region_callback(update: Update, context: CallbackContext):
     # print(data)
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'back':
         layout = get_new_cargo_layout(user_input_data, user)
@@ -232,7 +232,7 @@ def edit_district_callback(update: Update, context: CallbackContext):
     # print(data)
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'back_btn':
         if user['lang'] == LANGS[0]:
@@ -313,7 +313,7 @@ def edit_district_callback(update: Update, context: CallbackContext):
 
 
 def edit_from_location_callback(update: Update, context: CallbackContext):
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
     user_input_data = context.user_data
 
     text = update.message.text
@@ -390,7 +390,7 @@ def edit_to_location_callback(update: Update, context: CallbackContext):
     #     update_file.write(update.to_json())
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     callback_query = update.callback_query
 

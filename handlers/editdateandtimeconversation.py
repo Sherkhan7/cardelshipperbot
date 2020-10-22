@@ -1,5 +1,5 @@
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CallbackContext
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from telegram import Update, InlineKeyboardButton, ParseMode
 from DB import *
 from inlinekeyboards import InlineKeyboard
 from layouts import get_new_cargo_layout
@@ -10,9 +10,9 @@ def edit_date_and_time_callback(update: Update, context: CallbackContext):
     # print('edit_time_callback')
     callback_query = update.callback_query
     data = callback_query.data
-    # print(data)
+
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'back' or data == 'now':
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
@@ -72,7 +72,7 @@ def edit_time_callback(update: Update, context: CallbackContext):
     data = callback_query.data
     # print(data)
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'back_btn' or data == 'next' or data == 'back':
 
@@ -82,7 +82,6 @@ def edit_time_callback(update: Update, context: CallbackContext):
             button_text = '« Назад'
 
         if data == 'back_btn':
-
             user_input_data.pop('new_date')
 
             inline_keyboard = InlineKeyboard('dates_keyboard', user['lang']).get_keyboard()
@@ -131,7 +130,7 @@ def edit_minute_callback(update: Update, context: CallbackContext):
     data = callback_query.data
     # print('data:', data)
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'back':
 

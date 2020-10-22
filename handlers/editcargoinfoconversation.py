@@ -1,6 +1,5 @@
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
-from DB import *
 from inlinekeyboards import InlineKeyboard
 import logging
 from units import UNITS
@@ -16,10 +15,9 @@ def edit_cargo_info_callback(update: Update, context: CallbackContext):
     # print('edit_cargo_info_callback')
     callback_query = update.callback_query
     data = callback_query.data
-    # print(data)
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if data == 'back':
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
@@ -195,7 +193,7 @@ def edit_cargo_info_callback(update: Update, context: CallbackContext):
 
 def edit_weight_unit_callback(update: Update, context: CallbackContext):
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     callback_query = update.callback_query
     data = callback_query.data
@@ -248,7 +246,7 @@ def edit_weight_unit_callback(update: Update, context: CallbackContext):
 
 def edit_weight_callback(update: Update, context: CallbackContext):
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
     # print('state:', user_input_data['state'])
 
     callback_query = update.callback_query
@@ -352,7 +350,7 @@ def edit_volume_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if callback_query:
         data = callback_query.data
@@ -429,7 +427,7 @@ def edit_definition_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if callback_query:
         data = callback_query.data
@@ -492,7 +490,7 @@ def edit_photo_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if callback_query:
         data = callback_query.data
@@ -579,7 +577,7 @@ def edit_receiver_phone_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
 
     user_input_data = context.user_data
-    user = get_user(update.effective_user.id)
+    user = context.bot_data[update.effective_user.id]
 
     if callback_query:
         data = callback_query.data
