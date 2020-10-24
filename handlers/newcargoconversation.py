@@ -986,7 +986,8 @@ def skip_callback(update: Update, context: CallbackContext):
 
         state = DEFINITION
 
-        callback_query.message.reply_text(reply_text, reply_markup=get_skip_keyboard(state))
+        message = callback_query.message.reply_text(reply_text, reply_markup=get_skip_keyboard(state))
+        user_input_data['message_id'] = message.message_id
 
     if data == 'skip_definition':
         user_input_data[DEFINITION] = None
@@ -1008,7 +1009,8 @@ def skip_callback(update: Update, context: CallbackContext):
 
         state = PHOTO
 
-        callback_query.message.reply_text(reply_text, reply_markup=get_skip_keyboard(state))
+        message = callback_query.message.reply_text(reply_text, reply_markup=get_skip_keyboard(state))
+        user_input_data['message_id'] = message.message_id
 
     if data == 'skip_photo':
         user_input_data[PHOTO] = None
@@ -1027,7 +1029,8 @@ def skip_callback(update: Update, context: CallbackContext):
         callback_query.edit_message_text(edit_text, parse_mode=ParseMode.HTML)
 
         inline_keyboard = InlineKeyboard('dates_keyboard', user['lang']).get_keyboard()
-        callback_query.message.reply_text(reply_text, reply_markup=inline_keyboard)
+        message = callback_query.message.reply_text(reply_text, reply_markup=inline_keyboard)
+        user_input_data['message_id'] = message.message_id
 
         state = DATE
 
