@@ -1,11 +1,11 @@
-from telegram.ext import ConversationHandler, CallbackQueryHandler, CallbackContext
+import logging
 from telegram import Update, InlineKeyboardButton
-from handlers.editcargoinfoconversation import edit_cargo_info_conversation_handler
+from telegram.ext import ConversationHandler, CallbackQueryHandler, CallbackContext
 from handlers.editaddressconversation import edit_address_conversation_handler
+from handlers.editcargoinfoconversation import edit_cargo_info_conversation_handler
 from handlers.editdateandtimeconversation import edit_date_and_time_conversation_handler
 from inlinekeyboards import InlineKeyboard
 from languages import LANGS
-import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
@@ -37,7 +37,10 @@ def edit_callback(update: Update, context: CallbackContext):
             button_text = '« Ortga'
         if user['lang'] == LANGS[1]:
             text = 'Выберите день'
-            button_text = '« Назад'
+            button_text = 'Назад'
+
+        text += ' :'
+        button_text = '« ' + button_text
 
         inline_keyboard = InlineKeyboard('dates_keyboard', user['lang']).get_keyboard()
         inline_keyboard['inline_keyboard'].append([InlineKeyboardButton(button_text, callback_data='back')])
@@ -53,6 +56,7 @@ def edit_callback(update: Update, context: CallbackContext):
         user_input_data['state'] = state
 
         return state
+
     callback_query.answer()
     callback_query.edit_message_reply_markup(inline_keyboard)
 
@@ -61,7 +65,8 @@ def edit_callback(update: Update, context: CallbackContext):
 
 
 edit_conversation_handler = ConversationHandler(
-    entry_points=[CallbackQueryHandler(edit_callback, pattern='edit|terminate')],
+    entry_points=[CallbackQueryHandler(edit_callback, pattern='^(edit_|terminate_)')],
+
     states={
         'edit_address': [edit_address_conversation_handler],
         'edit_cargo_info': [edit_cargo_info_conversation_handler],
