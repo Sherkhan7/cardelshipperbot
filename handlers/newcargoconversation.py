@@ -1,15 +1,16 @@
+import logging
+
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, \
     ReplyKeyboardRemove, ParseMode
 from telegram.ext import (MessageHandler, ConversationHandler, CallbackQueryHandler, CallbackContext, Filters)
-from inlinekeyboards import InlineKeyboard
+
 from buttonsdatadict import BUTTONS_DATA_DICT
 from filters import phone_number_filter
-from replykeyboards import ReplyKeyboard
 from handlers.editconversation import edit_conversation_handler
-from layouts import *
 from helpers import set_user_data_in_bot_data
-import datetime
-import logging
+from inlinekeyboards import InlineKeyboard
+from layouts import *
+from replykeyboards import ReplyKeyboard
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
@@ -110,7 +111,7 @@ def from_district_callback(update: Update, context: CallbackContext):
         if user['lang'] == LANGS[0]:
             edit_message_text = 'Geolokatsiyangizni yuboring:'
             button_text = 'Geolokatsiyamni jo\'natish'
-            reply_text = 'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+            reply_text = 'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             edit_message_text = 'Отправьте свою геолокацию:'
@@ -181,7 +182,7 @@ def from_location_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             error_text = 'Geolokatsiya yuborilmadi !\n\n' \
-                         'Geolokatsiyangizni yuboring yoki «next» ni bosing.'
+                         'Geolokatsiyangizni yuboring yoki «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             error_text = 'Геолокация не отправлена !\n\n' \
@@ -254,11 +255,11 @@ def to_district_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             text = 'Yukni jo\'natish geolokatsiyasini yuboring.\n ' \
-                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             text = 'Отправите геолокацию доставки.\n' \
-                   'Или нажмите «next», чтобы пропустить этот шаг.'
+                   'Или нажмите «next», чтобы пропустить этот шаг'
 
         state = TO_LOCATION
 
@@ -277,6 +278,7 @@ def to_location_callback(update: Update, context: CallbackContext):
     user = context.bot_data[update.effective_user.id]
 
     if not update.message.location:
+
         if user['lang'] == LANGS[0]:
             error_text = 'Geolokatsiya yuborilmadi !\n\n' \
                          'Yukni jo\'natish geolokatsiyasini yuboring yoki «next» ni bosing:'
@@ -305,7 +307,8 @@ def to_location_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             text = 'Yuk og\'irligini tanlang:\n\n' \
-                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
+
         if user['lang'] == LANGS[1]:
             text = 'Выберите вес груза:\n\n' \
                    'Или нажмите «next», чтобы пропустить этот шаг'
@@ -339,13 +342,13 @@ def cargo_weight_unit_callback(update: Update, context: CallbackContext):
             weight = 'noma\'lum'
             weight_text = 'Yuk og\'irligi'
             text = 'Yuk hajmini yuboring (raqamda):\n\n' \
-                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             weight = 'неизвестно'
             weight_text = 'Вес груза'
             text = 'Отправьте объем груза (цифрами):\n\n' \
-                   'Или нажмите «next», чтобы пропустить этот шаг.'
+                   'Или нажмите «next», чтобы пропустить этот шаг'
 
         edit_text = f'<b><i>{weight_text}: {weight}</i></b>'
         callback_query.edit_message_text(edit_text, parse_mode=ParseMode.HTML)
@@ -403,11 +406,11 @@ def cargo_weight_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             error_text = 'Yuk hajmini yuboring (raqamda):\n\n' \
-                         'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                         'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             error_text = 'Отправьте объем груза (цифрами):\n\n' \
-                         'Или нажмите «next», чтобы пропустить этот шаг.'
+                         'Или нажмите «next», чтобы пропустить этот шаг'
 
         state = VOLUME
 
@@ -429,11 +432,11 @@ def cargo_volume_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             error_text = 'Yuk hajmini raqamda yuboring !\n\n' \
-                         'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                         'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
-            error_text = '\U000026A0 Отправьте объем груза цифрами !\n' \
-                         'Или нажмите «next», чтобы пропустить этот шаг.'
+            error_text = 'Отправьте объем груза цифрами !\n' \
+                         'Или нажмите «next», чтобы пропустить этот шаг'
 
         error_text = '\U000026A0 ' + error_text
         update.message.reply_text(error_text, quote=True)
@@ -448,11 +451,11 @@ def cargo_volume_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             text = 'Yuk tavsifini yuboring:\n\n' \
-                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             text = 'Отправьте описание груза:\n\n' \
-                   'Или нажмите «next», чтобы пропустить этот шаг.'
+                   'Или нажмите «next», чтобы пропустить этот шаг'
 
         state = DEFINITION
 
@@ -499,7 +502,7 @@ def cargo_definition_callback(update: Update, context: CallbackContext):
             warning_text = 'У вас есть незаконченное объявление !\n\n' \
                            'Отправите /cancel , чтобы отменить объявление'
 
-        text = f'\U000026A0 {warning_text}'
+        text = f'\U000026A0 ' + warning_text
         update.message.reply_text(text, quote=True)
 
         state = user_input_data['state']
@@ -510,11 +513,11 @@ def cargo_definition_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             text = 'Yuk rasmini yuboring:\n\n' \
-                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             text = 'Отправите фотография груза:\n\n' \
-                   'Или нажмите «next», чтобы пропустить этот шаг.'
+                   'Или нажмите «next», чтобы пропустить этот шаг'
 
         state = PHOTO
 
@@ -540,12 +543,12 @@ def cargo_photo_callback(update: Update, context: CallbackContext):
         if user['lang'] == LANGS[0]:
             error_text = 'Yuk rasmi yuborilmadi !\n' \
                          'Yuk rasmini yuboring:\n\n' \
-                         'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                         'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             error_text = 'Фотография груза не отправлено !\n' \
                          'Отправите фотография груза:\n\n' \
-                         'Или нажмите «next», чтобы пропустить этот шаг.'
+                         'Или нажмите «next», чтобы пропустить этот шаг'
 
         error_text = '\U000026A0 ' + error_text
 
@@ -594,11 +597,11 @@ def date_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             text = 'Yukni qabul qiluvchining telefon raqamini yuboring.\n'
-            reply_text += '\nYoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+            reply_text += '\nYoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             text = 'Отправьте номер телефона получателя груза.\n'
-            reply_text += '\nИли нажмите «next», чтобы пропустить этот шаг.'
+            reply_text += '\nИли нажмите «next», чтобы пропустить этот шаг'
 
         text += reply_text
         state = RECEIVER_PHONE_NUMBER
@@ -703,11 +706,11 @@ def minute_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             text = 'Yukni qabul qiluvchining telefon raqamini yuboring.\n'
-            reply_text += '\nYoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+            reply_text += '\nYoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             text = 'Отправьте номер телефона получателя груза.\n'
-            reply_text += '\nИли нажмите «next», чтобы пропустить этот шаг.'
+            reply_text += '\nИли нажмите «next», чтобы пропустить этот шаг'
 
         state = RECEIVER_PHONE_NUMBER
         text += reply_text
@@ -761,21 +764,21 @@ def receiver_callback(update: Update, context: CallbackContext):
         phone_number_layout = get_phone_number_layout(user['lang'])
 
         if user['lang'] == LANGS[0]:
-            error_text = 'Xato telefon raqami yuborildi !'
-            phone_number_layout += '\nYoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+            error_text = 'Xato telefon raqami yuborildi'
+            phone_number_layout += '\nYoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
             text = 'Siz o\'z telefon raqmingizni yubordingiz !\n\n' \
                    'Yukni qabul qiluvchining telefon raqamini yuboring:'
 
         if user['lang'] == LANGS[1]:
-            error_text = 'Номер телефона с ошибкой отправлен !'
-            phone_number_layout += '\nИли нажмите «next», чтобы пропустить этот шаг.'
+            error_text = 'Номер телефона с ошибкой отправлен'
+            phone_number_layout += '\nИли нажмите «next», чтобы пропустить этот шаг'
             text = 'Вы отправили свой номер телефона !\n\n' \
                    'Отправьте номер телефона получателя груза:'
 
         if phone_number == user['phone_number']:
             error_text = text
 
-        error_text = f'\U000026A0 {error_text}'
+        error_text = f'\U000026A0 {error_text} !'
         state = user_input_data['state']
 
         update.message.reply_text(error_text, quote=True)
@@ -951,35 +954,47 @@ def skip_callback(update: Update, context: CallbackContext):
     user = context.bot_data[update.effective_user.id]
 
     if data == 'skip_to_location':
+
         user_input_data[TO_LOCATION] = None
 
         if user['lang'] == LANGS[0]:
+            location = 'noma\'lum'
+            location_text = 'Yukni jo\'natish geolokatsiyasi'
             text = 'Yuk og\'irligini tanlang:\n\n' \
-                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                   'Yoki bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
+
         if user['lang'] == LANGS[1]:
+            location = 'неизвестно'
+            location_text = 'Геолокация доставки'
             text = 'Выберите вес груза:\n\n' \
-                   'Или нажмите «next», чтобы пропустить этот шаг.'
+                   'Или нажмите «next», чтобы пропустить этот шаг'
+
+        edit_text = f'<b><i>{location_text}: {location}</i></b>'
+        callback_query.edit_message_text(edit_text, parse_mode=ParseMode.HTML)
 
         inline_keyboard = InlineKeyboard('weights_keyboard', user['lang']).get_keyboard()
         inline_keyboard['inline_keyboard'].append([InlineKeyboardButton('«next»', callback_data='skip_weight')])
-        callback_query.edit_message_text(text, reply_markup=inline_keyboard)
+
+        message = callback_query.message.reply_text(text, reply_markup=inline_keyboard)
+        user_input_data['message_id'] = message.message_id
 
         state = WEIGHT_UNIT
 
     if data == 'skip_volume':
+
         user_input_data[VOLUME] = None
 
         if user['lang'] == LANGS[0]:
             volume = 'noma\'lum'
             volume_text = 'Yuk hajmi'
             reply_text = 'Yuk tavsifini yuboring:\n\n' \
-                         'Bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                         'Bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             volume = 'неизвестно'
             volume_text = 'Объем груза'
             reply_text = 'Отправьте описание груза:\n\n' \
-                         'Или нажмите «next», чтобы пропустить этот шаг.'
+                         'Или нажмите «next», чтобы пропустить этот шаг'
 
         edit_text = f'<b><i>{volume_text}: {volume}</i></b>'
         callback_query.edit_message_text(edit_text, parse_mode=ParseMode.HTML)
@@ -990,19 +1005,20 @@ def skip_callback(update: Update, context: CallbackContext):
         user_input_data['message_id'] = message.message_id
 
     if data == 'skip_definition':
+
         user_input_data[DEFINITION] = None
 
         if user['lang'] == LANGS[0]:
             definition = 'noma\'lum'
             definition_text = 'Yuk tasnifi'
             reply_text = 'Yuk rasmini yuboring:\n\n' \
-                         'Bu bosqichni o\'tkazib yuborish uchun «next» ni bosing.'
+                         'Bu bosqichni o\'tkazib yuborish uchun «next» ni bosing'
 
         if user['lang'] == LANGS[1]:
             definition = 'неизвестно'
             definition_text = 'Описание груза'
             reply_text = 'Отправите фотография груза:\n\n' \
-                         'Или нажмите «next», чтобы пропустить этот шаг.'
+                         'Или нажмите «next», чтобы пропустить этот шаг'
 
         edit_text = f'<b><i>{definition_text}: {definition}</i></b>'
         callback_query.edit_message_text(edit_text, parse_mode=ParseMode.HTML)
@@ -1013,6 +1029,7 @@ def skip_callback(update: Update, context: CallbackContext):
         user_input_data['message_id'] = message.message_id
 
     if data == 'skip_photo':
+
         user_input_data[PHOTO] = None
 
         if user['lang'] == LANGS[0]:
@@ -1035,6 +1052,7 @@ def skip_callback(update: Update, context: CallbackContext):
         state = DATE
 
     if data == 'skip_receiver_phone':
+
         user_input_data[RECEIVER_PHONE_NUMBER] = None
 
         if user['lang'] == LANGS[0]:
@@ -1112,7 +1130,6 @@ new_cargo_conversation_handler = ConversationHandler(
                        MessageHandler(Filters.text, txt_callback)],
 
         EDIT: [edit_conversation_handler]
-
     },
     fallbacks=[
         # CommandHandler('cancel', do_cancel)
