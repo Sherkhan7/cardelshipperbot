@@ -4,6 +4,7 @@ from inlinekeyboards import InlineKeyboard
 from layouts import *
 from replykeyboards import ReplyKeyboard
 from helpers import set_user_data_in_bot_data
+from pprint import pprint
 
 
 def message_handler_callback(update: Update, context: CallbackContext):
@@ -17,7 +18,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
     # set bot_data[update.effective_user.id] -> dict
     set_user_data_in_bot_data(update.effective_user.id, bot_data)
     user = bot_data[update.effective_user.id]
-    print(bot_data)
+    pprint(bot_data)
 
     if user:
 
