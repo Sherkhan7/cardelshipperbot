@@ -34,7 +34,8 @@ def edit_callback(update: Update, context: CallbackContext):
 
         if user['lang'] == LANGS[0]:
             text = 'Kunni tanlang'
-            button_text = '« Ortga'
+            button_text = 'Ortga'
+
         if user['lang'] == LANGS[1]:
             text = 'Выберите день'
             button_text = 'Назад'
