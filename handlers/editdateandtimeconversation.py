@@ -61,7 +61,7 @@ def edit_date_and_time_callback(update: Update, context: CallbackContext):
 
         layout = text
         answer = None
-        state = 'edit_time'
+        state = 'edit_hour'
 
     callback_query.answer(answer)
 
@@ -74,7 +74,7 @@ def edit_date_and_time_callback(update: Update, context: CallbackContext):
     return state
 
 
-def edit_time_callback(update: Update, context: CallbackContext):
+def edit_hour_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
     data = callback_query.data
 
@@ -163,7 +163,7 @@ def edit_minute_callback(update: Update, context: CallbackContext):
         callback_query.edit_message_reply_markup(inline_keyboard)
 
         answer = None
-        state = 'edit_time'
+        state = 'edit_hour'
 
     else:
 
@@ -199,9 +199,9 @@ edit_date_and_time_conversation_handler = ConversationHandler(
     entry_points=[CallbackQueryHandler(edit_date_and_time_callback,
                                        pattern='^(now|today|tomorrow|after_tomorrow|back)$')],
     states={
-        'edit_time': [CallbackQueryHandler(edit_time_callback, pattern=r'^(back_btn|back|next|\d|1\d|2[0-3])$')],
+        'edit_hour': [CallbackQueryHandler(edit_hour_callback, pattern=r'^(back_btn|back|next|\d|1\d|2[0-3])$')],
 
-        'edit_minute': [CallbackQueryHandler(edit_minute_callback, pattern=r'^back|(\d|1\d|2[0-3])[:](0|\d\d)$')]
+        'edit_minute': [CallbackQueryHandler(edit_minute_callback, pattern=r'^(back)|(\d|1\d|2[0-3])[:](0|\d\d)$')]
     },
     fallbacks=[],
 

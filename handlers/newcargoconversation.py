@@ -647,12 +647,12 @@ def hour_callback(update: Update, context: CallbackContext):
     user_input_data = context.user_data
     user = context.bot_data[update.effective_user.id]
 
-    if data == 'next' or data == 'back':
+    if data == 'next' or data == 'back_btn':
 
         if data == 'next':
             inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=18, end=29).get_keyboard()
 
-        if data == 'back':
+        if data == 'back_btn':
             inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=6, end=17).get_keyboard()
 
         callback_query.edit_message_reply_markup(inline_keyboard)
@@ -684,7 +684,7 @@ def minute_callback(update: Update, context: CallbackContext):
     user_input_data = context.user_data
     user = context.bot_data[update.effective_user.id]
 
-    if data == 'back':
+    if data == 'back_btn':
 
         if user['lang']:
             text = 'Soatni belgilang:'
@@ -1083,6 +1083,7 @@ def skip_callback(update: Update, context: CallbackContext):
 
 new_cargo_conversation_handler = ConversationHandler(
     entry_points=[MessageHandler(Filters.regex('(Yuk e\'lon qilish|Объявить груз)$'), new_cargo_callback)],
+
     states={
         FROM_REGION: [CallbackQueryHandler(from_region_callback), MessageHandler(Filters.text, txt_callback)],
 
@@ -1118,9 +1119,11 @@ new_cargo_conversation_handler = ConversationHandler(
         DATE: [CallbackQueryHandler(date_callback, pattern='now|today|tomorrow|after_tomorrow'),
                MessageHandler(Filters.text, txt_callback)],
 
-        HOUR: [CallbackQueryHandler(hour_callback), MessageHandler(Filters.text, txt_callback)],
+        HOUR: [CallbackQueryHandler(hour_callback, pattern=r'^(back_btn|next|\d|1\d|2[0-3])$'),
+               MessageHandler(Filters.text, txt_callback)],
 
-        MINUTE: [CallbackQueryHandler(minute_callback), MessageHandler(Filters.text, txt_callback)],
+        MINUTE: [CallbackQueryHandler(minute_callback, pattern=r'^(back_btn)|(\d|1\d|2[0-3])[:](0|\d\d)$'),
+                 MessageHandler(Filters.text, txt_callback)],
 
         RECEIVER_PHONE_NUMBER: [
             CallbackQueryHandler(skip_callback, pattern='^skip_(to_location|volume|definition|photo|receiver_phone)$'),
@@ -1131,6 +1134,6 @@ new_cargo_conversation_handler = ConversationHandler(
 
         EDIT: [edit_conversation_handler]
     },
-    fallbacks=[
-        # CommandHandler('cancel', do_cancel)
-    ], )
+
+    fallbacks=[],
+)
