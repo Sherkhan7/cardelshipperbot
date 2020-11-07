@@ -70,4 +70,4 @@ def message_handler_callback(update: Update, context: CallbackContext):
                                   '\U000026A0 Вы не зарегистрированы !\nДля этого нажмите /start.')
 
 
-message_handler = MessageHandler(Filters.text & ~Filters.command, message_handler_callback)
+message_handler = MessageHandler(Filters.text, message_handler_callback)
