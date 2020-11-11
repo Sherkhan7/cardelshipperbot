@@ -15,3 +15,12 @@ def set_user_data_in_bot_data(user_id, bot_data):
         else:
 
             bot_data[user_id] = False
+
+
+def wrap_tags(*args):
+    symbol = ''
+
+    if len(args) > 1:
+        symbol = ' '
+
+    return f'<b><i><u>{symbol.join(args)}</u></i></b>'
