@@ -2,7 +2,6 @@ from languages import LANGS
 from DB import get_region_and_district
 from helpers import wrap_tags
 from units import UNITS
-import datetime
 
 (USER_ID, FROM_REGION, FROM_DISTRICT, FROM_LOCATION, TO_REGION, TO_DISTRICT, TO_LOCATION, WEIGHT_UNIT, WEIGHT,
  VOLUME_UNIT, VOLUME, DEFINITION, PHOTO, DATE, TIME, CLIENT_PHONE_NUMBER, CONFIRMATION, EDIT) = \

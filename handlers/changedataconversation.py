@@ -4,6 +4,7 @@ from inlinekeyboards import InlineKeyboard
 from buttonsdatadict import BUTTONS_DATA_DICT
 from helpers import set_user_data_in_bot_data
 from layouts import *
+from DB import update_user_info
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
