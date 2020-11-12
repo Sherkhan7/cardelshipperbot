@@ -223,9 +223,13 @@ def edit_region_callback(update: Update, context: CallbackContext):
         button3_text = '« ' + button3_text
 
         inline_keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton(button1_text, callback_data='edit_region'),
-             InlineKeyboardButton(button2_text, callback_data='edit_district')],
-            [InlineKeyboardButton(button3_text, callback_data='back')]
+            [
+                InlineKeyboardButton(button1_text, callback_data='edit_region'),
+                InlineKeyboardButton(button2_text, callback_data='edit_district')
+            ],
+            [
+                InlineKeyboardButton(button3_text, callback_data='back')
+            ]
         ])
 
         callback_query.answer()
@@ -277,9 +281,13 @@ def edit_district_callback(update: Update, context: CallbackContext):
         button3_text = '« ' + button3_text
 
         inline_keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton(button1_text, callback_data='edit_region'),
-             InlineKeyboardButton(button2_text, callback_data='edit_district')],
-            [InlineKeyboardButton(button3_text, callback_data='back')]
+            [
+                InlineKeyboardButton(button1_text, callback_data='edit_region'),
+                InlineKeyboardButton(button2_text, callback_data='edit_district')
+            ],
+            [
+                InlineKeyboardButton(button3_text, callback_data='back')
+            ]
         ])
 
         state = user_input_data['state']
@@ -287,6 +295,7 @@ def edit_district_callback(update: Update, context: CallbackContext):
 
         if state == 'edit_from_address':
             key = 'new_from_region'
+
         elif state == 'edit_to_address':
             key = 'new_to_region'
 
@@ -314,6 +323,7 @@ def edit_district_callback(update: Update, context: CallbackContext):
 
             if user['lang'] == LANGS[0]:
                 answer = 'Yuboruvchi manzili tahrirlandi'
+
             if user['lang'] == LANGS[1]:
                 answer = 'Адрес отправителя изменен'
 
@@ -325,6 +335,7 @@ def edit_district_callback(update: Update, context: CallbackContext):
 
             if user['lang'] == LANGS[0]:
                 answer = 'Qabul qiluvchi manzili tahrirlandi'
+
             if user['lang'] == LANGS[1]:
                 answer = 'Адрес получателя изменен'
 
@@ -337,7 +348,7 @@ def edit_district_callback(update: Update, context: CallbackContext):
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
 
         if user_input_data['photo']:
-            callback_query.edit_message_caption(caption=layout, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+            callback_query.edit_message_caption(layout, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
         else:
             callback_query.edit_message_text(layout, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 

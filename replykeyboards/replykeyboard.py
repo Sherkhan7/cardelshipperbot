@@ -28,44 +28,37 @@ class ReplyKeyboard(object):
     def __get_menu_keyboard(lang):
 
         if lang == LANGS[0]:
-            button_1_text = "Yuk e'lon qilish"
-            button_2_text = "E'lonlar"
-            button_3_text = "E'lonlar tarixi"
-            button_4_text = "Sozlamalar"
-            button_5_text = "Biz bilan bo'glanish"
+            button_1_text = 'Yuk e\'lon qilish'
+            button_2_text = 'Mashina e\'lon qilish'
+            button_3_text = 'Sozlamalar'
+            button_4_text = 'Mening e\'lonlarim'
 
         if lang == LANGS[1]:
-            button_1_text = "Объявить груз"
-            button_2_text = "Объявления"
-            button_3_text = "История объявлений"
-            button_4_text = "Настройки"
-            button_5_text = "Связаться с нами"
+            button_1_text = 'Объявить груз'
+            button_2_text = 'Объявить машину'
+            button_3_text = 'Настройки'
+            button_4_text = 'Мои объявления'
 
         return ReplyKeyboardMarkup([
 
             [KeyboardButton(f'\U0001F4E6 {button_1_text}')],
-            [
-                KeyboardButton(f'\U0001F4DC	{button_2_text}'),
-                KeyboardButton(f'\U0001F5C4 {button_3_text}')
-            ],
-            [
-                KeyboardButton(f'\U00002699 {button_4_text}'),
-                KeyboardButton(f'\U0001F4E9	{button_5_text}')
-            ],
+            [KeyboardButton(f'\U0001F4C4 {button_4_text}')],
+            [KeyboardButton(f'\U00002699 {button_3_text}')],
+
         ], resize_keyboard=True, one_time_keyboard=True)
 
     @staticmethod
     def __get_settings_keyboard(lang):
 
         if lang == LANGS[0]:
-            button_1_text = "Mening ma'lumotlarim"
-            button_2_text = "Tilni o'zgartirish"
+            button_1_text = 'Mening ma\'lumotlarim'
+            button_2_text = 'Tilni o\'zgartirish'
             button_3_text = 'Ortga'
 
         if lang == LANGS[1]:
-            button_1_text = "Мои данные"
-            button_2_text = "Изменить язык"
-            button_3_text = "Назад"
+            button_1_text = 'Мои данные'
+            button_2_text = 'Изменить язык'
+            button_3_text = 'Назад'
 
         return ReplyKeyboardMarkup([
 
@@ -91,6 +84,3 @@ class ReplyKeyboard(object):
 
     def get_keyboard(self):
         return self.__keyboard
-
-# reply_keyboard = ReplyKeyboard('menu_keyboard', 'uz')
-# print(reply_keyboard.get_keyboard())

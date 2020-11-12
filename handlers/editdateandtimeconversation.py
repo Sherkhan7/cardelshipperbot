@@ -119,61 +119,13 @@ def edit_hour_callback(update: Update, context: CallbackContext):
     else:
 
         if user['lang'] == LANGS[0]:
-            text = 'Daqiqani belgilang:'
-
-        if user['lang'] == LANGS[1]:
-            text = 'Выберите минуту:'
-
-        callback_query.answer()
-
-        inline_keyboard = InlineKeyboard('minutes_keyboard', user['lang'], data=data).get_keyboard()
-
-        if user_input_data['photo']:
-            callback_query.edit_message_caption(text, reply_markup=inline_keyboard)
-
-        else:
-            callback_query.edit_message_text(text, reply_markup=inline_keyboard)
-
-        state = 'edit_minute'
-        user_input_data['state'] = state
-
-        return state
-
-
-def edit_minute_callback(update: Update, context: CallbackContext):
-    callback_query = update.callback_query
-    data = callback_query.data
-
-    user_input_data = context.user_data
-    user = context.bot_data[update.effective_user.id]
-
-    if data == 'back_btn':
-
-        if user['lang'] == LANGS[0]:
-            button_text = 'Ortga'
-
-        if user['lang'] == LANGS[1]:
-            button_text = 'Назад'
-
-        button_text = f'« {button_text}'
-
-        inline_keyboard = InlineKeyboard('hours_keyboard', user['lang'], begin=6, end=17).get_keyboard()
-        inline_keyboard['inline_keyboard'].append([InlineKeyboardButton(button_text, callback_data='back')])
-
-        callback_query.edit_message_reply_markup(inline_keyboard)
-
-        answer = None
-        state = 'edit_hour'
-
-    else:
-
-        if user['lang'] == LANGS[0]:
             answer = 'Kun va vaqt tahrirlandi'
 
         if user['lang'] == LANGS[1]:
             answer = 'Дата и время изменены'
 
         answer = f'\U0001F44F\U0001F44F\U0001F44F {answer}'
+        callback_query.answer(answer)
 
         user_input_data['time'] = data
         user_input_data['date'] = user_input_data.pop('new_date')
@@ -188,20 +140,17 @@ def edit_minute_callback(update: Update, context: CallbackContext):
             callback_query.edit_message_text(layout, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
         state = 'edit'
+        user_input_data['state'] = state
 
-    callback_query.answer(answer)
-    user_input_data['state'] = state
-
-    return state
+        return state
 
 
 edit_date_and_time_conversation_handler = ConversationHandler(
     entry_points=[CallbackQueryHandler(edit_date_and_time_callback,
                                        pattern='^(now|today|tomorrow|after_tomorrow|back)$')],
     states={
-        'edit_hour': [CallbackQueryHandler(edit_hour_callback, pattern=r'^(back_btn|back|next|\d|1\d|2[0-3])$')],
+        'edit_hour': [CallbackQueryHandler(edit_hour_callback, pattern=r'^(back_btn|back|next|\d+[:]00)$')],
 
-        'edit_minute': [CallbackQueryHandler(edit_minute_callback, pattern=r'^(back)|(\d|1\d|2[0-3])[:](0|\d\d)$')]
     },
     fallbacks=[],
 

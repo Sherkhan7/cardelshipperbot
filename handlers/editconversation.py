@@ -40,7 +40,7 @@ def edit_callback(update: Update, context: CallbackContext):
             text = 'Выберите день'
             button_text = 'Назад'
 
-        text += ' :'
+        text += ':'
         button_text = '« ' + button_text
 
         inline_keyboard = InlineKeyboard('dates_keyboard', user['lang']).get_keyboard()

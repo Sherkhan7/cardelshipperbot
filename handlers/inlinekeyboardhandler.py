@@ -1,10 +1,13 @@
-from telegram import Update, ParseMode
+from telegram import Update, ParseMode, InlineKeyboardButton
 from telegram.ext import CallbackQueryHandler, CallbackContext
 from replykeyboards import ReplyKeyboard
 from buttonsdatadict import BUTTONS_DATA_DICT
 from DB.main import *
 from languages import LANGS
 from helpers import set_user_data_in_bot_data
+from layouts import get_new_cargo_layout
+from inlinekeyboards import InlineKeyboard
+from config import GROUP_ID
 import re
 import logging
 
@@ -24,12 +27,13 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     bot_data = context.bot_data
+    chat_data = context.chat_data
 
     # set bot_data[update.effective_user.id] -> dict
     set_user_data_in_bot_data(update.effective_user.id, bot_data)
     user = bot_data[update.effective_user.id]
 
-    match_obj = re.search('^received', data)
+    match_obj = re.search(r'^(\d+_(opened|closed))$', data)
 
     if data == BUTTONS_DATA_DICT[7] or data == BUTTONS_DATA_DICT[8]:
 
@@ -58,34 +62,110 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
     elif match_obj:
 
         data = match_obj.string
-        sender = get_user(data.split('_')[1])
-        cargo_id = data.split('_')[-1]
+        # print(data)
+        cargo_id = data.split('_')[0]
+        new_cargo_status = data.split('_')[-1]
 
-        if update_cargo_status(cargo_id, 'received') == 'updated':
+        if update_cargo_status(cargo_id, new_cargo_status) == 'updated':
+
+            cargo_data = get_cargo_by_id(cargo_id)
+            chat_data['client_cargoes'] = get_client_cargoes(user['id'])
+
+            shipping_datetime = cargo_data['shipping_datetime']
+            cargo_data['date'] = shipping_datetime.strftime('%d-%m-%Y')
+            cargo_data['time'] = shipping_datetime.strftime('%H:%M')
 
             if user['lang'] == LANGS[0]:
-                text = "\U0001F197 Siz yukni qabul qildingiz.\n\n" \
-                       "\U0001F6E1 <b><i><u>Cardel Online</u></i></b> " \
-                       "xizmatidan foydalanganingiz uchun rahmat \U0001F609."
+                close_text = 'E\'lonni yopish'
+                open_text = 'E\'lonni qayta ochish'
 
             if user['lang'] == LANGS[1]:
-                text = "\U0001F197 Вы приняли груз.\n\n" \
-                       "\U0001F609 Благодарим вас за использование услуги " \
-                       "\U0001F6E1 <b><i><u>Cardel Online</u></i></b>."
+                close_text = 'Закрыть объявление'
+                open_text = 'Повторно открыть объявление'
 
-            callback_query.message.reply_text(text, parse_mode=ParseMode.HTML)
+            if user['lang'] == LANGS[2]:
+                close_text = 'Еълонни ёпиш'
+                open_text = 'Еълонни қайта очиш'
 
-            if sender['lang'] == LANGS[0]:
-                text = f"\U00002705 Qabul qiluvchi: <b><i>[ <u>{user['name']} {user['surname']}</u> ]</i></b> " \
-                       f"yukingizni qabul qildi.\n\n\U0001F6E1 <b><i><u>Cardel Online</u></i></b> " \
-                       f"xizmatidan foydalanganingiz uchun rahmat \U0001F609."
+            if cargo_data['state'] == 'opened':
+                button4_text = f'\U0001F534 {close_text}'
+                button4_data = f'{cargo_data["id"]}_closed'
 
-            if sender['lang'] == LANGS[1]:
-                text = f"\U00002705 Получатель: <b><i>[ <u>{user['name']} {user['surname']}</u> ]</i></b>" \
-                       " принял вашу груз.\n\n\U0001F609 Благодарим вас за использование " \
-                       "услуги \U0001F6E1 <b><i><u>Cardel Online</u></i></b>."
+            elif cargo_data['state'] == 'closed':
+                button4_text = f'\U0001F7E2 {open_text}'
+                button4_data = f'{cargo_data["id"]}_opened'
 
-            context.bot.send_message(sender['user_id'], text, parse_mode=ParseMode.HTML)
+            cargo_data['from_location'] = None
+            cargo_data['to_location'] = None
+
+            layout = get_new_cargo_layout(cargo_data, user)
+
+            inline_keyboard = callback_query.message.reply_markup
+            inline_keyboard['inline_keyboard'][-1][0] = InlineKeyboardButton(button4_text, callback_data=button4_data)
+
+            if cargo_data['from_latitude'] or cargo_data['to_latitude']:
+
+                if cargo_data['from_latitude']:
+                    cargo_data['from_location'] = {
+                        'latitude': cargo_data['from_latitude'],
+                        'longitude': cargo_data['from_longitude']
+                    }
+
+                if cargo_data['to_latitude']:
+                    cargo_data['to_location'] = {
+                        'latitude': cargo_data['to_latitude'],
+                        'longitude': cargo_data['to_longitude']
+                    }
+
+                inline_keyboard_2 = InlineKeyboard('geolocation_keyboard', lang='cy', data=cargo_data).get_keyboard()
+
+            else:
+                inline_keyboard_2 = None
+
+            callback_query.answer()
+            callback_query.edit_message_text(layout, parse_mode=ParseMode.HTML, reply_markup=inline_keyboard)
+
+            layout_2 = get_new_cargo_layout(cargo_data, user, 'cy')
+
+            if cargo_data['photo_id']:
+
+                context.bot.edit_message_caption(GROUP_ID, cargo_data['message_id'], caption=layout_2,
+                                                 reply_markup=inline_keyboard_2, parse_mode=ParseMode.HTML)
+            else:
+                context.bot.edit_message_text(layout_2, GROUP_ID, cargo_data['message_id'],
+                                              reply_markup=inline_keyboard_2, parse_mode=ParseMode.HTML)
+
+    else:
+        callback_query.answer()
+
+        match_obj_2 = re.search(r'^(w_\d+)$', data)
+
+        if match_obj_2:
+            data = match_obj_2.string.split('_')[-1]
+        else:
+            data = ''
+
+        if data.isdigit():
+
+            chat_data['client_cargoes'] = get_client_cargoes(user['id'])
+
+            length = len(chat_data['client_cargoes'])
+            wanted = int(data[0])
+            client_cargoes = chat_data['client_cargoes']
+
+            wanted_cargo_data = chat_data['client_cargoes'][wanted - 1]
+
+            # print(wanted_cargo_data)
+
+            shipping_datetime = wanted_cargo_data['shipping_datetime']
+            wanted_cargo_data['date'] = shipping_datetime.strftime('%d-%m-%Y')
+            wanted_cargo_data['time'] = shipping_datetime.strftime('%H:%M')
+
+            layout = get_new_cargo_layout(wanted_cargo_data, user)
+            inline_keyboard = InlineKeyboard('paginate_keyboard', user['lang'],
+                                             data=(wanted, length, client_cargoes)).get_keyboard()
+
+            callback_query.edit_message_text(layout, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
 
 inline_keyboard_handler = CallbackQueryHandler(main_inline_keyboard_callback, pattern='')

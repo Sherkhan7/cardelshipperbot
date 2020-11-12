@@ -1,5 +1,5 @@
 LANGS = [
     'uz',
     'ru',
-    'kr'
+    'cy'
 ]

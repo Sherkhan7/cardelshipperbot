@@ -140,37 +140,24 @@ def edit_cargo_info_callback(update: Update, context: CallbackContext):
 
         state = 'edit_photo'
 
-    if data == 'edit_receiver_phone':
+    if data == 'edit_client_phone':
 
         phone_number_layout = get_phone_number_layout(user['lang'])
 
         if user['lang'] == LANGS[0]:
-            button3_text = 'Telefon raqamini o\'chirish'
-            button4_text = 'Ortga'
-            text = 'Yukni qabul qiluvchining telefon raqamini yuboring:\n\n' \
-                   'Yoki eskisini o\'chirish uchun «o\'chirish» ni bosing'
+            button_text = 'Ortga'
 
         if user['lang'] == LANGS[1]:
-            button3_text = 'Удалить номер телефона'
-            button4_text = 'Назад'
-            text = 'Отправьте номер телефона получателя груза:\n\n' \
-                   'Или нажмите «удалить», чтобы удалить старую'
+            button_text = 'Назад'
 
-        button4_text = '« ' + button4_text
+        button_text = '« ' + button_text
         inline_keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton(button4_text, callback_data='back')],
+            [InlineKeyboardButton(button_text, callback_data='back')],
         ])
 
-        if user_input_data['receiver_phone_number']:
-            inline_keyboard['inline_keyboard'].insert(0, [InlineKeyboardButton(button3_text, callback_data='delete')])
+        text = phone_number_layout
 
-        else:
-            text = text.partition(':')
-            text = text[0] + text[1]
-
-        text += f'\n{phone_number_layout}'
-
-        state = 'edit_receiver_phone'
+        state = 'edit_client_phone'
 
     callback_query.answer()
 
@@ -579,7 +566,7 @@ def edit_photo_callback(update: Update, context: CallbackContext):
     return state
 
 
-def edit_receiver_phone_callback(update: Update, context: CallbackContext):
+def edit_client_phone_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
 
     user_input_data = context.user_data
@@ -592,19 +579,6 @@ def edit_receiver_phone_callback(update: Update, context: CallbackContext):
             inline_keyboard = InlineKeyboard('edit_cargo_info_keyboard', user['lang']).get_keyboard()
             answer = None
             state = 'edit_cargo_info'
-
-        if data == 'delete':
-            user_input_data['receiver_phone_number'] = None
-            inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
-
-            if user['lang'] == LANGS[0]:
-                answer = 'Yukni qabul qiluvchining telefon raqami tahrirlandi'
-
-            if user['lang'] == LANGS[1]:
-                answer = 'Номер телефона получателя груза изменен'
-
-            answer = '\U0001F44F\U0001F44F\U0001F44F ' + answer
-            state = 'edit'
 
         callback_query.answer(answer)
         layout = get_new_cargo_layout(user_input_data, user)
@@ -629,16 +603,16 @@ def edit_receiver_phone_callback(update: Update, context: CallbackContext):
         else:
             phone_number = phone_number_filter(text)
 
-        if phone_number and phone_number != user['phone_number']:
+        if phone_number:
 
-            user_input_data['receiver_phone_number'] = phone_number
+            user_input_data['client_phone_number'] = phone_number
             inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
 
             if user['lang'] == LANGS[0]:
-                answer = 'Yukni qabul qiluvchining telefon raqami tahrirlandi'
+                answer = 'Telefon raqami tahrirlandi'
 
             if user['lang'] == LANGS[1]:
-                answer = 'Номер телефона получателя груза изменен'
+                answer = 'Номер телефона изменен'
 
             answer = '\U0001F44F\U0001F44F\U0001F44F ' + answer
             update.message.reply_text(answer)
@@ -662,24 +636,16 @@ def edit_receiver_phone_callback(update: Update, context: CallbackContext):
         else:
 
             if user['lang'] == LANGS[0]:
-                error_text = 'Xato telefon raqami yuborildi !'
-                text = 'Siz o\'z telefon raqmingizni yubordingiz !\n\n' \
-                       'Yukni qabul qiluvchining telefon raqamini yuboring:'
+                error_text = 'Xato telefon raqami yuborildi'
 
             if user['lang'] == LANGS[1]:
-                error_text = 'Номер телефона с ошибкой отправлен !'
-                text = 'Вы отправили свой номер телефона !\n\n' \
-                       'Отправить номер телефона получателя груза:'
+                error_text = 'Номер телефона с ошибкой отправлен'
 
-            if phone_number == user['phone_number']:
-                error_text = text
-
-            error_text = '\U000026A0 ' + error_text
-
+            error_text = f'\U000026A0 {error_text} !'
             phone_number_layout = get_phone_number_layout(user['lang'])
-            error_text += f'\n{phone_number_layout}'
 
-            update.message.reply_html(error_text, quote=True)
+            update.message.reply_text(error_text, quote=True)
+            update.message.reply_html(phone_number_layout)
 
             return user_input_data['state']
 
@@ -687,7 +653,7 @@ def edit_receiver_phone_callback(update: Update, context: CallbackContext):
 edit_cargo_info_conversation_handler = ConversationHandler(
     entry_points=[CallbackQueryHandler(edit_cargo_info_callback,
                                        pattern='^(edit_weight|edit_volume|edit_definition'
-                                               '|edit_photo|edit_receiver_phone|back)$')],
+                                               '|edit_photo|edit_client_phone|back)$')],
     states={
         'edit_weight_unit': [CallbackQueryHandler(edit_weight_unit_callback, pattern='^(kg|t|delete|back)$')],
 
@@ -703,8 +669,8 @@ edit_cargo_info_conversation_handler = ConversationHandler(
         'edit_photo': [CallbackQueryHandler(edit_photo_callback, pattern='^(back|delete)$'),
                        MessageHandler(Filters.text & ~Filters.command | Filters.photo, edit_photo_callback)],
 
-        'edit_receiver_phone': [CallbackQueryHandler(edit_receiver_phone_callback, pattern='^(back|delete)$'),
-                                MessageHandler(Filters.text & ~Filters.command, edit_receiver_phone_callback)],
+        'edit_client_phone': [CallbackQueryHandler(edit_client_phone_callback, pattern='^(back|delete)$'),
+                              MessageHandler(Filters.text & ~Filters.command, edit_client_phone_callback)],
     },
     fallbacks=[],
 
