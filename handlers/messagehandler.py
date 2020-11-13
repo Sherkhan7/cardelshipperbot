@@ -6,6 +6,7 @@ from replykeyboards import ReplyKeyboard
 from helpers import set_user_data_in_bot_data
 from pprint import pprint
 from DB import get_client_cargoes
+from languages import LANGS
 
 
 def message_handler_callback(update: Update, context: CallbackContext):
@@ -51,7 +52,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                 wanted_cargo_data[DATE] = shipping_datetime.strftime('%d-%m-%Y')
                 wanted_cargo_data[TIME] = shipping_datetime.strftime('%H:%M')
 
-                reply_text = get_new_cargo_layout(wanted_cargo_data, user)
+                reply_text = get_new_cargo_layout(wanted_cargo_data, user['lang'])
                 inline_keyboard = InlineKeyboard('paginate_keyboard', user['lang'],
                                                  data=(wanted, length, client_cargoes)).get_keyboard()
 

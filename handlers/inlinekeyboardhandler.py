@@ -98,7 +98,7 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
             cargo_data['from_location'] = None
             cargo_data['to_location'] = None
 
-            layout = get_new_cargo_layout(cargo_data, user)
+            layout = get_new_cargo_layout(cargo_data, user['lang'])
 
             inline_keyboard = callback_query.message.reply_markup
             inline_keyboard['inline_keyboard'][-1][0] = InlineKeyboardButton(button4_text, callback_data=button4_data)
@@ -125,7 +125,7 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
             callback_query.answer()
             callback_query.edit_message_text(layout, parse_mode=ParseMode.HTML, reply_markup=inline_keyboard)
 
-            layout_2 = get_new_cargo_layout(cargo_data, user, 'cy')
+            layout_2 = get_new_cargo_layout(cargo_data, 'cy')
 
             if cargo_data['photo_id']:
 
@@ -161,7 +161,7 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
             wanted_cargo_data['date'] = shipping_datetime.strftime('%d-%m-%Y')
             wanted_cargo_data['time'] = shipping_datetime.strftime('%H:%M')
 
-            layout = get_new_cargo_layout(wanted_cargo_data, user)
+            layout = get_new_cargo_layout(wanted_cargo_data, user['lang'])
             inline_keyboard = InlineKeyboard('paginate_keyboard', user['lang'],
                                              data=(wanted, length, client_cargoes)).get_keyboard()
 

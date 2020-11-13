@@ -29,7 +29,7 @@ def edit_date_and_time_callback(update: Update, context: CallbackContext):
 
             answer = '\U0001F44F\U0001F44F\U0001F44F ' + answer
 
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         state = 'edit'
 
@@ -130,7 +130,7 @@ def edit_hour_callback(update: Update, context: CallbackContext):
         user_input_data['time'] = data
         user_input_data['date'] = user_input_data.pop('new_date')
 
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
 
         if user_input_data['photo']:

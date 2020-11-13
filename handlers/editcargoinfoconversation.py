@@ -180,7 +180,7 @@ def edit_weight_unit_callback(update: Update, context: CallbackContext):
 
     if data == 'back':
         inline_keyboard = InlineKeyboard('edit_cargo_info_keyboard', user['lang']).get_keyboard()
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         answer = None
         state = 'edit_cargo_info'
@@ -189,7 +189,7 @@ def edit_weight_unit_callback(update: Update, context: CallbackContext):
         user_input_data['weight'] = None
 
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         if user['lang'] == LANGS[0]:
             answer = 'Yuk og\'irligi tahrirlandi'
@@ -303,7 +303,7 @@ def edit_weight_callback(update: Update, context: CallbackContext):
         user_input_data['weight_unit'] = user_input_data.pop('new_weight_unit')
 
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         if user['lang'] == LANGS[0]:
             answer = 'Yuk og\'irligi tahrirlandi'
@@ -356,7 +356,7 @@ def edit_volume_callback(update: Update, context: CallbackContext):
             answer = '\U0001F44F\U0001F44F\U0001F44F ' + answer
             state = 'edit'
 
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         callback_query.answer(answer)
 
@@ -397,7 +397,7 @@ def edit_volume_callback(update: Update, context: CallbackContext):
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
         user_input_data['volume'] = text
 
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
         context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data.pop('message_id'))
 
         if user_input_data['photo']:
@@ -440,7 +440,7 @@ def edit_definition_callback(update: Update, context: CallbackContext):
             answer = '\U0001F44F\U0001F44F\U0001F44F ' + answer
             state = 'edit'
 
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         callback_query.answer(answer)
 
@@ -464,7 +464,7 @@ def edit_definition_callback(update: Update, context: CallbackContext):
 
         user_input_data['definition'] = update.message.text
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data.pop('message_id'))
 
@@ -495,7 +495,7 @@ def edit_photo_callback(update: Update, context: CallbackContext):
             answer = None
             state = 'edit_cargo_info'
 
-            layout = get_new_cargo_layout(user_input_data, user)
+            layout = get_new_cargo_layout(user_input_data, user['lang'])
 
             if user_input_data['photo']:
                 callback_query.edit_message_caption(layout, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
@@ -514,7 +514,7 @@ def edit_photo_callback(update: Update, context: CallbackContext):
 
             answer = '\U0001F44F\U0001F44F\U0001F44F ' + answer
 
-            layout = get_new_cargo_layout(user_input_data, user)
+            layout = get_new_cargo_layout(user_input_data, user['lang'])
 
             context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data.pop('message_id'))
             message = callback_query.message.reply_html(layout, reply_markup=inline_keyboard)
@@ -552,7 +552,7 @@ def edit_photo_callback(update: Update, context: CallbackContext):
         answer = '\U0001F44F\U0001F44F\U0001F44F ' + answer
         update.message.reply_text(answer)
 
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
 
         context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data.pop('message_id'))
@@ -581,7 +581,7 @@ def edit_client_phone_callback(update: Update, context: CallbackContext):
             state = 'edit_cargo_info'
 
         callback_query.answer(answer)
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         if user_input_data['photo']:
             callback_query.edit_message_caption(layout, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
@@ -617,7 +617,7 @@ def edit_client_phone_callback(update: Update, context: CallbackContext):
             answer = '\U0001F44F\U0001F44F\U0001F44F ' + answer
             update.message.reply_text(answer)
 
-            layout = get_new_cargo_layout(user_input_data, user)
+            layout = get_new_cargo_layout(user_input_data, user['lang'])
 
             context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data.pop('message_id'))
 

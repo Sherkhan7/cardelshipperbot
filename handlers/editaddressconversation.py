@@ -3,6 +3,7 @@ from telegram import (Update, InlineKeyboardMarkup, InlineKeyboardButton, ReplyK
 from telegram.ext import ConversationHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 from inlinekeyboards import InlineKeyboard
 from layouts import *
+from languages import LANGS
 
 
 def edit_address_callback(update: Update, context: CallbackContext):
@@ -150,7 +151,7 @@ def edit_region_or_district_callback(update: Update, context: CallbackContext):
 
     if data == 'back':
         inline_keyboard = InlineKeyboard('edit_address_keyboard', user['lang']).get_keyboard()
-        text = get_new_cargo_layout(user_input_data, user)
+        text = get_new_cargo_layout(user_input_data, user['lang'])
 
         state = 'edit_address'
         user_input_data['state'] = state
@@ -208,7 +209,7 @@ def edit_region_callback(update: Update, context: CallbackContext):
     user = context.bot_data[update.effective_user.id]
 
     if data == 'back':
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         if user['lang'] == LANGS[0]:
             button1_text = 'Viloyatni tahrirlash'
@@ -302,7 +303,7 @@ def edit_district_callback(update: Update, context: CallbackContext):
         if key in user_input_data.keys():
             user_input_data.pop(key)
 
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         if user_input_data['photo']:
             callback_query.edit_message_caption(layout, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
@@ -344,7 +345,7 @@ def edit_district_callback(update: Update, context: CallbackContext):
         if new_key in user_input_data.keys():
             user_input_data[key] = user_input_data.pop(new_key)
 
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
         inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
 
         if user_input_data['photo']:
@@ -426,7 +427,7 @@ def edit_from_location_callback(update: Update, context: CallbackContext):
         return user_input_data['state']
 
     # logger.info('new_cargo_info: %s', user_input_data)
-    layout = get_new_cargo_layout(user_input_data, user)
+    layout = get_new_cargo_layout(user_input_data, user['lang'])
 
     if user_input_data['photo']:
         message = update.message.reply_photo(user_input_data['photo']['file_id'], caption=layout,
@@ -448,7 +449,7 @@ def edit_to_location_callback(update: Update, context: CallbackContext):
     if callback_query:
 
         data = callback_query.data
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         if data == 'back':
             inline_keyboard = InlineKeyboard('edit_address_keyboard', user['lang']).get_keyboard()
@@ -504,7 +505,7 @@ def edit_to_location_callback(update: Update, context: CallbackContext):
 
             update.message.reply_text(answer)
 
-            layout = get_new_cargo_layout(user_input_data, user)
+            layout = get_new_cargo_layout(user_input_data, user['lang'])
             inline_keyboard = InlineKeyboard('edit_keyboard', user['lang']).get_keyboard()
 
             context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data.pop('message_id'))

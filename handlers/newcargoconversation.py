@@ -11,6 +11,7 @@ from DB import insert_cargo
 from layouts import *
 from replykeyboards import ReplyKeyboard
 from config import GROUP_ID
+from languages import LANGS
 import datetime
 import logging
 
@@ -47,6 +48,9 @@ def new_cargo_callback(update: Update, context: CallbackContext):
         user_input_data['state'] = state
         user_input_data['client_id'] = user['id']
         user_input_data['client_user_id'] = user['user_id']
+        user_input_data['client_username'] = user['username']
+        user_input_data['client_name'] = user['name']
+        user_input_data['client_surname'] = user['surname']
         user_input_data['message_id'] = message.message_id
 
         return state
@@ -721,7 +725,7 @@ def phone_number_callback(update: Update, context: CallbackContext):
 
         user_input_data[CLIENT_PHONE_NUMBER] = phone_number
 
-        layout = get_new_cargo_layout(user_input_data, user)
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
 
         inline_keyboard = InlineKeyboard('confirm_keyboard', user['lang'], data=user_input_data).get_keyboard()
 
@@ -783,8 +787,8 @@ def confirmation_callback(update: Update, context: CallbackContext):
         context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data['message_id'])
 
         user_input_data['state'] = 'opened'
-        layout = get_new_cargo_layout(user_input_data, user)
-        layout_2 = get_new_cargo_layout(user_input_data, user, lang='cy')
+        layout = get_new_cargo_layout(user_input_data, user['lang'])
+        layout_2 = get_new_cargo_layout(user_input_data, lang='cy')
 
         if user_input_data[FROM_LOCATION] or user_input_data[TO_LOCATION]:
             inline_keyboard = InlineKeyboard('geolocation_keyboard', lang='cy', data=user_input_data).get_keyboard()
