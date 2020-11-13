@@ -1,17 +1,15 @@
 def fullname_filter(fullname):
+    value = False
+
     fullname = fullname.strip()
     fullname = fullname.split()
 
     if len(fullname) == 2:
 
         if fullname[0].isalpha() and fullname[-1].isalpha():
+            value = fullname
 
-            fullname = fullname
-
-        else:
-            fullname = False
-
-    return fullname
+    return value
 
 
 def special_code_filter(special_code):
