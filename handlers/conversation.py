@@ -7,12 +7,16 @@ from replykeyboards import ReplyKeyboard
 from DB import insert_user
 from helpers import set_user_data_in_bot_data
 from languages import LANGS
+from globalvariables import *
+from replykeyboards.replykeyboardvariables import *
+from inlinekeyboards.inlinekeyboardvariables import *
+from helpers import wrap_tags
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
 
-USER_ID, USERNAME, FULLNAME, LANG = ('user_id', 'username', 'fullname', 'lang')
+FULLNAME, LANG = ('fullname', 'lang')
 
 
 def do_command(update: Update, context: CallbackContext):
@@ -34,44 +38,48 @@ def do_command(update: Update, context: CallbackContext):
         if user:
 
             if user['lang'] == LANGS[0]:
-                text = 'Siz ro\'yxatdan o\'tgansiz'
+                text = "Siz ro'yxatdan o'tgansiz"
 
             if user['lang'] == LANGS[1]:
-                text = 'Вы зарегистрированы'
+                text = "Вы зарегистрированы"
+
+            if user['lang'] == LANGS[2]:
+                text = "Сиз рўйхатдан ўтгансиз"
 
             text = f'\U000026A0 {text} !'
 
             if command == '/menu':
 
                 if user['lang'] == LANGS[0]:
-                    reply_text = 'Menu'
+                    reply_text = "Menyu"
 
                 if user['lang'] == LANGS[1]:
-                    reply_text = 'Меню'
+                    reply_text = "Меню"
+
+                if user['lang'] == LANGS[2]:
+                    reply_text = "Меню"
 
                 text = f'\U0001F4D6 {reply_text}'
 
-            reply_keyboard = ReplyKeyboard('menu_keyboard', user['lang']).get_keyboard()
+            reply_keyboard = ReplyKeyboard(menu_keyboard, user['lang']).get_keyboard()
             update.message.reply_text(text, reply_markup=reply_keyboard)
 
             return ConversationHandler.END
 
         else:
 
-            user_input_data[USER_ID] = update.effective_user.id
+            user_input_data[TG_ID] = update.effective_user.id
             user_input_data[USERNAME] = update.effective_user.username
 
-            inline_keyboard = InlineKeyboard('langs_keyboard').get_keyboard()
-            update.message.reply_text('Tilni tanlang. Выберите язык.', reply_markup=inline_keyboard)
+            inline_keyboard = InlineKeyboard(langs_keyboard).get_keyboard()
+            update.message.reply_text('Tilni tanlang\nВыберите язык\nТилни танланг', reply_markup=inline_keyboard)
 
         return LANG
 
 
 def lang_callback(update: Update, context: CallbackContext):
-    # with open('../update.json', 'w') as update_file:
+    # with open('jsons/update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
-    # with open('../callback_query.json', 'w') as callback_query_file:
-    #     callback_query_file.write(callback_query.to_json())
     callback_query = update.callback_query
 
     if callback_query:
@@ -84,19 +92,24 @@ def lang_callback(update: Update, context: CallbackContext):
         logger.info('user_input_data: %s', user_input_data)
 
         if data == LANGS[0]:
-            edit_text = 'Til: \U0001F1FA\U0001F1FF'
-            example = 'Misol: Sherzod Esanov'
-            text = 'Salom !\n' \
-                   'Ism va familyangizni quyidagi formatda yuboring'
+            edit_text = "Til: \U0001F1FA\U0001F1FF"
+            text = "Salom !\n" \
+                   "Ism va familyangizni quyidagi formatda yuboring"
+            example = "Misol: Sherzod Esanov"
 
         if data == LANGS[1]:
             edit_text = 'Язык: \U0001F1F7\U0001F1FA'
-            example = 'Пример: Шерзод Эсанов'
             text = 'Привет !\n' \
                    'Отправьте свое имя и фамилию в формате ниже'
+            example = 'Пример: Шерзод Эсанов'
 
-        example = f'<b><i><u>{example}</u></i></b>'
-        text = f'\U0001F44B {text}:\n\n {example}'
+        if data == LANGS[2]:
+            edit_text = "Тил: \U0001F1FA\U0001F1FF"
+            text = "Салом !\n" \
+                   "Исм ва фамилянгизни қуйидаги форматда юборинг"
+            example = "Мисол: Шерзод Эсанов"
+
+        text = f'\U0001F44B {text}:\n\n {wrap_tags(example)}'
 
         callback_query.edit_message_text(edit_text)
         callback_query.message.reply_html(text)
@@ -105,13 +118,12 @@ def lang_callback(update: Update, context: CallbackContext):
 
     else:
 
-        update.message.reply_text('Tilni tanlang. Выберите язык.', quote=True)
+        update.message.reply_text('Tilni tanlang. Выберите язык. Тилни танланг', quote=True)
 
         return LANG
 
 
 def fullname_callback(update: Update, context: CallbackContext):
-    # print('full_name_callback')
     # with open('../update.json', 'w') as update_file:
     #     update_file.write(update.to_json())
     text = update.message.text
@@ -125,25 +137,30 @@ def fullname_callback(update: Update, context: CallbackContext):
 
     if fullname:
 
-        user_input_data['name'] = fullname[0]
-        user_input_data['surname'] = fullname[1]
+        user_input_data[NAME] = fullname[0]
+        user_input_data[SURNAME] = fullname[1]
 
         insert_user(user_input_data)
         set_user_data_in_bot_data(update.effective_user.id, bot_data)
 
         if user_input_data[LANG] == LANGS[0]:
-            text = 'Tabriklaymiz !\n' \
-                   'Siz registratsiyadan muvofaqqiyatli o\'tdingiz\n\n' \
-                   'E\'lon berishingiz mumkin'
+            text = "Tabriklaymiz !\n" \
+                   "Siz ro'yxatdan muvofaqqiyatli o'tdingiz\n\n" \
+                   "E'lon berishingiz mumkin"
 
         if user_input_data[LANG] == LANGS[1]:
-            text = 'Поздравляем !\n' \
-                   'Вы успешно зарегистрировались\n\n' \
-                   'Вы можете помешать объявление'
+            text = "Поздравляем !\n" \
+                   "Вы успешно зарегистрировались\n\n" \
+                   "Вы можете помешать объявление"
+
+        if user_input_data[LANG] == LANGS[2]:
+            text = "Табриклаймиз !\n" \
+                   "Сиз рўйхатдан мувофаққиятли ўтдингиз\n\n" \
+                   "Еълон беришингиз мумкин"
 
         text = '\U0001F44F\U0001F44F\U0001F44F ' + text
 
-        reply_keyboard = ReplyKeyboard('menu_keyboard', user_input_data[LANG]).get_keyboard()
+        reply_keyboard = ReplyKeyboard(menu_keyboard, user_input_data[LANG]).get_keyboard()
         update.message.reply_text(text, reply_markup=reply_keyboard)
 
         user_input_data.clear()
@@ -152,17 +169,21 @@ def fullname_callback(update: Update, context: CallbackContext):
     else:
 
         if user_input_data[LANG] == LANGS[0]:
-            text = 'Ism va familya xato yuborildi !\n' \
-                   'Qaytada quyidagi formatda yuboring'
-            example = 'Misol: Sherzod Esanov'
+            text = "Ism va familya xato yuborildi !\n" \
+                   "Qaytadan quyidagi formatda yuboring"
+            example = "Misol: Sherzod Esanov"
 
         if user_input_data[LANG] == LANGS[1]:
             text = 'Имя и фамилия введено неверное !\n' \
                    'Отправьте еще раз в следующем формате'
             example = 'Пример: Шерзод Эсанов'
 
-        example = f'<b><i><u>{example}</u></i></b>'
-        text = f'\U000026A0 {text}:\n\n {example}'
+        if user_input_data[LANG] == LANGS[2]:
+            text = "Исм ва фамиля хато юборилди !\n" \
+                   "Қайтадан қуйидаги форматда юборинг"
+            example = "Мисол: Шерзод Эсанов"
+
+        text = f'\U000026A0 {text}:\n\n {wrap_tags(example)}'
 
         update.message.reply_html(text, quote=True)
 
