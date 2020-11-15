@@ -4,7 +4,7 @@ from units import UNITS
 from layouts.layoutdicts import *
 
 
-def get_new_cargo_layout(cargo_data, lang):
+def get_new_cargo_layout(cargo_data, lang, hide_user_data=None):
     from_point = get_region_and_district(cargo_data[FROM_REGION], cargo_data[FROM_DISTRICT])
     from_district_name = from_point[1][NEW_CARGO_LAYOUT_DICT[lang][REGION_NAME]]
     from_region_name = from_point[0][NEW_CARGO_LAYOUT_DICT[lang][REGION_NAME]]
@@ -15,23 +15,23 @@ def get_new_cargo_layout(cargo_data, lang):
 
     date = cargo_data[DATE]
     time = cargo_data[TIME]
-    client_name = cargo_data[CLIENT_NAME]
-    client_surname = cargo_data[CLIENT_SURNAME]
-    client_phone_number = cargo_data[CLIENT_PHONE_NUMBER]
+    client_name = cargo_data[NAME]
+    client_surname = cargo_data[SURNAME]
+    client_phone_number = cargo_data[USER_PHONE_NUMBER]
 
-    weight, volume, definition, client_username = NEW_CARGO_LAYOUT_DICT[lang][UNDEFINED_TEXT]
+    weight = volume = definition = client_username = NEW_CARGO_LAYOUT_DICT[lang][UNDEFINED_TEXT]
 
     if cargo_data[WEIGHT]:
-        weight = f'{cargo_data[WEIGHT]} {UNITS[lang][WEIGHT_UNIT]}'
+        weight = f'{cargo_data[WEIGHT]} {UNITS[lang][cargo_data[WEIGHT_UNIT]]}'
 
     if cargo_data[VOLUME]:
-        volume = f'{cargo_data[VOLUME]} {UNITS[lang][VOLUME_UNIT]}'
+        volume = f'{cargo_data[VOLUME]} {UNITS[lang][cargo_data[VOLUME_UNIT]]}'
 
     if cargo_data[DEFINITION]:
         definition = cargo_data[DEFINITION]
 
-    if cargo_data[CLIENT_USERNAME]:
-        client_username = f'@{cargo_data[CLIENT_USERNAME]}'
+    if cargo_data[USERNAME]:
+        client_username = f'@{cargo_data[USERNAME]}'
 
     if cargo_data[STATE] == 'opened':
         status = NEW_CARGO_LAYOUT_DICT[lang][OPENED_STATUS]
@@ -48,26 +48,38 @@ def get_new_cargo_layout(cargo_data, lang):
     if cargo_data[TIME] == 'now':
         time = NEW_CARGO_LAYOUT_DICT[lang][TIME]
 
-    layout = f'\U0001F4CD  {FROM_TEXT}: {wrap_tags(from_district_name, from_region_name)}\n' \
-             f'\U0001F3C1  {TO_TEXT}: {wrap_tags(to_district_name, to_region_name)}\n\n' \
-             f'\U0001F4E6  {WEIGHT_TEXT}: {wrap_tags(weight)}\n' \
-             f'\U0001F4E6  {VOLUME_TEXT}: {wrap_tags(volume)}\n' \
-             f'\U0001F5D2  {DEFINITION_TEXT}: {wrap_tags(definition)}\n' \
-             f'\U0001F4C6  {DATE_TEXT}: {wrap_tags(date)}\n' \
-             f'\U0001F553  {TIME_TEXT}: {wrap_tags(time)}\n\n' \
-             f'\U0001F464  {CLIENT_TEXT}: {wrap_tags(client_name, client_surname)}\n' \
-             f"\U0001F4DE  {CLIENT_PHONE_NUMBER_TEXT}: {wrap_tags(client_phone_number)}\n" \
-             f"\U0001F170  {TG_ACCOUNT_TEXT}: {wrap_tags(client_username)}\n\n" \
-             f"{emoji}  {STATUS_TEXT}: {wrap_tags(status)}\n\n" \
+    layout = f'\U0001F4CD  {NEW_CARGO_LAYOUT_DICT[lang][FROM_TEXT]}: {wrap_tags(from_district_name, from_region_name)}\n' \
+             f'\U0001F3C1  {NEW_CARGO_LAYOUT_DICT[lang][TO_TEXT]}: {wrap_tags(to_district_name, to_region_name)}\n\n' \
+             f'\U0001F4E6  {NEW_CARGO_LAYOUT_DICT[lang][WEIGHT_TEXT]}: {wrap_tags(weight)}\n' \
+             f'\U0001F4E6  {NEW_CARGO_LAYOUT_DICT[lang][VOLUME_TEXT]}: {wrap_tags(volume)}\n' \
+             f'\U0001F5D2  {NEW_CARGO_LAYOUT_DICT[lang][DEFINITION_TEXT]}: {wrap_tags(definition)}\n' \
+             f'\U0001F4C6  {NEW_CARGO_LAYOUT_DICT[lang][DATE_TEXT]}: {wrap_tags(date)}\n' \
+             f'\U0001F553  {NEW_CARGO_LAYOUT_DICT[lang][TIME_TEXT]}: {wrap_tags(time)}\n\n' \
+             f'\U0001F464  {NEW_CARGO_LAYOUT_DICT[lang][CLIENT_TEXT]}: {wrap_tags(client_name, client_surname)}\n' \
+             f"\U0001F4DE  {NEW_CARGO_LAYOUT_DICT[lang][CLIENT_PHONE_NUMBER_TEXT]}: {wrap_tags(client_phone_number)}\n" \
+             f"\U0001F170  {NEW_CARGO_LAYOUT_DICT[lang][TG_ACCOUNT_TEXT]}: {wrap_tags(client_username)}\n\n" \
+             f"{emoji}  {NEW_CARGO_LAYOUT_DICT[lang][STATUS_TEXT]}: {wrap_tags(status)}\n\n" \
              f"\U0001F916  @cardel_elonbot \U000000A9\n" \
              f"\U0001F6E1  cardel online \U00002122"
+
+    if hide_user_data:
+        layout = f'\U0001F4CD  {NEW_CARGO_LAYOUT_DICT[lang][FROM_TEXT]}: {wrap_tags(from_district_name, from_region_name)}\n' \
+                 f'\U0001F3C1  {NEW_CARGO_LAYOUT_DICT[lang][TO_TEXT]}: {wrap_tags(to_district_name, to_region_name)}\n\n' \
+                 f'\U0001F4E6  {NEW_CARGO_LAYOUT_DICT[lang][WEIGHT_TEXT]}: {wrap_tags(weight)}\n' \
+                 f'\U0001F4E6  {NEW_CARGO_LAYOUT_DICT[lang][VOLUME_TEXT]}: {wrap_tags(volume)}\n' \
+                 f'\U0001F5D2  {NEW_CARGO_LAYOUT_DICT[lang][DEFINITION_TEXT]}: {wrap_tags(definition)}\n' \
+                 f'\U0001F4C6  {NEW_CARGO_LAYOUT_DICT[lang][DATE_TEXT]}: {wrap_tags(date)}\n' \
+                 f'\U0001F553  {NEW_CARGO_LAYOUT_DICT[lang][TIME_TEXT]}: {wrap_tags(time)}\n\n' \
+                 f"{emoji}  {NEW_CARGO_LAYOUT_DICT[lang][STATUS_TEXT]}: {wrap_tags(status)}\n\n" \
+                 f"\U0001F916  @cardel_elonbot \U000000A9\n" \
+                 f"\U0001F6E1  cardel online \U00002122"
 
     return layout
 
 
 def get_user_info_layout(user):
-    layout = f"{USER_INFO_LAYOUT_DICT[user['lang']][CLIENT_NAME]}: {wrap_tags(user['name'])}\n\n" \
-             f"{USER_INFO_LAYOUT_DICT[user['lang']][CLIENT_SURNAME]}: {wrap_tags(user['surname'])}"
+    layout = f"{USER_INFO_LAYOUT_DICT[user['lang']][NAME]}: {wrap_tags(user['name'])}\n\n" \
+             f"{USER_INFO_LAYOUT_DICT[user['lang']][SURNAME]}: {wrap_tags(user['surname'])}"
     # f"<b><i>{'-'.ljust(30, '-')}</i></b> \n" \
     # f"<b>\u0000260e {phone}: <i><u>{format_phone_number(user['phone_number'])}</u></i></b>" \
     # f"<b><i>\u0000260e {phone_2}: </i><u>{user['phone_number2']}</u></b> \n"

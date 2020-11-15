@@ -7,7 +7,7 @@ BUTTONS_DATA_DICT = {
     6: 'back_btn',
     7: 'uz',
     8: 'ru',
-    9: 'kr',
+    9: 'cy',
     'regions': {
         1: 'region_id_1', 19: 'region_id_19',
         33: 'region_id_33', 47: 'region_id_47',

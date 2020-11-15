@@ -13,15 +13,15 @@ class ReplyKeyboard(object):
 
     def __create_reply_keyboard(self, keyb_type, lang):
 
-        if keyb_type == keyboard_types[1]:
-            return self.__get_menu_keyboard(keyboard_types_lang[keyb_type][lang])
+        if keyb_type == menu_keyboard:
+            return self.__get_menu_keyboard(reply_keyboard_types[keyb_type][lang])
 
-        elif keyb_type == keyboard_types[2]:
+        elif keyb_type == settings_keyboard:
 
-            return self.__get_settings_keyboard(keyboard_types_lang[keyb_type][lang])
+            return self.__get_settings_keyboard(reply_keyboard_types[keyb_type][lang])
 
-        elif keyb_type == keyboard_types[3]:
-            return self.__get_phone_number_keyboard(keyboard_types_lang[keyb_type][lang])
+        elif keyb_type == phone_number_keyboard:
+            return self.__get_phone_number_keyboard(reply_keyboard_types[keyb_type][lang])
 
     @staticmethod
     def __get_menu_keyboard(lang):

@@ -1,12 +1,14 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from DB import *
 import datetime
-from languages import LANGS
 from units import UNITS
+from inlinekeyboards.inlinekeyboardtypes import *
+from globalvariables import *
+from layouts import NEW_CARGO_LAYOUT_DICT
 
 
 class InlineKeyboard(object):
-    def __init__(self, keyb_type, lang=None, region_id=None, begin=None, end=None, data=None):
+    def __init__(self, keyb_type, lang=None, region_id=None, begin=None, end=None, data=None, geolocation=None):
 
         self.__type = keyb_type
         self.__lang = lang
@@ -14,124 +16,103 @@ class InlineKeyboard(object):
         self.__begin = begin
         self.__end = end
         self.__data = data
-
+        self.__geolocation = geolocation
         self.__keyboard = self.__create_inline_keyboard(self.__type, self.__lang, self.__region_id,
-                                                        self.__begin, self.__end, self.__data)
+                                                        self.__begin, self.__end, self.__data, self.__geolocation)
 
-    def __create_inline_keyboard(self, keyb_type, lang, region_id, begin, end, data):
+    def __create_inline_keyboard(self, keyb_type, lang, region_id, begin, end, data, geolocation):
 
-        if keyb_type == 'langs_keyboard':
+        if keyb_type == langs_keyboard:
 
-            return InlineKeyboardMarkup(
-                [
-                    [InlineKeyboardButton('\U0001F1FA\U0001F1FF UZB', callback_data='uz')],
+            return self.__get_langs_keyboard()
 
-                    [InlineKeyboardButton('\U0001F1F7\U0001F1FA RUS', callback_data='ru')]
-                ]
-            )
+        elif keyb_type == user_data_keyboard:
 
-        elif keyb_type == 'user_data_keyboard':
-            return self.__get_user_data_keyboard(lang)
+            return self.__get_user_data_keyboard(lang, keyb_type)
 
-        elif keyb_type == 'regions_keyboard':
+        elif keyb_type == regions_keyboard:
+            regions = select_all_regions()
 
-            return self.__get_regions_keyboard(lang, select_all_regions())
+            return self.__get_regions_keyboard(lang, keyb_type, regions)
 
-        elif keyb_type == 'districts_keyboard':
+        elif keyb_type == districts_keyboard:
+            districts = select_all_districts(region_id)
 
-            return self.__get_districts_keyboard(lang, select_all_districts(region_id))
+            return self.__get_regions_keyboard(lang, keyb_type, districts)
 
-        elif keyb_type == 'weights_keyboard':
+        elif keyb_type == weights_keyboard:
 
             return self.__get_weights_keyboard(lang)
 
-        elif keyb_type == 'dates_keyboard':
+        elif keyb_type == dates_keyboard:
 
             return self.__get_dates_keyboard(lang)
 
-        elif keyb_type == 'hours_keyboard':
+        elif keyb_type == hours_keyboard:
 
             return self.__get_hours_keyboard(lang, begin, end)
 
-        elif keyb_type == 'minutes_keyboard':
+        elif keyb_type == minutes_keyboard:
 
             return self.__get_minutes_keyboard(lang, data)
 
-        elif keyb_type == 'confirm_keyboard':
+        elif keyb_type == confirm_keyboard:
 
-            return self.__get_confirm_keyboard(lang, data)
+            return self.__get_confirm_keyboard(lang, data, geolocation)
 
-        elif keyb_type == 'geolocation_keyboard':
-
-            return self.__get_geolocation_keyboard(lang, data)
-
-        elif keyb_type == 'edit_keyboard':
+        elif keyb_type == edit_keyboard:
 
             return self.__get_edit_keyboard(lang)
 
-        elif keyb_type == 'edit_address_keyboard':
+        elif keyb_type == edit_address_keyboard:
 
             return self.__get_edit_address_keyboard(lang)
 
-        elif keyb_type == 'edit_cargo_info_keyboard':
+        elif keyb_type == edit_cargo_info_keyboard:
 
             return self.__get_edit_cargo_info_keyboard(lang)
 
-        elif keyb_type == 'paginate_keyboard':
+        elif keyb_type == paginate_keyboard:
 
             return self.__get_paginate_keyboard(lang, data)
 
     @staticmethod
-    def __get_user_data_keyboard(lang):
+    def __get_langs_keyboard():
 
-        if lang == LANGS[0]:
-            button1_text = 'Ismni o\'zgartirish'
-            button2_text = 'Familyani o\'zgartirish'
-            button3_text = 'Telefon nomerini o\'zgartirish'
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton('\U0001F1FA\U0001F1FF UZB', callback_data='uz')],
+            [InlineKeyboardButton('\U0001F1F7\U0001F1FA RUS', callback_data='ru')],
+            [InlineKeyboardButton('\U0001F1FA\U0001F1FF УЗБ', callback_data='cy')],
+        ])
 
-        if lang == LANGS[1]:
-            button1_text = 'Изменить имя'
-            button2_text = 'Изменить фамилию'
-            button3_text = 'Изменить номер телефона'
+    @staticmethod
+    def __get_user_data_keyboard(lang, keyb_type):
 
-        button1_text = f'\U0001F464 {button1_text}'
-        button2_text = f'\U0001F465 {button2_text}'
-        button3_text = f'\U0001F4F1 {button3_text}'
+        button1_text = f'\U0001F464 {inline_keyboard_types[keyb_type][lang][1]}'
+        button2_text = f'\U0001F465 {inline_keyboard_types[keyb_type][lang][2]}'
 
         button1_data = 'change_name_btn'
         button2_data = 'change_surname_btn'
-        button3_data = 'change_phone_btn'
 
         return InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton(button1_text, callback_data=button1_data)],
 
                 [InlineKeyboardButton(button2_text, callback_data=button2_data)],
-
-                # [InlineKeyboardButton(button3_text, callback_data=button3_data)],
             ]
         )
 
     @staticmethod
-    def __get_regions_keyboard(lang, regions):
+    def __get_regions_keyboard(lang, keyb_type, regions):
 
         length = len(regions)
 
-        if lang == LANGS[0]:
-            region_name = 'nameUz'
-            # back_btn_text = 'Orqaga'
-
-        if lang == LANGS[1]:
-            region_name = 'nameRu'
-            # back_btn_text = 'Назад'
-
-        if lang == LANGS[2]:
-            region_name = 'nameCy'
-            # back_btn_text = 'Орқага'
-
-        # back_btn_text = f'« {back_btn_text}'
+        region_name = inline_keyboard_types[regions_keyboard][lang][1]
+        back_btn_text = f'« {inline_keyboard_types[regions_keyboard][lang]["back_btn_text"]}'
+        back_btn_data = 'back_btn'
 
         if length % 2 == 0:
+
             keyboard = [
                 [
                     InlineKeyboardButton(regions[i][region_name], callback_data=regions[i]['id']),
@@ -142,11 +123,14 @@ class InlineKeyboard(object):
                 for i in range(0, length, 2)
             ]
 
+            if keyb_type == districts_keyboard:
+                keyboard.append([InlineKeyboardButton(back_btn_text, callback_data=back_btn_data)])
+
         if length % 2 != 0:
             keyboard = [
                 [
                     InlineKeyboardButton(regions[i][region_name], callback_data=regions[i]['id']),
-                    # InlineKeyboardButton(back_btn_text, callback_data='back_btn')
+                    InlineKeyboardButton(back_btn_text, callback_data=back_btn_data)
                 ]
 
                 if i == length - 1 else
@@ -161,59 +145,10 @@ class InlineKeyboard(object):
         return InlineKeyboardMarkup(keyboard)
 
     @staticmethod
-    def __get_districts_keyboard(lang, districts):
-
-        length = len(districts)
-
-        if lang == LANGS[0]:
-            district_name = 'nameUz'
-            back_btn_text = 'Orqaga'
-
-        if lang == LANGS[1]:
-            district_name = 'nameRu'
-            back_btn_text = 'Назад'
-
-        if lang == LANGS[2]:
-            district_name = 'nameCy'
-            back_btn_text = 'Орқага'
-
-        back_btn_text = f'« {back_btn_text}'
-        back_btn_data = 'back_btn'
-
-        if length % 2 == 0:
-            keyboard = [
-                [
-                    InlineKeyboardButton(districts[i][district_name], callback_data=districts[i]['id']),
-
-                    InlineKeyboardButton(districts[i + 1][district_name], callback_data=districts[i + 1]['id'])
-                ] for i in range(0, length, 2)
-            ]
-
-            keyboard.append([InlineKeyboardButton(back_btn_text, callback_data=back_btn_data)])
-
-        if length % 2 != 0:
-            keyboard = [
-                [
-                    InlineKeyboardButton(districts[i][district_name], callback_data=districts[i]['id']),
-
-                    InlineKeyboardButton(back_btn_text, callback_data=back_btn_data)
-                ]
-
-                if i == length - 1 else
-
-                [
-                    InlineKeyboardButton(districts[i][district_name], callback_data=districts[i]['id']),
-                    InlineKeyboardButton(districts[i + 1][district_name], callback_data=districts[i + 1]['id'])
-                ] for i in range(0, length, 2)
-            ]
-
-        return InlineKeyboardMarkup(keyboard)
-
-    @staticmethod
     def __get_weights_keyboard(lang):
 
-        button1_text = UNITS[lang][0]
-        button2_text = UNITS[lang][1]
+        button1_text = UNITS[lang]['kg']
+        button2_text = UNITS[lang]['t']
 
         return InlineKeyboardMarkup([
             [
@@ -226,13 +161,8 @@ class InlineKeyboard(object):
     @staticmethod
     def __get_dates_keyboard(lang):
 
-        if lang == LANGS[0]:
-            button1_text = 'Hozir'
-            button2_text = 'Bugun'
-
-        if lang == LANGS[1]:
-            button1_text = 'Сейчас'
-            button2_text = 'Cегодня'
+        button1_text = inline_keyboard_types[dates_keyboard][lang][0]
+        button2_text = inline_keyboard_types[dates_keyboard][lang][1]
 
         tomorrow = datetime.datetime.today() + datetime.timedelta(days=1)
         after_tomorrow = tomorrow + datetime.timedelta(days=1)
@@ -257,14 +187,8 @@ class InlineKeyboard(object):
         inline_keyboard = []
 
         if begin == 6 and end == 17:
-
-            if lang == LANGS[0]:
-                button_text = 'Keyingisi'
-
-            if lang == LANGS[1]:
-                button_text = 'Следующий'
-
-            button_data = 'next'
+            button_text = inline_keyboard_types[hours_keyboard][lang]['next_btn_text']
+            button_data = 'next_btn'
 
             inline_keyboard = [
                 [
@@ -277,13 +201,7 @@ class InlineKeyboard(object):
             ]
 
         elif begin == 18 and end == 29:
-
-            if lang == LANGS[0]:
-                button_text = 'Orqaga'
-
-            if lang == LANGS[1]:
-                button_text = 'Назад'
-
+            button_text = inline_keyboard_types[hours_keyboard][lang]['back_btn_text']
             button_data = 'back_btn'
 
             for i in range(begin, end + 1, 3):
@@ -310,13 +228,7 @@ class InlineKeyboard(object):
 
     @staticmethod
     def __get_minutes_keyboard(lang, data):
-
-        if lang == LANGS[0]:
-            back_btn_text = 'Orqaga'
-
-        if lang == LANGS[1]:
-            back_btn_text = 'Назад'
-
+        back_btn_text = inline_keyboard_types[hours_keyboard][lang]['back_btn_text']
         back_btn_data = 'back_btn'
 
         minutes = {
@@ -335,39 +247,44 @@ class InlineKeyboard(object):
         return InlineKeyboardMarkup(inline_keyboard)
 
     @staticmethod
-    def __get_confirm_keyboard(lang, data):
+    def __get_confirm_keyboard(lang, data, geolocation=None):
 
         inline_keyboard = []
 
-        if data['from_location']:
-            from_latitude = data['from_location']['latitude']
-            from_longitude = data['from_location']['longitude']
+        button1_text = NEW_CARGO_LAYOUT_DICT[lang][FROM_TEXT]
+        button2_text = NEW_CARGO_LAYOUT_DICT[lang][TO_TEXT]
+
+        button1_text = f'\U0001F4CD {button1_text}'
+        button2_text = f'\U0001F3C1 {button2_text}'
+        button3_text = f'\U0001F4CD -> \U0001F3C1'
+
+        if data[FROM_LOCATION]:
+            from_latitude = data[FROM_LOCATION]['latitude']
+            from_longitude = data[FROM_LOCATION]['longitude']
 
             inline_keyboard.append(
-                [InlineKeyboardButton('A',
+                [InlineKeyboardButton(button1_text,
                                       url=f'http://www.google.com/maps/place/{from_latitude},{from_longitude}/'
                                           f'@{from_latitude},{from_longitude},12z')])
 
-        if data['to_location']:
-            to_latitude = data['to_location']['latitude']
-            to_longitude = data['to_location']['longitude']
+        if data[TO_LOCATION]:
+            to_latitude = data[TO_LOCATION]['latitude']
+            to_longitude = data[TO_LOCATION]['longitude']
 
             inline_keyboard.append(
-                [InlineKeyboardButton('B',
+                [InlineKeyboardButton(button2_text,
                                       url=f'http://www.google.com/maps/place/{to_latitude},{to_longitude}/'
                                           f'@{to_latitude},{to_longitude},12z')])
 
-        if data['from_location'] and data['to_location']:
+        if data[FROM_LOCATION] and data[TO_LOCATION]:
             direction = f'https://www.google.com/maps/dir/{from_latitude},{from_longitude}/{to_latitude},{to_longitude}'
-            inline_keyboard.append([InlineKeyboardButton('A->B', url=direction)])
+            inline_keyboard.append([InlineKeyboardButton(button3_text, url=direction)])
 
-        if lang == LANGS[0]:
-            button1_text = 'Tasdiqlash'
-            button2_text = 'Tahrirlash'
+        if geolocation:
+            return InlineKeyboardMarkup(inline_keyboard)
 
-        if lang == LANGS[1]:
-            button1_text = 'Подтвердить'
-            button2_text = 'Редактировать'
+        button1_text = inline_keyboard_types[confirm_keyboard][lang][0]
+        button2_text = inline_keyboard_types[confirm_keyboard][lang][1]
 
         inline_keyboard.append([
             InlineKeyboardButton(button1_text, callback_data='confirm'),
@@ -378,68 +295,16 @@ class InlineKeyboard(object):
         return InlineKeyboardMarkup(inline_keyboard)
 
     @staticmethod
-    def __get_geolocation_keyboard(lang, data):
-
-        if lang == LANGS[0]:
-            button1_text = 'Qayerdan'
-            button2_text = 'Qayerga'
-
-        if lang == LANGS[1]:
-            button1_text = 'Откуда'
-            button2_text = 'Куда'
-
-        if lang == LANGS[2]:
-            button1_text = 'Қайердан'
-            button2_text = 'Қайерга'
-
-        button1_text = f'\U0001F4CD {button1_text}'
-        button2_text = f'\U0001F3C1 {button2_text}'
-        button3_text = f'\U0001F4CD -> \U0001F3C1'
-
-        inline_keyboard = []
-
-        if data['from_location']:
-            from_latitude = data['from_location']['latitude']
-            from_longitude = data['from_location']['longitude']
-
-            inline_keyboard.append(
-                [InlineKeyboardButton(button1_text,
-                                      url=f'http://www.google.com/maps/place/{from_latitude},{from_longitude}/'
-                                          f'@{from_latitude},{from_longitude},12z')])
-
-        if data['to_location']:
-            to_latitude = data['to_location']['latitude']
-            to_longitude = data['to_location']['longitude']
-
-            inline_keyboard.append(
-                [InlineKeyboardButton(button2_text,
-                                      url=f'http://www.google.com/maps/place/{to_latitude},{to_longitude}/'
-                                          f'@{to_latitude},{to_longitude},12z')])
-
-        if data['from_location'] and data['to_location']:
-            direction = f'https://www.google.com/maps/dir/{from_latitude},{from_longitude}/{to_latitude},{to_longitude}'
-            inline_keyboard.append([InlineKeyboardButton(button3_text, url=direction)])
-
-        return InlineKeyboardMarkup(inline_keyboard)
-
-    @staticmethod
     def __get_edit_keyboard(lang):
 
-        if lang == LANGS[0]:
-            button1_text = 'Manzilni tahrirlash'
-            button2_text = 'Yuk ma\'lumotlarini tahrirlash'
-            button3_text = 'Kun va vaqtni tahrirlash'
-            button4_text = 'Tahrirni yakunlash'
-
-        if lang == LANGS[1]:
-            button1_text = 'Редактировать адрес'
-            button2_text = 'Редактировать информацию о грузе'
-            button3_text = 'Редактировать дату и время'
-            button4_text = 'Закончить редактирование'
-
+        button1_text = inline_keyboard_types[edit_keyboard][lang][1]
+        button2_text = inline_keyboard_types[edit_keyboard][lang][2]
+        button3_text = inline_keyboard_types[edit_keyboard][lang][3]
+        button4_text = inline_keyboard_types[edit_keyboard][lang][4]
         button4_text = f'« {button4_text}'
 
         return InlineKeyboardMarkup([
+
             [InlineKeyboardButton(button1_text, callback_data='edit_address')],
 
             [InlineKeyboardButton(button2_text, callback_data='edit_cargo_info')],
@@ -452,23 +317,15 @@ class InlineKeyboard(object):
     @staticmethod
     def __get_edit_address_keyboard(lang):
 
-        if lang == LANGS[0]:
-            button1_text = 'Qayerdan manzilini tahrirlash'
-            button2_text = 'Qayerdan geolokatsiyasini tahrirlash'
-            button3_text = 'Qayerga manzilini tahrirlash'
-            button4_text = 'Qayerga geolokatsiyasini tahrirlash'
-            button5_text = 'Ortga'
-
-        if lang == LANGS[1]:
-            button1_text = 'Редактировать адрес Откуда'
-            button2_text = 'Редактировать геолокацию Откуда'
-            button3_text = 'Редактировать адрес  Куда'
-            button4_text = 'Редактировать геолокацию  Куда'
-            button5_text = 'Назад'
-
+        button1_text = inline_keyboard_types[edit_address_keyboard][lang][1]
+        button2_text = inline_keyboard_types[edit_address_keyboard][lang][2]
+        button3_text = inline_keyboard_types[edit_address_keyboard][lang][3]
+        button4_text = inline_keyboard_types[edit_address_keyboard][lang][4]
+        button5_text = inline_keyboard_types[edit_address_keyboard][lang][5]
         button5_text = f'« {button5_text}'
 
         return InlineKeyboardMarkup([
+
             [InlineKeyboardButton(button1_text, callback_data='edit_from_address')],
 
             [InlineKeyboardButton(button2_text, callback_data='edit_from_location')],
@@ -484,22 +341,12 @@ class InlineKeyboard(object):
     @staticmethod
     def __get_edit_cargo_info_keyboard(lang):
 
-        if lang == LANGS[0]:
-            button1_text = 'Og\'irlikni tahrirlash'
-            button2_text = 'Hajmni tahrirlash'
-            button3_text = 'Tavsifni tahrirlash'
-            button4_text = 'Rasmni tahrirlash'
-            button5_text = 'Telefon raqamini tahrirlash'
-            button6_text = 'Ortga'
-
-        if lang == LANGS[1]:
-            button1_text = 'Изменить вес'
-            button2_text = 'Изменить объем'
-            button3_text = 'Изменить описание'
-            button4_text = 'Изменить фотография'
-            button5_text = 'Изменить номер телефона'
-            button6_text = 'Назад'
-
+        button1_text = inline_keyboard_types[edit_cargo_info_keyboard][lang][1]
+        button2_text = inline_keyboard_types[edit_cargo_info_keyboard][lang][2]
+        button3_text = inline_keyboard_types[edit_cargo_info_keyboard][lang][3]
+        button4_text = inline_keyboard_types[edit_cargo_info_keyboard][lang][4]
+        button5_text = inline_keyboard_types[edit_cargo_info_keyboard][lang][5]
+        button6_text = inline_keyboard_types[edit_cargo_info_keyboard][lang][6]
         button6_text = f'« {button6_text}'
 
         return InlineKeyboardMarkup([
@@ -523,20 +370,12 @@ class InlineKeyboard(object):
 
     @staticmethod
     def __get_paginate_keyboard(lang, data):
+
         wanted, length, client_cargoes = data
         wanted_cargo_data = client_cargoes[wanted - 1]
 
-        if lang == LANGS[0]:
-            close_text = 'E\'lonni yopish'
-            open_text = 'E\'lonni qayta ochish'
-
-        if lang == LANGS[1]:
-            close_text = 'Закрыть объявление'
-            open_text = 'Повторно открыть объявление'
-
-        if lang == LANGS[2]:
-            close_text = 'Еълонни ёпиш'
-            open_text = 'Еълонни қайта очиш'
+        close_text = inline_keyboard_types[paginate_keyboard][lang][0]
+        open_text = inline_keyboard_types[paginate_keyboard][lang][1]
 
         if wanted_cargo_data['state'] == 'opened':
             button4_text = f'\U0001F534 {close_text}'

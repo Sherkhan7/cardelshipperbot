@@ -62,19 +62,19 @@ NEW_CARGO_LAYOUT_DICT = {
 
 USER_INFO_LAYOUT_DICT = {
     'uz': {
-        CLIENT_NAME: "Ism",
-        CLIENT_SURNAME: "Familya",
-        CLIENT_PHONE_NUMBER: "Tel"
+        NAME: "Ism",
+        SURNAME: "Familya",
+        USER_PHONE_NUMBER: "Tel"
     },
     'cy': {
-        CLIENT_NAME: "Исм",
-        CLIENT_SURNAME: "Фамиля",
-        CLIENT_PHONE_NUMBER: "Тел"
+        NAME: "Исм",
+        SURNAME: "Фамиля",
+        USER_PHONE_NUMBER: "Тел"
     },
     'ru': {
-        CLIENT_NAME: "Имя",
-        CLIENT_SURNAME: "Фамилия",
-        CLIENT_PHONE_NUMBER: "Тел"
+        NAME: "Имя",
+        SURNAME: "Фамилия",
+        USER_PHONE_NUMBER: "Тел"
     }
 }
 
