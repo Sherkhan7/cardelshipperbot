@@ -4,7 +4,7 @@ from telegram.ext import MessageHandler, ConversationHandler, CallbackQueryHandl
 from buttonsdatadict import BUTTONS_DATA_DICT
 from filters import phone_number_filter
 from handlers.editconversation import edit_conversation_handler
-from helpers import set_user_data_in_bot_data
+from helpers import set_user_data_in_bot_data, wrap_tags
 from inlinekeyboards import InlineKeyboard
 from DB import insert_cargo, get_cargo_by_id
 from layouts import get_new_cargo_layout, get_phone_number_layout
@@ -1086,19 +1086,20 @@ def txt_callback(update: Update, context: CallbackContext):
         if user_input_data[STATE] == CONFIRMATION:
 
             if user[LANG] == LANGS[0]:
-                confirm = "<b><i>«Tasdiqlash»</i></b>"
+                confirm = wrap_tags("«Tasdiqlash»")
                 warning_text = "Sizda tasdiqlanmagan e'lon bor !\n\n" \
                                f"Tasdiqlash uchun  {confirm} tugmasini bosing\n\n" \
                                "E'lonni bekor qilish uchun /cancel ni yuboring"
 
             if user[LANG] == LANGS[1]:
-                confirm = "<b><i>«Подтвердить»</i></b>"
+                confirm = wrap_tags("«Подтвердить»")
                 warning_text = "У вас есть неподтвержденное объявление !\n\n" \
-                               f"Нажмите кнопку <b><i>«{confirm}»</i></b>, чтобы подтвердить\n\n" \
+                               f"Нажмите кнопку {confirm}, чтобы подтвердить\n\n" \
                                "Отправите /cancel , чтобы отменить объявление"
 
             if user[LANG] == LANGS[2]:
-                confirm = "<b><i>«Тасдиқлаш»</i></b>"
+                confirm = wrap_tags("«Тасдиқлаш»")
+
                 warning_text = "Сизда тасдиқланмаган еълон бор !\n\n" \
                                f"Тасдиқлаш учун {confirm} тугмасини босинг\n\n" \
                                "Еълонни бекор қилиш учун /cancel ни юборинг"
