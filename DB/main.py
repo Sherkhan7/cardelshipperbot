@@ -2,7 +2,6 @@ import pymysql.cursors
 from contextlib import closing
 import json
 import datetime
-import pprint
 from config.config import DB_CONFIG
 
 
@@ -18,10 +17,12 @@ def get_connection():
 
 
 # mycursor = connection.cursor()
+users_table_name = 'cardel_elonbot_users'
+regions_table_name = 'regions_v2'
+cargoes_table_name = 'cardel_elonbot_cargoes'
+
 
 def insert_user(user_data):
-    table_name = 'cardel_elonbot_users'
-
     user_data_field = tuple(user_data.keys())
     user_data_values = tuple(user_data.values())
     user_data_values_field = list()
@@ -30,7 +31,7 @@ def insert_user(user_data):
 
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            sql = f"INSERT INTO testdb.{table_name} ({','.join(user_data_field)}) " \
+            sql = f"INSERT INTO testdb.{users_table_name} ({','.join(user_data_field)}) " \
                   f"VALUES ({','.join(user_data_values_field)})"
             cursor.execute(sql, user_data_values)
             connection.commit()
@@ -40,19 +41,16 @@ def insert_user(user_data):
     return cursor.rowcount
 
 
-def get_user(user_id=None, phone_number=None):
-    table_name = 'cardel_elonbot_users'
-
-    if user_id:
+def get_user(id):
+    if id:
         with closing(get_connection()) as connection:
             with connection.cursor() as cursor:
-                cursor.execute(f"SELECT * FROM testdb.{table_name} WHERE tg_id = %s", user_id)
+                cursor.execute(f"SELECT * FROM testdb.{users_table_name} WHERE tg_id = %s OR id = %s", (id, id))
                 record = cursor.fetchone()
 
     if record is None:
         return False
 
-    # returns dict
     return record
 
 
@@ -64,61 +62,49 @@ def get_user_json(user_id):
     return json.dumps(user, indent=4)
 
 
-def check_user(user_id):
-    user = get_user(user_id)
-
-    if user:
-        return True
-
-    return False
-
-
 def select_all_users():
     connection = get_connection()
     with connection.cursor() as cursor:
-        cursor.execute(f'SELECT * FROM testdb.users')
+        cursor.execute(f'SELECT * FROM testdb.{users_table_name}')
         records = cursor.fetchall()
 
     # print(cursor.rowcount)
-
-    """ returns list of dicts"""
     return records
 
 
-def update_user_info(user_id, **kwargs):
-    table_name = 'cardel_elonbot_users'
-
+def update_user_info(id, **kwargs):
     if 'name' in kwargs.keys():
         value = kwargs['name']
-        sql = f"UPDATE testdb.{table_name} SET name = %s WHERE user_id = %s"
+        sql = f"UPDATE testdb.{users_table_name} SET name = %s WHERE tg_id = %s OR id = %s"
 
     if 'surname' in kwargs.keys():
         value = kwargs['surname']
-        sql = f"UPDATE testdb.{table_name} SET surname = %s WHERE user_id =%s"
+        sql = f"UPDATE testdb.{users_table_name} SET surname = %s WHERE tg_id =%s OR id = %s"
 
     if 'lang' in kwargs.keys():
         value = kwargs['lang']
-        sql = f"UPDATE testdb.{table_name} SET lang = %s WHERE user_id = %s"
+        sql = f"UPDATE testdb.{users_table_name} SET lang = %s WHERE tg_id = %s OR id = %s"
 
-    # print(value)
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(sql, (value, user_id))
+            cursor.execute(sql, (value, id, id))
             connection.commit()
 
     # print('rowcount:', cursor.rowcount)
     # print('affected:', connection.affected_rows())
 
+    return_value = 'not updated'
+
     if connection.affected_rows() != 0:
-        return 'updated'
-    else:
-        return 'not updated'
+        return_value = 'updated'
+
+    return return_value
 
 
 def select_all_regions():
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM testdb.regions_v2 WHERE parent_id = 0")
+            cursor.execute(f"SELECT * FROM testdb.{regions_table_name} WHERE parent_id = 0")
             regions = cursor.fetchall()
 
     return regions
@@ -127,7 +113,7 @@ def select_all_regions():
 def select_all_districts(region_id):
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM testdb.regions_v2 WHERE parent_id = %s", region_id)
+            cursor.execute(f"SELECT * FROM testdb.{regions_table_name} WHERE parent_id = %s", region_id)
             districts = cursor.fetchall()
 
     return districts
@@ -136,7 +122,8 @@ def select_all_districts(region_id):
 def get_region_and_district(region_id, district_id):
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM testdb.regions_v2 WHERE id = %s or id = %s", (region_id, district_id))
+            cursor.execute(f"SELECT * FROM testdb.{regions_table_name} WHERE id = %s or id = %s",
+                           (region_id, district_id))
             regions = cursor.fetchall()
 
     return regions
@@ -145,7 +132,9 @@ def get_region_and_district(region_id, district_id):
 def insert_cargo(cargo_data):
     # with open('jsons/cargo.json', 'w') as cargo:
     #     cargo.write(json.dumps(cargo_data, indent=4))
-    table_name = 'cardel_elonbot_cargoes'
+    if cargo_data['message_id']:
+        cargo_data.pop('message_id')
+
     date = cargo_data.pop('date')
     time = cargo_data.pop('time')
 
@@ -184,11 +173,15 @@ def insert_cargo(cargo_data):
 
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            sql = f"INSERT INTO testdb.{table_name} ({','.join(cargo_data_field)})" \
+            sql = f"INSERT INTO testdb.{cargoes_table_name} ({','.join(cargo_data_field)})" \
                   f"VALUES ({','.join(cargo_data_values_field)})"
 
-            cursor.execute(sql, cargo_data_values)
-            connection.commit()
+            try:
+                cursor.execute(sql, cargo_data_values)
+                connection.commit()
+            except pymysql.Error as e:
+                print("Error %d: %s" % (e.args[0], e.args[1]))
+                return False
 
             # cursor.execute("SELECT * FROM testdb.cargoes WHERE id = %s", cursor.lastrowid)
             # cargo = cursor.fetchone()
@@ -199,39 +192,32 @@ def insert_cargo(cargo_data):
 
 
 def get_cargo_by_id(cargo_id):
-    table_name = 'cardel_elonbot_cargoes'
-
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM testdb.{table_name} WHERE id = %s", cargo_id)
+            cursor.execute(f"SELECT * FROM testdb.{cargoes_table_name} WHERE id = %s", cargo_id)
             cargo = cursor.fetchone()
 
     return cargo
 
 
-def get_client_cargoes(client_id):
-    table_name = 'cardel_elonbot_cargoes'
-
+def get_user_cargoes(id):
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM testdb.{table_name} WHERE user_id = %s", client_id)
+            cursor.execute(f"SELECT * FROM testdb.{cargoes_table_name} WHERE user_id = %s or user_tg_id = %s", (id, id))
             cargoes = cursor.fetchall()
 
     return cargoes
 
 
 def update_cargo_status(cargo_id, status):
-    table_name = 'cardel_elonbot_cargoes'
-
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(f"UPDATE testdb.{table_name} SET state = %s WHERE id = %s", (status, cargo_id))
+            cursor.execute(f"UPDATE testdb.{cargoes_table_name} SET state = %s WHERE id = %s", (status, cargo_id))
             connection.commit()
+
+    value = 'not updated'
 
     if connection.affected_rows() != 0:
         value = 'updated'
-
-    else:
-        value = 'not updated'
 
     return value
