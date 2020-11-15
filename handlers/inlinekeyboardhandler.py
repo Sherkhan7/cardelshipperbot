@@ -57,7 +57,7 @@ def main_inline_keyboard_callback(update: Update, context: CallbackContext):
             edited_text = '\U0001F1FA\U0001F1FF'
 
         context.bot.answer_callback_query(callback_query.id, reply_text)
-        update_user_info(user['user_id'], lang=lang)
+        update_user_info(user[TG_ID], lang=lang)
         bot_data[update.effective_user.id]['lang'] = lang
 
         reply_keyboard = ReplyKeyboard(menu_keyboard, lang).get_keyboard()
