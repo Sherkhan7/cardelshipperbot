@@ -75,7 +75,7 @@ def new_cargo_callback(update: Update, context: CallbackContext):
         callback_query.edit_message_text(edit_text)
 
         reply_text = inline_keyboard_types[paginate_keyboard][user[LANG]][2]
-        reply_text += ' \U0001F447\U0001F447\U0001F447'
+        reply_text += '\n\U0001F447\U0001F447\U0001F447'
         callback_query.message.reply_text(reply_text, reply_markup=ReplyKeyboardRemove())
 
         layout = get_new_cargo_layout(cargo_data, user[LANG])
