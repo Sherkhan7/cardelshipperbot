@@ -5,12 +5,14 @@ from buttonsdatadict import BUTTONS_DATA_DICT
 from helpers import set_user_data_in_bot_data
 from layouts import *
 from DB import update_user_info
+from languages import LANGS
+from inlinekeyboards.inlinekeyboardvariables import *
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
 
-USER_ID, NEW_NAME, NEW_SURNAME = ('user_id', 'new_name', 'new_surname')
+NEW_NAME, NEW_SURNAME = ('new_name', 'new_surname')
 
 
 def change_data_callback(update: Update, context: CallbackContext):
@@ -28,29 +30,36 @@ def change_data_callback(update: Update, context: CallbackContext):
         if data == BUTTONS_DATA_DICT[3]:
 
             if user['lang'] == LANGS[0]:
-                text = 'Ismni o\'zgartirish'
-                reply_text = 'Ismningizni yuboring'
+                text = "Ismni o'zgartirish"
+                reply_text = "Yangi ismningizni yuboring"
 
             if user['lang'] == LANGS[1]:
-                text = 'Изменить имя'
-                reply_text = 'Отправьте ваше имя'
+                text = "Изменить имя"
+                reply_text = "Отправьте свое новое имя"
+
+            if user['lang'] == LANGS[2]:
+                text = "Исмни ўзгартириш"
+                reply_text = "Янги исмнингизни юборинг"
 
             state = NEW_NAME
 
         if data == BUTTONS_DATA_DICT[4]:
 
             if user['lang'] == LANGS[0]:
-                text = 'Familyani o\'zgartirish'
-                reply_text = 'Familyangizni yuboring'
+                text = "Familyani o'zgartirish"
+                reply_text = "Yangi familyangizni yuboring"
 
             if user['lang'] == LANGS[1]:
-                text = 'Изменить фамилию'
-                reply_text = 'Отправьте свою фамилию'
+                text = "Изменить фамилию"
+                reply_text = "Отправьте вашу новую фамилию"
+
+            if user['lang'] == LANGS[2]:
+                text = "Фамиляни ўзгартириш"
+                reply_text = "Янги фамилянгизни юборинг"
 
             state = NEW_SURNAME
 
-    text = f'<i>{text}</i>'
-    reply_text = f'{reply_text}:'
+    reply_text = f'{wrap_tags(reply_text)} :'
 
     callback_query.edit_message_text(text, parse_mode=ParseMode.HTML)
     callback_query.message.reply_html(reply_text)
@@ -67,10 +76,13 @@ def change_name_callback(update: Update, context: CallbackContext):
     if name == '/cancel' or name == '/menu' or name == '/start':
 
         if user['lang'] == LANGS[0]:
-            text = 'Ismni o\'zgrtirish bekor qilindi'
+            text = "Ismni o'zgartirish bekor qilindi"
 
         if user['lang'] == LANGS[1]:
             text = 'Смена имени отменена'
+
+        if user['lang'] == LANGS[2]:
+            text = "Исмни ўзгартириш бекор қилинди"
 
         text = f'\U0000274C {text} !'
 
@@ -83,26 +95,32 @@ def change_name_callback(update: Update, context: CallbackContext):
             bot_data[update.effective_user.id]['name'] = name
 
             if user['lang'] == LANGS[0]:
-                text = 'Ismingiz o\'zgatirildi'
+                text = "Ismingiz o'zgartirildi"
 
             if user['lang'] == LANGS[1]:
-                text = 'Ваше имя изменено'
+                text = "Ваше имя изменено"
+
+            if user['lang'] == LANGS[2]:
+                text = "Исмингиз ўзгартирилди"
 
             text = f'\U00002705 {text} !'
 
         elif result == 'not updated':
 
             if user['lang'] == LANGS[0]:
-                text = '\U000026A0 Ismingiz o\'zgartirilmadi'
+                text = "Ismingiz o'zgartirilmadi"
 
             if user['lang'] == LANGS[1]:
-                text = ' Ваше имя не было изменено'
+                text = 'Ваше имя не было изменено'
+
+            if user['lang'] == LANGS[2]:
+                text = "Исмингиз ўзгартирилмади"
 
             text = f'\U000026A0 {text} !'
 
     update.message.reply_text(text)
 
-    inline_keyboard = InlineKeyboard('user_data_keyboard', user['lang']).get_keyboard()
+    inline_keyboard = InlineKeyboard(user_data_keyboard, user['lang']).get_keyboard()
     update.message.reply_html(get_user_info_layout(user), reply_markup=inline_keyboard)
 
     return ConversationHandler.END
@@ -117,10 +135,13 @@ def change_surname_callback(update: Update, context: CallbackContext):
     if surname == '/cancel' or surname == '/menu' or surname == '/start':
 
         if user['lang'] == LANGS[0]:
-            text = 'Familyani o\'zgartirish bekor qilindi'
+            text = "Familyani o'zgartirish bekor qilindi"
 
         if user['lang'] == LANGS[1]:
-            text = 'Смена фамилии отменена'
+            text = "Смена фамилии отменена"
+
+        if user['lang'] == LANGS[2]:
+            text = "Фамиляни ўзгартириш бекор қилинди"
 
         text = f'\U0000274C {text} !'
 
@@ -133,26 +154,32 @@ def change_surname_callback(update: Update, context: CallbackContext):
             bot_data[update.effective_user.id]['surname'] = surname
 
             if user['lang'] == LANGS[0]:
-                text = 'Familyangiz o\'zgatrilildi'
+                text = "Familyangiz o'zgatrilildi"
 
             if user['lang'] == LANGS[1]:
-                text = 'Ваша фамилия изменена'
+                text = "Ваша фамилия изменена"
+
+            if user['lang'] == LANGS[2]:
+                text = "Фамилянгиз ўзгатрилилди"
 
             text = f'\U00002705 {text} !'
 
         elif result == 'not updated':
 
             if user['lang'] == LANGS[0]:
-                text = 'Familyangiz o\'zgartirilmadi'
+                text = "Familyangiz o'zgartirilmadi"
 
             if user['lang'] == LANGS[1]:
                 text = 'Ваше фамилия не было изменено'
+
+            if user['lang'] == LANGS[2]:
+                text = "Фамилянгиз ўзгартирилмади"
 
             text = f'\U000026A0 {text} !'
 
     update.message.reply_text(text)
 
-    inline_keyboard = InlineKeyboard('user_data_keyboard', user['lang']).get_keyboard()
+    inline_keyboard = InlineKeyboard(user_data_keyboard, user['lang']).get_keyboard()
     update.message.reply_html(get_user_info_layout(user), reply_markup=inline_keyboard)
 
     return ConversationHandler.END
