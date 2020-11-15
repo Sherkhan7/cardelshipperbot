@@ -54,13 +54,13 @@ def edit_callback(update: Update, context: CallbackContext):
 
         callback_query.answer()
 
-        if user_input_data['photo']:
+        if user_input_data[PHOTO]:
             callback_query.edit_message_caption(text, reply_markup=inline_keyboard)
         else:
             callback_query.edit_message_text(text, reply_markup=inline_keyboard)
 
         state = 'edit_date_and_time'
-        user_input_data['state'] = state
+        user_input_data[STATE] = state
 
         return state
 
