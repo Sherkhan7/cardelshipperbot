@@ -46,7 +46,7 @@ def get_user(user_id=None, phone_number=None):
     if user_id:
         with closing(get_connection()) as connection:
             with connection.cursor() as cursor:
-                cursor.execute(f"SELECT * FROM testdb.{table_name} WHERE user_id = %s", user_id)
+                cursor.execute(f"SELECT * FROM testdb.{table_name} WHERE tg_id = %s", user_id)
                 record = cursor.fetchone()
 
     if record is None:
@@ -145,6 +145,7 @@ def get_region_and_district(region_id, district_id):
 def insert_cargo(cargo_data):
     # with open('jsons/cargo.json', 'w') as cargo:
     #     cargo.write(json.dumps(cargo_data, indent=4))
+    table_name = 'cardel_elonbot_cargoes'
     date = cargo_data.pop('date')
     time = cargo_data.pop('time')
 
@@ -183,7 +184,7 @@ def insert_cargo(cargo_data):
 
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            sql = f"INSERT INTO testdb.cardel_cargoes ({','.join(cargo_data_field)})" \
+            sql = f"INSERT INTO testdb.{table_name} ({','.join(cargo_data_field)})" \
                   f"VALUES ({','.join(cargo_data_values_field)})"
 
             cursor.execute(sql, cargo_data_values)
@@ -198,27 +199,33 @@ def insert_cargo(cargo_data):
 
 
 def get_cargo_by_id(cargo_id):
+    table_name = 'cardel_elonbot_cargoes'
+
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM testdb.cardel_cargoes WHERE id = %s", cargo_id)
+            cursor.execute(f"SELECT * FROM testdb.{table_name} WHERE id = %s", cargo_id)
             cargo = cursor.fetchone()
 
     return cargo
 
 
 def get_client_cargoes(client_id):
+    table_name = 'cardel_elonbot_cargoes'
+
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM testdb.cardel_cargoes WHERE client_id = %s", client_id)
+            cursor.execute(f"SELECT * FROM testdb.{table_name} WHERE user_id = %s", client_id)
             cargoes = cursor.fetchall()
 
     return cargoes
 
 
 def update_cargo_status(cargo_id, status):
+    table_name = 'cardel_elonbot_cargoes'
+
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute("UPDATE testdb.cardel_cargoes SET state = %s WHERE id = %s", (status, cargo_id))
+            cursor.execute(f"UPDATE testdb.{table_name} SET state = %s WHERE id = %s", (status, cargo_id))
             connection.commit()
 
     if connection.affected_rows() != 0:
@@ -228,8 +235,3 @@ def update_cargo_status(cargo_id, status):
         value = 'not updated'
 
     return value
-
-
-# pprint.pprint(get_client_cargoes(1))
-
-# pprint.pprint(get_cargo_by_id(4))
