@@ -7,8 +7,8 @@ TO_REGION, TO_DISTRICT, TO_LOCATION, WEIGHT_UNIT, WEIGHT, VOLUME_UNIT = \
 VOLUME, DEFINITION, PHOTO, DATE, TIME, USER_PHONE_NUMBER, CONFIRMATION, EDIT, MESSAGE_ID = \
     ('volume', 'definition', 'photo', 'date', 'time', 'user_phone_number', 'confirmation', 'edit', 'message_id')
 
-FROM_TEXT, TO_TEXT, WEIGHT_TEXT, VOLUME_TEXT, DEFINITION_TEXT, DATE_TEXT = \
-    ('from_text', 'to_text', 'weight_text', 'volume_text', 'definition_text', 'date_text')
+FROM_TEXT, TO_TEXT, WEIGHT_TEXT, VOLUME_TEXT, DEFINITION_TEXT, DATE_TEXT, POST_ID = \
+    ('from_text', 'to_text', 'weight_text', 'volume_text', 'definition_text', 'date_text', 'post_id')
 
 TIME_TEXT, CLIENT_TEXT, CLIENT_PHONE_NUMBER_TEXT, STATE, REGION_NAME, ID, LANG = \
     ('time_text', 'client_text', 'client_phone_number_text', 'state', 'region_name', 'id', 'lang')

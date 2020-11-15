@@ -1,15 +1,16 @@
 from telegram.ext import Filters, MessageHandler, CallbackContext
 from telegram import Update
 from inlinekeyboards import InlineKeyboard
-from layouts import *
+from layouts import get_new_cargo_layout, get_user_info_layout
 from replykeyboards import ReplyKeyboard
 from helpers import set_user_data_in_bot_data
 from pprint import pprint
-from DB import get_client_cargoes
+from DB import get_user_cargoes
 from languages import LANGS
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
 from replykeyboards.replykeyboardvariables import *
 from inlinekeyboards.inlinekeyboardvariables import *
+from globalvariables import *
 
 
 def message_handler_callback(update: Update, context: CallbackContext):
@@ -30,7 +31,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
         if text == reply_keyboard_types[menu_keyboard][user[LANG]][3]:
 
-            client_cargoes = get_client_cargoes(user['id'])
+            client_cargoes = get_user_cargoes(user[TG_ID])
             length = len(client_cargoes)
 
             if user[LANG] == LANGS[0]:
@@ -76,7 +77,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
         elif text == reply_keyboard_types[settings_keyboard][user[LANG]][2]:
 
-            reply_text = 'Tilni tanlang.\nВыберите язык.'
+            reply_text = 'Tilni tanlang\nВыберите язык\nТилни танланг'
 
             inline_keyboard = InlineKeyboard(langs_keyboard).get_keyboard()
             update.message.reply_text(reply_text, reply_markup=inline_keyboard)
@@ -95,8 +96,9 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
     else:
 
-        reply_text = '\U000026A0 Siz ro\'yxatdan o\'tmagansiz !\nBuning uchun /start ni bosing.\n\n' \
-                     '\U000026A0 Вы не зарегистрированы !\nДля этого нажмите /start.'
+        reply_text = "\U000026A0 Siz ro'yxatdan o'tmagansiz !\nBuning uchun /start ni bosing.\n\n'" \
+                     "\U000026A0 Вы не зарегистрированы !\nДля этого нажмите /start\n\n" \
+                     "\U000026A0 Сиз рўйхатдан ўтмагансиз !\nБунинг учун /start ни босинг"
 
         update.message.reply_text(reply_text)
 

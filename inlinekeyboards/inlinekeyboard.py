@@ -382,7 +382,7 @@ class InlineKeyboard(object):
             button4_data = f'{wanted_cargo_data["id"]}_closed'
 
         elif wanted_cargo_data['state'] == 'closed':
-            button4_text = f'\U0001F7E2 {open_text}'
+            button4_text = f'{open_text}'
             button4_data = f'{wanted_cargo_data["id"]}_opened'
 
         if wanted == 1 and length == 1:
