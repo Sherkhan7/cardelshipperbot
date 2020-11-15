@@ -6,24 +6,27 @@ from filters import phone_number_filter
 from handlers.editconversation import edit_conversation_handler
 from helpers import set_user_data_in_bot_data
 from inlinekeyboards import InlineKeyboard
-from DB import insert_cargo
-from layouts import *
+from DB import insert_cargo, get_cargo_by_id
+from layouts import get_new_cargo_layout, get_phone_number_layout
 from replykeyboards import ReplyKeyboard
 from config import GROUP_ID
 from languages import LANGS
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
 from replykeyboards.replykeyboardvariables import *
+from inlinekeyboards.inlinekeyboardtypes import inline_keyboard_types
 from inlinekeyboards.inlinekeyboardvariables import *
 from globalvariables import *
 import datetime
 import logging
+
+# import json
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
 
 
 def new_cargo_callback(update: Update, context: CallbackContext):
-    text = update.message.text.split(' ', 1)[-1]
+    callback_query = update.callback_query
 
     user_input_data = context.user_data
     bot_data = context.bot_data
@@ -32,34 +35,122 @@ def new_cargo_callback(update: Update, context: CallbackContext):
     set_user_data_in_bot_data(update.effective_user.id, bot_data)
     user = bot_data[update.effective_user.id]
 
-    if text == reply_keyboard_types[menu_keyboard][user[LANG]][1]:
+    if callback_query:
+        # print(callback_query.data)
+        cargo_id = callback_query.data.split('_')[0]
 
-        if user[LANG] == LANGS[0]:
-            text = "Qayerdan (Viloyatni tanlang)"
+        cargo_data = get_cargo_by_id(cargo_id)
+        cargo_data[USERNAME] = user[USERNAME]
+        cargo_data[NAME] = user[NAME]
+        cargo_data[SURNAME] = user[SURNAME]
+        cargo_data.pop('shipping_datetime')
+        cargo_data.pop('id')
+        cargo_data.pop('created_at')
+        cargo_data.pop('updated_at')
+        cargo_data[DATE] = datetime.datetime.now().strftime('%d-%m-%Y')
+        cargo_data[TIME] = 'now'
+        cargo_data[PHOTO] = cargo_data[FROM_LOCATION] = cargo_data[TO_LOCATION] = None
 
-        if user[LANG] == LANGS[1]:
-            text = "Откуда (Выберите область)"
+        if cargo_data['photo_id']:
+            cargo_data[PHOTO] = {
+                'file_id': cargo_data.pop('photo_id'),
+                'width': cargo_data.pop('photo_width'),
+                'height': cargo_data.pop('photo_height'),
+                'file_size': cargo_data.pop('photo_size')
+            }
 
-        if user[LANG] == LANGS[2]:
-            text = "Қайердан (Вилоятни танланг)"
+        if cargo_data['from_longitude']:
+            cargo_data[FROM_LOCATION] = {
+                'longitude': cargo_data.pop('from_longitude'),
+                'latitude': cargo_data.pop('from_latitude')
+            }
 
-        text = f'{text} :'
-        update.message.reply_text(update.message.text, reply_markup=ReplyKeyboardRemove())
+        if cargo_data['to_longitude']:
+            cargo_data[TO_LOCATION] = {
+                'longitude': cargo_data.pop('to_longitude'),
+                'latitude': cargo_data.pop('to_latitude')
+            }
 
-        inline_keyboard = InlineKeyboard(regions_keyboard, user[LANG]).get_keyboard()
-        message = update.message.reply_text(text, reply_markup=inline_keyboard)
+        edit_text = inline_keyboard_types[paginate_keyboard][user[LANG]][1]
+        callback_query.edit_message_text(edit_text)
 
-        state = FROM_REGION
+        reply_text = inline_keyboard_types[paginate_keyboard][user[LANG]][2]
+        reply_text += ' \U0001F447\U0001F447\U0001F447'
+        callback_query.message.reply_text(reply_text, reply_markup=ReplyKeyboardRemove())
 
-        user_input_data[STATE] = state
-        user_input_data[USER_ID] = user[ID]
-        user_input_data[USER_TG_ID] = user[TG_ID]
-        user_input_data[USERNAME] = user[USERNAME]
-        user_input_data[NAME] = user[NAME]
-        user_input_data[SURNAME] = user[SURNAME]
-        user_input_data[MESSAGE_ID] = message.message_id
+        layout = get_new_cargo_layout(cargo_data, user[LANG])
+        inline_keyboard = InlineKeyboard(confirm_keyboard, user[LANG], data=cargo_data).get_keyboard()
 
-        return state
+        if cargo_data[PHOTO]:
+            message = callback_query.message.reply_photo(cargo_data[PHOTO].get('file_id'), layout,
+                                                         reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+        else:
+            message = callback_query.message.reply_html(layout, reply_markup=inline_keyboard)
+
+        cargo_data[MESSAGE_ID] = message.message_id
+        cargo_data[STATE] = CONFIRMATION
+
+        user_input_data.update(cargo_data)
+
+        return CONFIRMATION
+
+    else:
+        text = update.message.text.split(' ', 1)[-1]
+
+        if text == reply_keyboard_types[menu_keyboard][user[LANG]][1]:
+
+            if user[LANG] == LANGS[0]:
+                text = "Qayerdan (Viloyatni tanlang)"
+
+            if user[LANG] == LANGS[1]:
+                text = "Откуда (Выберите область)"
+
+            if user[LANG] == LANGS[2]:
+                text = "Қайердан (Вилоятни танланг)"
+
+            text = f'{text} :'
+            update.message.reply_text(update.message.text, reply_markup=ReplyKeyboardRemove())
+
+            inline_keyboard = InlineKeyboard(regions_keyboard, user[LANG]).get_keyboard()
+            message = update.message.reply_text(text, reply_markup=inline_keyboard)
+
+            state = FROM_REGION
+
+            user_input_data[STATE] = state
+            user_input_data[USER_ID] = user[ID]
+            user_input_data[USER_TG_ID] = user[TG_ID]
+            user_input_data[USERNAME] = user[USERNAME]
+            user_input_data[NAME] = user[NAME]
+            user_input_data[SURNAME] = user[SURNAME]
+            user_input_data[MESSAGE_ID] = message.message_id
+
+            return state
+
+        # else:
+        #
+        #     with open('jsons/cargo.json', 'r') as cargo:
+        #         cargo_data = cargo.read()
+        #
+        #     # print(json.loads(cargo_data))
+        #     cargo_data = json.loads(cargo_data)
+        #     cargo_data[NAME] = user[NAME]
+        #     cargo_data[SURNAME] = user[SURNAME]
+        #     cargo_data[USERNAME] = user[USERNAME]
+        #
+        #     layout = get_new_cargo_layout(cargo_data, user[LANG])
+        #
+        #     inline_keyboard = InlineKeyboard(confirm_keyboard, user[LANG], data=cargo_data).get_keyboard()
+        #
+        #     if cargo_data[PHOTO]:
+        #         message = update.message.reply_photo(cargo_data[PHOTO].get('file_id'), layout,
+        #                                              reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+        #     else:
+        #         message = update.message.reply_html(layout, reply_markup=inline_keyboard)
+        #
+        #     cargo_data[MESSAGE_ID] = message.message_id
+        #     user_input_data.update(cargo_data)
+        #
+        #     return CONFIRMATION
 
 
 def from_region_callback(update: Update, context: CallbackContext):
@@ -883,40 +974,55 @@ def confirmation_callback(update: Update, context: CallbackContext):
 
         text = f'\U00002705 {text} !'
 
-        reply_keyboard = ReplyKeyboard(menu_keyboard, user[LANG]).get_keyboard()
-        callback_query.message.reply_text(text, reply_markup=reply_keyboard)
-
         context.bot.edit_message_reply_markup(update.effective_chat.id, user_input_data[MESSAGE_ID])
 
         user_input_data[STATE] = 'opened'
         layout = get_new_cargo_layout(user_input_data, user[LANG])
-        layout_2 = get_new_cargo_layout(user_input_data, lang='cy')
+        layout_2 = get_new_cargo_layout(user_input_data, 'cy')
 
         if user_input_data[FROM_LOCATION] or user_input_data[TO_LOCATION]:
             inline_keyboard = InlineKeyboard(confirm_keyboard, lang='cy', data=user_input_data,
                                              geolocation=True).get_keyboard()
-
         else:
             inline_keyboard = None
 
         if user_input_data[PHOTO]:
-            context.bot.edit_message_caption(user_input_data[USER_TG_ID], user_input_data[MESSAGE_ID],
-                                             caption=layout, parse_mode=ParseMode.HTML)
-
             message = context.bot.send_photo(GROUP_ID, user_input_data[PHOTO].get('file_id'),
                                              layout_2, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
-        else:
-            context.bot.edit_message_text(layout, user_input_data[USER_TG_ID], user_input_data[MESSAGE_ID],
-                                          parse_mode=ParseMode.HTML)
 
+        else:
             message = context.bot.send_message(GROUP_ID, layout_2, reply_markup=inline_keyboard,
                                                parse_mode=ParseMode.HTML)
 
-        user_input_data[MESSAGE_ID] = message.message_id
-        user_input_data.pop(USERNAME)
+        user_input_data[POST_ID] = message.message_id
         user_input_data.pop(NAME)
         user_input_data.pop(SURNAME)
-        insert_cargo(dict(user_input_data))
+        user_input_data.pop(USERNAME)
+        insert_result = insert_cargo(dict(user_input_data))
+
+        if insert_result:
+            reply_keyboard = ReplyKeyboard(menu_keyboard, user[LANG]).get_keyboard()
+            callback_query.message.reply_text(text, reply_markup=reply_keyboard)
+
+            if user_input_data[PHOTO]:
+                context.bot.edit_message_caption(user_input_data[USER_TG_ID], user_input_data[MESSAGE_ID],
+                                                 caption=layout, parse_mode=ParseMode.HTML)
+            else:
+                context.bot.edit_message_text(layout, user_input_data[USER_TG_ID], user_input_data[MESSAGE_ID],
+                                              parse_mode=ParseMode.HTML)
+
+        else:
+            delete_value = context.bot.delete_message(GROUP_ID, user_input_data[POST_ID])
+            print('IS MESSAGE DELETED FROM THE GROUP ? Answer: ', delete_value)
+
+            layout = 'ERROR'
+
+            if user_input_data[PHOTO]:
+                context.bot.edit_message_caption(user_input_data[USER_TG_ID], user_input_data[MESSAGE_ID],
+                                                 caption=layout, parse_mode=ParseMode.HTML)
+            else:
+                context.bot.edit_message_text(layout, user_input_data[USER_TG_ID], user_input_data[MESSAGE_ID],
+                                              parse_mode=ParseMode.HTML)
 
         user_input_data.clear()
         state = ConversationHandler.END
@@ -943,28 +1049,6 @@ def txt_callback(update: Update, context: CallbackContext):
 
     logger.info('user_inpt_data: %s', user_input_data)
 
-    if user_input_data[STATE] == CONFIRMATION:
-
-        if user[LANG] == LANGS[0]:
-            confirm = "<b><i>«Tasdiqlash»</i></b>"
-            warning_text = "Sizda tasdiqlanmagan e'lon bor !\n\n" \
-                           f"Tasdiqlash uchun  {confirm} tugmasini bosing"
-
-        if user[LANG] == LANGS[1]:
-            confirm = "<b><i>«Подтвердить»</i></b>"
-            warning_text = "У вас есть неподтвержденное объявление !\n\n" \
-                           f"Нажмите кнопку <b><i>«{confirm}»</i></b>, чтобы подтвердить"
-
-        if user[LANG] == LANGS[2]:
-            confirm = "<b><i>«Тасдиқлаш»</i></b>"
-            warning_text = "Сизда тасдиқланмаган еълон бор !\n\n" \
-                           f"Тасдиқлаш учун {confirm} тугмасини босинг"
-
-        warning_text = '\U000026A0 ' + warning_text
-        update.message.reply_html(warning_text, quote=True)
-
-        return user_input_data[STATE]
-
     if text == '/cancel':
 
         if user[LANG] == LANGS[0]:
@@ -989,7 +1073,7 @@ def txt_callback(update: Update, context: CallbackContext):
 
         if user[LANG] == LANGS[0]:
             warning_text = "Sizda tugallanmagan e'lon mavjud !\n\n" \
-                           "E'lonni bekor qilish uchun /cancel ni yuboring'"
+                           "E'lonni bekor qilish uchun /cancel ni yuboring"
 
         if user[LANG] == LANGS[1]:
             warning_text = "У вас есть незаконченное объявление !\n\n" \
@@ -999,8 +1083,28 @@ def txt_callback(update: Update, context: CallbackContext):
             warning_text = "Сизда тугалланмаган еълон мавжуд!\n\n" \
                            "Еълонни бекор қилиш учун /cancel ни юборинг"
 
+        if user_input_data[STATE] == CONFIRMATION:
+
+            if user[LANG] == LANGS[0]:
+                confirm = "<b><i>«Tasdiqlash»</i></b>"
+                warning_text = "Sizda tasdiqlanmagan e'lon bor !\n\n" \
+                               f"Tasdiqlash uchun  {confirm} tugmasini bosing\n\n" \
+                               "E'lonni bekor qilish uchun /cancel ni yuboring"
+
+            if user[LANG] == LANGS[1]:
+                confirm = "<b><i>«Подтвердить»</i></b>"
+                warning_text = "У вас есть неподтвержденное объявление !\n\n" \
+                               f"Нажмите кнопку <b><i>«{confirm}»</i></b>, чтобы подтвердить\n\n" \
+                               "Отправите /cancel , чтобы отменить объявление"
+
+            if user[LANG] == LANGS[2]:
+                confirm = "<b><i>«Тасдиқлаш»</i></b>"
+                warning_text = "Сизда тасдиқланмаган еълон бор !\n\n" \
+                               f"Тасдиқлаш учун {confirm} тугмасини босинг\n\n" \
+                               "Еълонни бекор қилиш учун /cancel ни юборинг"
+
         warning_text = '\U000026A0 ' + warning_text
-        update.message.reply_text(warning_text, quote=True)
+        update.message.reply_html(warning_text, quote=True)
 
         return user_input_data[STATE]
 
@@ -1166,7 +1270,9 @@ def skip_callback(update: Update, context: CallbackContext):
 
 new_cargo_conversation_handler = ConversationHandler(
     entry_points=[
-        MessageHandler(Filters.regex("(Yuk e'lon qilish|Объявить груз|Юк еълон қилиш)$"), new_cargo_callback)],
+        MessageHandler(Filters.regex("(Yuk e'lon qilish|Объявить груз|Юк еълон қилиш|test)$"), new_cargo_callback),
+        CallbackQueryHandler(new_cargo_callback, pattern=r'^(\d+_opened)$')
+    ],
 
     states={
         FROM_REGION: [CallbackQueryHandler(from_region_callback, pattern=r'^(\d+)$'),
