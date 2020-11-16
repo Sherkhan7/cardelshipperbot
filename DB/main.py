@@ -3,6 +3,7 @@ from contextlib import closing
 import json
 import datetime
 from config.config import DB_CONFIG
+from pprint import pprint
 
 
 def get_connection():
@@ -203,7 +204,8 @@ def get_cargo_by_id(cargo_id):
 def get_user_cargoes(id):
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM testdb.{cargoes_table_name} WHERE user_id = %s or user_tg_id = %s", (id, id))
+            sql = f"SELECT * FROM testdb.{cargoes_table_name} WHERE user_id = %s or user_tg_id = %s ORDER BY id DESC"
+            cursor.execute(sql, (id, id))
             cargoes = cursor.fetchall()
 
     return cargoes
@@ -221,3 +223,6 @@ def update_cargo_status(cargo_id, status):
         value = 'updated'
 
     return value
+
+
+# pprint(get_user_cargoes(2))
