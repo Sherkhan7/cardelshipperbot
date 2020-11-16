@@ -156,7 +156,7 @@ def fullname_callback(update: Update, context: CallbackContext):
         if user_input_data[LANG] == LANGS[2]:
             text = "Табриклаймиз !\n" \
                    "Сиз рўйхатдан мувофаққиятли ўтдингиз\n\n" \
-                   "Еълон беришингиз мумкин"
+                   "Эълон беришингиз мумкин"
 
         text = '\U0001F44F\U0001F44F\U0001F44F ' + text
 

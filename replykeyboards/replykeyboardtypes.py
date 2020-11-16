@@ -3,7 +3,7 @@ from replykeyboards.replykeyboardvariables import *
 reply_keyboard_types = {
     menu_keyboard: {
         "uz": {1: "Yuk e'lon qilish", 2: "Mashina e'lon qilish", 3: "Mening e'lonlarim", 4: "Sozlamalar"},
-        "cy": {1: "Юк еълон қилиш", 2: "Машина еълон қилиш", 3: "Менинг еълонларим", 4: "Созламалар"},
+        "cy": {1: "Юк эълон қилиш", 2: "Машина эълон қилиш", 3: "Менинг эълонларим", 4: "Созламалар"},
         "ru": {1: "Объявить груз", 2: "Объявить машину", 3: "Мои объявления", 4: "Настройки"}},
 
     settings_keyboard: {

@@ -41,7 +41,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                 reply_text = "У вас нет объявлений пока"
 
             if user[LANG] == LANGS[2]:
-                reply_text = "Сизда ҳали еълонлар мавжуд емас"
+                reply_text = "Сизда ҳали эълонлар мавжуд емас"
 
             reply_text = f'\U0001F615 {reply_text}'
             inline_keyboard = None

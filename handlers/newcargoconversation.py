@@ -106,7 +106,7 @@ def new_cargo_callback(update: Update, context: CallbackContext):
                 text = "Откуда (Выберите область)"
 
             if user[LANG] == LANGS[2]:
-                text = "Қайердан (Вилоятни танланг)"
+                text = "Қаердан (Вилоятни танланг)"
 
             text = f'{text} :'
             update.message.reply_text(update.message.text, reply_markup=ReplyKeyboardRemove())
@@ -171,7 +171,7 @@ def from_region_callback(update: Update, context: CallbackContext):
         text = 'Откуда (Выберите район)'
 
     if user[LANG] == LANGS[2]:
-        text = "Қайердан (Вилоятни танланг)"
+        text = "Қаердан (Вилоятни танланг)"
 
     text = f'{text}:'
 
@@ -205,7 +205,7 @@ def from_district_callback(update: Update, context: CallbackContext):
             text = "Откуда (Выберите область)"
 
         if user[LANG] == LANGS[2]:
-            text = "Қайердан (Вилоятни танланг)"
+            text = "Қаердан (Вилоятни танланг)"
 
         text = f'{text} :'
 
@@ -287,7 +287,7 @@ def from_location_callback(update: Update, context: CallbackContext):
             text_2 = "Куда (Выберите область)"
 
         if user[LANG] == LANGS[2]:
-            text_2 = "Қайерга (Вилоятни танланг)"
+            text_2 = "Қаерга (Вилоятни танланг)"
 
         text_1 = '\U0001F44D\U0001F44D\U0001F44D'
         text_2 = f'{text_2} :'
@@ -341,7 +341,7 @@ def to_region_callback(update: Update, context: CallbackContext):
         text = "Куда (Выберите район)"
 
     if user[LANG] == LANGS[2]:
-        text = "Қайерга (Туманни танланг)"
+        text = "Қаерга (Туманни танланг)"
 
     text = f'{text} :'
 
@@ -660,7 +660,7 @@ def cargo_definition_callback(update: Update, context: CallbackContext):
             cancel_text = "Объявление отменено"
 
         if user[LANG] == LANGS[2]:
-            cancel_text = "Еълон бекор қилинди"
+            cancel_text = "Эълон бекор қилинди"
 
         cancel_text = f'\U0000274C {cancel_text} !'
 
@@ -681,8 +681,8 @@ def cargo_definition_callback(update: Update, context: CallbackContext):
                            "Отправите /cancel , чтобы отменить объявление"
 
         if user[LANG] == LANGS[2]:
-            warning_text = "Сизда тугалланмаган еълон мавжуд !\n\n" \
-                           "Еълонни бекор қилиш учун /cancel ни юборинг"
+            warning_text = "Сизда тугалланмаган эълон мавжуд !\n\n" \
+                           "Эълонни бекор қилиш учун /cancel ни юборинг"
 
         text = f'\U000026A0 ' + warning_text
         update.message.reply_text(text, quote=True)
@@ -970,7 +970,7 @@ def confirmation_callback(update: Update, context: CallbackContext):
             text = 'Объявление подтверждено'
 
         if user[LANG] == LANGS[2]:
-            text = "Еълон тасдиқланди"
+            text = "Эълон тасдиқланди"
 
         text = f'\U00002705 {text} !'
 
@@ -1058,7 +1058,7 @@ def txt_callback(update: Update, context: CallbackContext):
             cancel_text = "Объявление отменено"
 
         if user[LANG] == LANGS[2]:
-            cancel_text = "Еълон бекор қилинди"
+            cancel_text = "Эълон бекор қилинди"
 
         cancel_text = f'\U0000274C {cancel_text} !'
         reply_keyboard = ReplyKeyboard(menu_keyboard, user[LANG]).get_keyboard()
@@ -1080,8 +1080,8 @@ def txt_callback(update: Update, context: CallbackContext):
                            "Отправите /cancel , чтобы отменить объявление"
 
         if user[LANG] == LANGS[2]:
-            warning_text = "Сизда тугалланмаган еълон мавжуд!\n\n" \
-                           "Еълонни бекор қилиш учун /cancel ни юборинг"
+            warning_text = "Сизда тугалланмаган эълон мавжуд!\n\n" \
+                           "Эълонни бекор қилиш учун /cancel ни юборинг"
 
         if user_input_data[STATE] == CONFIRMATION:
 
@@ -1100,9 +1100,9 @@ def txt_callback(update: Update, context: CallbackContext):
             if user[LANG] == LANGS[2]:
                 confirm = wrap_tags("«Тасдиқлаш»")
 
-                warning_text = "Сизда тасдиқланмаган еълон бор !\n\n" \
+                warning_text = "Сизда тасдиқланмаган эълон бор !\n\n" \
                                f"Тасдиқлаш учун {confirm} тугмасини босинг\n\n" \
-                               "Еълонни бекор қилиш учун /cancel ни юборинг"
+                               "Эълонни бекор қилиш учун /cancel ни юборинг"
 
         warning_text = '\U000026A0 ' + warning_text
         update.message.reply_html(warning_text, quote=True)
@@ -1271,7 +1271,7 @@ def skip_callback(update: Update, context: CallbackContext):
 
 new_cargo_conversation_handler = ConversationHandler(
     entry_points=[
-        MessageHandler(Filters.regex("(Yuk e'lon qilish|Объявить груз|Юк еълон қилиш|test)$"), new_cargo_callback),
+        MessageHandler(Filters.regex("(Yuk e'lon qilish|Объявить груз|Юк эълон қилиш|test)$"), new_cargo_callback),
         CallbackQueryHandler(new_cargo_callback, pattern=r'^(\d+_opened)$')
     ],
 
